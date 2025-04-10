@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { doc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
+import { QueryDocumentSnapshot } from "firebase/firestore";
 import {
     signInWithPopup,
     signOut,
@@ -39,7 +40,7 @@ export default function ShopDetail() {
     if (!id) return;
     const reviewRef = collection(db, "kitchens", String(id), "reviews");
     const snapshot = await getDocs(reviewRef);
-    const reviewList: Review[] = snapshot.docs.map((doc) => doc.data() as Review);
+    const reviewList: Review[] = snapshot.docs.map((doc: QueryDocumentSnapshot) => doc.data() as Review);
     setReviews(reviewList);
   };
   const [user, setUser] = useState<User | null>(null);
