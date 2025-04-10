@@ -9,6 +9,7 @@ import {
     User,
   } from "firebase/auth";
   import { auth, provider } from "@/lib/firebase";
+  import { Timestamp } from "firebase/firestore"; // 上部でインポート追加
 
 type Shop = {
   name: string;
@@ -16,12 +17,13 @@ type Shop = {
   image: string;
 };
 
+
 type Review = {
-    rating: number;
-    comment: string;
-    displayName: string;
-    createdAt?: any; // FirestoreのTimestamp型（後で型付け強化もできます）
-  };
+  rating: number;
+  comment: string;
+  displayName: string;
+  createdAt?: Timestamp;
+};
 
 export default function ShopDetail() {
   const router = useRouter();
