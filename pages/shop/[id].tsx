@@ -16,6 +16,13 @@ type Shop = {
   image: string;
 };
 
+type Review = {
+    rating: number;
+    comment: string;
+    displayName: string;
+    createdAt?: any; // FirestoreのTimestamp型（後で型付け強化もできます）
+  };
+
 export default function ShopDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -24,13 +31,13 @@ export default function ShopDetail() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [success, setSuccess] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const fetchReviews = async () => {
     if (!id) return;
     const reviewRef = collection(db, "kitchens", String(id), "reviews");
     const snapshot = await getDocs(reviewRef);
-    const reviewList = snapshot.docs.map((doc) => doc.data());
+    const reviewList: Review[] = snapshot.docs.map((doc) => doc.data() as Review);
     setReviews(reviewList);
   };
   const [user, setUser] = useState<User | null>(null);
