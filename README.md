@@ -39,6 +39,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
 
+<<<<<<< HEAD
 
 # Windowsユーザ用環境構築
 
@@ -84,3 +85,23 @@ npm run dev
 これを実行して、表示されたURLに行って表示されればOKです。
 
 
+=======
+# キッチンカー情報アプリ
+
+## 概要
+大学に来るキッチンカーの場所やレビューを確認できるWebアプリです。
+
+## URL
+🔗 https://kichen-car-app.vercel.app/
+
+## 使い方
+1. Googleでログイン
+2. キッチンカーを選択
+3. レビューを投稿・閲覧！
+
+## 開発技術
+- Next.js (React)
+- Firebase (Auth, Firestore)
+- TypeScript
+- Tailwind CSS
+>>>>>>> ee3dbde (README.md編集)
