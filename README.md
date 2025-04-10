@@ -38,3 +38,49 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+
+
+# Windowsユーザ用環境構築
+
+[npmをインストールする](https://nodejs.org/ja/)
+
+出来たら再起動する
+
+再起動したらpowerShellを管理者で実行する
+
+```ps
+Set-ExecutionPolicy RemoteSigned
+```
+
+を実行して 「Y」 で承認する
+
+次に、VScodeでリポジトリをクローンする
+
+クローンしたら次は、
+
+VSCODEのTerminalに
+```bash
+node -v; npm -v
+```
+
+これでバージョンが表示されたらOK
+
+次に、
+```bash
+npm install next react react-dom
+```
+
+を実行する
+
+**実行には時間がかかるのでここでトイレや喫煙もしくは0721を行っておくこと**
+
+次に、
+プロジェクトルートに瑶太からもらった`.env.local`をプロジェクトルートに置く
+
+```bash
+npm run dev
+```
+
+これを実行して、表示されたURLに行って表示されればOKです。
+
+
