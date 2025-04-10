@@ -1,6 +1,19 @@
-import "@/styles/globals.css";
+// pages/_app.tsx
+import '@/styles/globals.css';
+import '@/styles/mypage.css'; // ここに移動
 import type { AppProps } from "next/app";
+import Head from "next/head";
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <>
+      <Head>
+        <title>キッチンカー探し | 地元で人気のキッチンカーを見つけよう</title>
+        <meta name="description" content="お近くの美味しいキッチンカーをすぐに見つけられるアプリ。ユーザーのレビューやお気に入り機能も充実。" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <Component {...pageProps} />
+    </>
+  );
 }

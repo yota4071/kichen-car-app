@@ -1,0 +1,277 @@
+/* ShopDetail.module.css */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .shopHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  @media (min-width: 768px) {
+    .shopHeader {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+  
+  .shopImage {
+    width: 100%;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (min-width: 768px) {
+    .shopImage {
+      flex: 0 0 50%;
+      max-width: 500px;
+    }
+  }
+  
+  .shopImage img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .shopInfo {
+    flex: 1;
+  }
+  
+  .shopName {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #1a202c;
+  }
+  
+  .shopLocation {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+  }
+  
+  .shopLocation svg {
+    margin-right: 0.5rem;
+  }
+  
+  .typeBadge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #EDF2F7;
+    color: #4A5568;
+    border-radius: 9999px;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  
+  .loginSection {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .loginButton {
+    background-color: #4299e1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .loginButton:hover {
+    background-color: #3182ce;
+  }
+  
+  .logoutButton {
+    background-color: #e53e3e;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .logoutButton:hover {
+    background-color: #c53030;
+  }
+  
+  .reviewCard {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #edf2f7;
+  }
+  
+  .reviewForm {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    border: 1px solid #edf2f7;
+  }
+  
+  .formTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+  }
+  
+  .input, .textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+  }
+  
+  .submitButton {
+    background-color: #48bb78;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .submitButton:hover {
+    background-color: #38a169;
+  }
+  
+  .successMessage {
+    color: #38a169;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f0fff4;
+    border-radius: 0.5rem;
+    border: 1px solid #c6f6d5;
+  }
+  
+  .reviewsSection {
+    margin-top: 3rem;
+  }
+  
+  .reviewsTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+  }
+  
+  .noReviews {
+    color: #718096;
+    font-style: italic;
+  }
+  
+  .reviewsList {
+    display: grid;
+    gap: 1.5rem;
+  }
+  
+  .reviewItem {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    border: 1px solid #edf2f7;
+  }
+  
+  .ratingStars {
+    color: #f6ad55;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .reviewComment {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .reviewAuthor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-size: 0.875rem;
+  }
+  
+  .reviewAuthor svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .reviewDate {
+    color: #a0aec0;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+  }
+  
+  .tab {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .activeTab {
+    color: #4299e1;
+    border-bottom: 2px solid #4299e1;
+  }
+  
+  .section {
+    margin-bottom: 3rem;
+  }
