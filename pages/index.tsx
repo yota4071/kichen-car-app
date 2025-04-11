@@ -117,7 +117,7 @@ export default function Home() {
         <div className="container">
           <div className="hero-content">
             <h1 className="hero-title">あなたの近くの美味しい<br />キッチンカーを見つけよう</h1>
-            <p className="hero-description">地元で人気のキッチンカーを検索して、新しい味の発見を楽しみましょう</p>
+            <p className="hero-description">立命館大学で人気のキッチンカーを検索して、新しい味の発見を楽しみましょう</p>
             
             <form onSubmit={handleSearch} className="hero-search">
               <input
