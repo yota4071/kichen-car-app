@@ -12,7 +12,7 @@ type LayoutProps = {
 
 export default function Layout({ 
   children, 
-  title = 'キッチンカー探し | 地元で人気のキッチンカーを見つけよう', 
+  title = 'NomNom! | 地元で人気のキッチンカーを見つけよう', 
   description = 'お近くの美味しいキッチンカーをすぐに見つけられるアプリ。ユーザーのレビューやお気に入り機能も充実。'
 }: LayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
