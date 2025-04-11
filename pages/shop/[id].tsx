@@ -131,49 +131,55 @@ export default function ShopDetail() {
     }
   };
 
+  const isValidInput = (input: string): boolean => {
+    const pattern = /^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F\w\s\-\$\¥\~]*$/;
+    return pattern.test(input);
+  };
+  
   const handleReviewSubmit = async (rating: number, comment: string) => {
     if (!user || !id) return;
-    
+  
+    // 🔒 入力チェック（コメントに使える文字だけ許可）
+    if (!isValidInput(comment)) {
+      alert("コメントには日本語・英数字・-・$・¥・~ のみ使用できます。");
+      return;
+    }
+  
     setIsSubmitting(true);
     try {
-      // ユーザープロフィールから表示名を取得
       const userProfileRef = doc(db, "users", user.uid);
       const userProfileSnap = await getDoc(userProfileRef);
       const userProfile = userProfileSnap.exists() ? userProfileSnap.data() : null;
-      
-      // 表示名の決定（優先順位: プロフィールの表示名 > 匿名ID）
+  
       const displayName = userProfile?.displayName || `匿名ユーザー${user.uid.slice(-4)}`;
-      
-      // キッチンカーのレビューコレクションに追加
+  
       const reviewData = {
         rating,
         comment,
-        displayName: displayName, // プロフィールの表示名を使用
+        displayName,
         createdAt: serverTimestamp(),
         userId: user.uid,
         likes: 0,
-        likedBy: [] // いいねしたユーザーのIDを格納する配列
+        likedBy: [],
       };
-      
-      // キッチンカーのレビューに追加
-      const docRef = await addDoc(collection(db, "kitchens", String(id), "reviews"), reviewData);
-      
-      // ユーザーのレビュー履歴にも追加
+  
+      const docRef = await addDoc(
+        collection(db, "kitchens", String(id), "reviews"),
+        reviewData
+      );
+  
       if (shop) {
         await addDoc(collection(db, "users", user.uid, "reviews"), {
           ...reviewData,
           shopId: id,
           shopName: shop.name,
-          reviewId: docRef.id
+          reviewId: docRef.id,
         });
       }
-      
+  
       setSuccessMessage("レビューが投稿されました！");
-      
-      // レビュー一覧を更新
       await fetchReviews();
-      
-      // 3秒後にメッセージを消す
+  
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
