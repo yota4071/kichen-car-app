@@ -10,7 +10,7 @@ type HeaderProps = {
   toggleDarkMode?: () => void;
 };
 
-export default function Header({ isDarkMode, toggleDarkMode }: HeaderProps) {
+export default function Header({  }: HeaderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

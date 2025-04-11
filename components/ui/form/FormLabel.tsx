@@ -1,4 +1,6 @@
 // components/ui/form/FormLabel.tsx
+import React, { ReactNode } from 'react';
+
 type FormLabelProps = {
     children: ReactNode;
     htmlFor?: string;

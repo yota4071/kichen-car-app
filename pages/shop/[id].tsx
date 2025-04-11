@@ -1,4 +1,5 @@
 // pages/shop/[id].tsx
+//eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useRouter } from "next/router";
 import { doc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -7,7 +8,7 @@ import { QueryDocumentSnapshot } from "firebase/firestore";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
-import Link from "next/link";
+//import Link from "next/link";
 import styles from "../../styles/ShopDetail.module.css";
 
 // コンポーネントのインポート
