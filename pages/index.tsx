@@ -1,9 +1,14 @@
+// pages/index.tsx
 import { useEffect, useState, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { onAuthStateChanged, User, signInWithPopup, signOut } from "firebase/auth";
-import { auth, provider } from "@/lib/firebase";
 import Link from "next/link";
+
+// コンポーネントのインポート
+import Layout from "@/components/Layout";
+import ShopCard from "@/components/shop/ShopCard";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
+import Button from "@/components/ui/Button";
 
 type Shop = {
   id: string;
@@ -15,39 +20,22 @@ type Shop = {
 
 export default function Home() {
   const [shops, setShops] = useState<Shop[]>([]);
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // ログイン処理
-  const handleLogin = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error("ログインエラー", err);
-    }
-  };
-
-  // ログアウト処理
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.error("ログアウトエラー", err);
-    }
-  };
-
-  // ユーザー認証状態の監視
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-    
-    return () => unsubscribe();
-  }, []);
+  // カテゴリーリスト
+  const categories = [
+    "すべて",
+    "和食",
+    "洋食",
+    "中華",
+    "アジア料理",
+    "スイーツ",
+    "ドリンク",
+    "その他"
+  ];
 
   // キッチンカーデータの取得
   useEffect(() => {
@@ -69,18 +57,6 @@ export default function Home() {
 
     fetchShops();
   }, []);
-
-  // カテゴリーリスト
-  const categories = [
-    "すべて",
-    "和食",
-    "洋食",
-    "中華",
-    "アジア料理",
-    "スイーツ",
-    "ドリンク",
-    "その他"
-  ];
 
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
@@ -104,94 +80,11 @@ export default function Home() {
     return matchesSearch && matchesCategory;
   });
 
-  // おすすめのキッチンカー（ダミーデータ）
+  // おすすめのキッチンカー（最初の3件を表示）
   const featuredShops = shops.slice(0, 3);
 
   return (
-    <div>
-      {/* ヘッダー */}
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <Link href="/" className="logo">
-              キッチンカー探し
-            </Link>
-
-            <nav>
-              <ul className="nav-list">
-                <li><Link href="/" className="nav-link">ホーム</Link></li>
-                <li><Link href="/categories" className="nav-link">カテゴリー</Link></li>
-                <li><Link href="/map" className="nav-link">マップ</Link></li>
-              </ul>
-            </nav>
-
-            <div className="search-bar">
-              <form onSubmit={handleSearch}>
-                <input
-                  type="text"
-                  placeholder="キッチンカーを検索..."
-                  className="search-input"
-                />
-                <span className="search-icon">🔍</span>
-              </form>
-            </div>
-
-            {user ? (
-              <div className="user-menu">
-                <Link href="/mypage" className="nav-link">
-                  マイページ
-                </Link>
-                <button onClick={handleLogout} className="login-button">
-                  ログアウト
-                </button>
-              </div>
-            ) : (
-              <button onClick={handleLogin} className="login-button">
-                ログイン
-              </button>
-            )}
-
-            <button
-              className="mobile-menu-button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? "✕" : "☰"}
-            </button>
-          </div>
-        </div>
-
-        {/* モバイルメニュー */}
-        <div className={`mobile-menu ${isMenuOpen ? 'active' : ''}`}>
-          <div className="container">
-            <form onSubmit={handleSearch} className="mobile-search">
-              <input
-                type="text"
-                placeholder="キッチンカーを検索..."
-                className="search-input"
-              />
-              <span className="search-icon">🔍</span>
-            </form>
-            <ul>
-              <li className="mobile-nav-item"><Link href="/">ホーム</Link></li>
-              <li className="mobile-nav-item"><Link href="/categories">カテゴリー</Link></li>
-              <li className="mobile-nav-item"><Link href="/map">マップ</Link></li>
-              {user ? (
-                <>
-                  <li className="mobile-nav-item"><Link href="/mypage">マイページ</Link></li>
-                  <li className="mobile-nav-item">
-                    <button onClick={handleLogout}>ログアウト</button>
-                  </li>
-                </>
-              ) : (
-                <li className="mobile-nav-item">
-                  <button onClick={handleLogin}>ログイン</button>
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
-      </header>
-
+    <Layout>
       {/* ヒーローセクション */}
       <section className="hero">
         <div className="container">
@@ -228,26 +121,14 @@ export default function Home() {
 
             <div className="shop-grid">
               {featuredShops.map((shop) => (
-                <Link key={`featured-${shop.id}`} href={`/shop/${shop.id}`} className="shop-card">
-                  <div className="shop-image-container">
-                    <img src={shop.image} alt={shop.name} className="shop-image" />
-                    <div className="shop-type">{shop.type}</div>
-                  </div>
-                  <div className="shop-details">
-                    <h3 className="shop-name">{shop.name}</h3>
-                    <div className="shop-location">📍 {shop.location}</div>
-                    <div className="rating">
-                      <div className="stars">
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">☆</span>
-                      </div>
-                      <span>(18)</span>
-                    </div>
-                  </div>
-                </Link>
+                <ShopCard
+                  key={`featured-${shop.id}`}
+                  id={shop.id}
+                  name={shop.name}
+                  location={shop.location}
+                  image={shop.image}
+                  type={shop.type}
+                />
               ))}
             </div>
           </div>
@@ -299,30 +180,18 @@ export default function Home() {
 
           {/* キッチンカー一覧 */}
           {isLoading ? (
-            <div style={{ textAlign: 'center', padding: '3rem 0' }}>読み込み中...</div>
+            <LoadingIndicator />
           ) : filteredShops.length > 0 ? (
             <div className="shop-grid">
               {filteredShops.map((shop) => (
-                <Link key={shop.id} href={`/shop/${shop.id}`} className="shop-card">
-                  <div className="shop-image-container">
-                    <img src={shop.image} alt={shop.name} className="shop-image" />
-                    <div className="shop-type">{shop.type}</div>
-                  </div>
-                  <div className="shop-details">
-                    <h3 className="shop-name">{shop.name}</h3>
-                    <div className="shop-location">📍 {shop.location}</div>
-                    <div className="rating">
-                      <div className="stars">
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">★</span>
-                        <span className="star">☆</span>
-                      </div>
-                      <span>(18)</span>
-                    </div>
-                  </div>
-                </Link>
+                <ShopCard
+                  key={shop.id}
+                  id={shop.id}
+                  name={shop.name}
+                  location={shop.location}
+                  image={shop.image}
+                  type={shop.type}
+                />
               ))}
             </div>
           ) : (
@@ -342,9 +211,9 @@ export default function Home() {
               <p className="cta-description">
                 現在地周辺のキッチンカーをマップで簡単に見つけることができます。お気に入りのキッチンカーを見つけて、美味しい食事を楽しみましょう。
               </p>
-              <Link href="/map" className="cta-button">
+              <Button href="/map" variant="primary" className="cta-button">
                 マップを開く
-              </Link>
+              </Button>
             </div>
             <div className="cta-image">
               <div className="map-placeholder">
@@ -354,41 +223,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* フッター */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-column">
-              <h3>キッチンカー探し</h3>
-              <p style={{ color: '#718096', marginBottom: '1rem' }}>
-                お近くの美味しいキッチンカーをすぐに見つけられるアプリ
-              </p>
-            </div>
-            
-            <div className="footer-column">
-              <h3>リンク</h3>
-              <div className="footer-links">
-                <Link href="/" className="footer-link">ホーム</Link>
-                <Link href="/categories" className="footer-link">カテゴリー</Link>
-                <Link href="/map" className="footer-link">マップ</Link>
-                <Link href="/about" className="footer-link">サイトについて</Link>
-              </div>
-            </div>
-            
-            <div className="footer-column">
-              <h3>お問い合わせ</h3>
-              <div className="footer-links">
-                <Link href="/contact" className="footer-link">お問い合わせフォーム</Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="footer-bottom">
-            <p>&copy; {new Date().getFullYear()} キッチンカー探し. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </Layout>
   );
 }

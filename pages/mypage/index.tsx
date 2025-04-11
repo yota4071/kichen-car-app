@@ -1,11 +1,22 @@
+// pages/mypage/index.tsx
 import { useEffect, useState } from "react";
-import { auth, db } from "@/lib/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/router";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-import Link from "next/link";
 import { Timestamp } from "firebase/firestore";
 
+// コンポーネントのインポート
+import Layout from "@/components/Layout";
+import ProfileContainer from "@/components/profile/ProfileContainer";
+import ProfileInfo from "@/components/profile/ProfileInfo";
+import ProfileComment from "@/components/profile/ProfileComment";
+import ProfileCompletion from "@/components/profile/ProfileCompletion";
+import NoticeBanner from "@/components/NoticeBanner";
+import StatsContainer from "@/components/profile/StatsContainer";
+import ActivitySection from "@/components/profile/ActivitySection";
+import Button from "@/components/ui/Button";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
 type UserProfile = {
   displayName: string;
@@ -44,7 +55,7 @@ export default function MyPage() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const fetchUserData = async (userId: string) => {
     try {
@@ -95,8 +106,6 @@ export default function MyPage() {
     setCompletionPercentage(percentage);
   };
 
-  
-
   // 登録日の表示形式変更
   const formatDate = (timestamp: Timestamp | null) => {
     if (!timestamp) return "";
@@ -108,197 +117,58 @@ export default function MyPage() {
     }).format(date);
   };
 
-  if (isLoading) return (
-    <div className="container" style={{ padding: '5rem 1rem', textAlign: 'center' }}>
-      <div className="loading">
-        <p>読み込み中...</p>
-      </div>
-    </div>
-  );
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
   return (
-    <div className="container">
-      {/* ヘッダー */}
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <Link href="/" className="logo">
-              キッチンカー探し
-            </Link>
+    <Layout>
+      <ProfileContainer
+        title="マイページ"
+        email={user?.email || ""}
+      >
+        {/* お知らせバナー */}
+        {completionPercentage < 100 && (
+          <NoticeBanner
+            title="プロフィールを完成させましょう"
+            message="プロフィールを完成させることで、より多くの機能が利用できるようになります。"
+          />
+        )}
 
-            <nav>
-              <ul className="nav-list">
-                <li><Link href="/" className="nav-link">ホーム</Link></li>
-                <li><Link href="/categories" className="nav-link">カテゴリー</Link></li>
-                <li><Link href="/map" className="nav-link">マップ</Link></li>
-              </ul>
-            </nav>
-          </div>
+        {/* プロフィール完成度 */}
+        <ProfileCompletion percentage={completionPercentage} />
+
+        {/* 統計情報 */}
+        <StatsContainer
+          reviewCount={reviews.length}
+          favoritesCount={0}
+          registrationYear={profile?.createdAt ? formatDate(profile.createdAt).split('年')[0] : '-'}
+        />
+
+        {/* プロフィール情報 */}
+        <ProfileInfo
+          displayName={profile?.displayName}
+          birthday={profile?.birthday}
+          gender={profile?.gender}
+          favoriteTypes={profile?.favoriteTypes}
+        />
+
+        {/* 自己紹介 */}
+        <ProfileComment comment={profile?.comment} />
+
+        {/* 最近のレビュー */}
+        <ActivitySection 
+          title="最近のレビュー"
+          reviews={reviews}
+          formatDate={formatDate}
+        />
+
+        {/* アクション */}
+        <div className="profile-actions">
+          <Button href="/" variant="secondary">ホームに戻る</Button>
+          <Button href="/mypage/edit" variant="primary">プロフィールを編集する</Button>
         </div>
-      </header>
-
-      <div className="profile-container">
-        <div className="profile-header">
-          <div className="profile-header-content">
-            <h1 className="profile-title">マイページ</h1>
-            <p className="profile-subtitle">
-              {user?.email}
-            </p>
-          </div>
-          <div className="profile-header-pattern"></div>
-        </div>
-
-
-        <div className="profile-body">
-          {/* お知らせバナー */}
-          {completionPercentage < 100 && (
-            <div className="notice-banner">
-              <div className="notice-icon">ℹ️</div>
-              <div className="notice-content">
-                <div className="notice-title">プロフィールを完成させましょう</div>
-                <div className="notice-message">
-                  プロフィールを完成させることで、より多くの機能が利用できるようになります。
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* プロフィール完成度 */}
-          <div className="completion-container">
-            <div className="completion-info">
-              <span className="completion-label">プロフィール完成度</span>
-              <span className="completion-percentage">{completionPercentage}%</span>
-            </div>
-            <div className="completion-bar">
-              <div className="completion-progress" style={{ width: `${completionPercentage}%` }}></div>
-            </div>
-          </div>
-
-          {/* 統計情報 */}
-          <div className="stats-container">
-            <div className="stat-card">
-              <div className="stat-value">{reviews.length}</div>
-              <div className="stat-label">投稿したレビュー</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">0</div>
-              <div className="stat-label">お気に入り</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">
-                {profile?.createdAt ? formatDate(profile.createdAt).split('年')[0] : '-'}
-              </div>
-              <div className="stat-label">登録年</div>
-            </div>
-          </div>
-
-          <div className="profile-info">
-            <div className="profile-detail">
-              <span className="detail-label">表示名</span>
-              <div className="detail-value">
-                {profile?.displayName ? profile.displayName : (
-                  <span className="detail-value empty">未設定</span>
-                )}
-              </div>
-            </div>
-
-            <div className="profile-detail">
-              <span className="detail-label">生年月日</span>
-              <div className="detail-value">
-                {profile?.birthday ? profile.birthday : (
-                  <span className="detail-value empty">未設定</span>
-                )}
-              </div>
-            </div>
-
-            <div className="profile-detail">
-              <span className="detail-label">性別</span>
-              <div className="detail-value">
-                {profile?.gender ? profile.gender : (
-                  <span className="detail-value empty">未設定</span>
-                )}
-              </div>
-            </div>
-
-            {profile?.favoriteTypes && profile.favoriteTypes.length > 0 && (
-              <div className="profile-detail">
-                <span className="detail-label">好きな料理タイプ</span>
-                <div className="detail-value">
-                  {profile.favoriteTypes.map(type => (
-                    <span key={type} className="favorite-badge">{type}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="profile-comment">
-            <span className="detail-label">自己紹介</span>
-            <div className={`comment-content ${!profile?.comment ? 'empty' : ''}`}>
-              {profile?.comment || '自己紹介は設定されていません'}
-            </div>
-          </div>
-
-          {/* 最近のレビュー */}
-          {reviews.length > 0 && (
-            <div className="activity-section">
-              <h2 className="activity-heading">最近のレビュー</h2>
-              <div className="activity-list">
-                {reviews.map((review, index) => (
-                  <div key={index} className="activity-item">
-                    <div className="activity-date">
-                      {review.createdAt ? formatDate(review.createdAt) : '日付不明'}
-                    </div>
-                    <div className="activity-content">
-                      <strong>{review.shopName}</strong>：{review.rating}★ - {review.comment}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="profile-actions">
-            <Link href="/" className="btn btn-secondary">ホームに戻る</Link>
-            <Link href="/mypage/edit" className="btn btn-primary">プロフィールを編集する</Link>
-          </div>
-        </div>
-      </div>
-
-      {/* フッター */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-column">
-              <h3>キッチンカー探し</h3>
-              <p style={{ color: '#718096', marginBottom: '1rem' }}>
-                お近くの美味しいキッチンカーをすぐに見つけられるアプリ
-              </p>
-            </div>
-            
-            <div className="footer-column">
-              <h3>リンク</h3>
-              <div className="footer-links">
-                <Link href="/" className="footer-link">ホーム</Link>
-                <Link href="/categories" className="footer-link">カテゴリー</Link>
-                <Link href="/map" className="footer-link">マップ</Link>
-                <Link href="/about" className="footer-link">サイトについて</Link>
-              </div>
-            </div>
-            
-            <div className="footer-column">
-              <h3>お問い合わせ</h3>
-              <div className="footer-links">
-                <Link href="/contact" className="footer-link">お問い合わせフォーム</Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="footer-bottom">
-            <p>&copy; {new Date().getFullYear()} キッチンカー探し. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </ProfileContainer>
+    </Layout>
   );
 }
