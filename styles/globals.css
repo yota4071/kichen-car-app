@@ -541,3 +541,36 @@ img {
     font-size: 1.75rem;
   }
 }
+
+/* styles/globals.cssに追加 */
+
+/* 改良された星評価のスタイル */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rating-stars {
+  display: flex;
+  align-items: center;
+}
+
+.review-count {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* サイズバリエーション */
+.rating-stars.text-sm {
+  font-size: 0.875rem;
+}
+
+.rating-stars.text-base {
+  font-size: 1rem;
+}
+
+.rating-stars.text-lg {
+  font-size: 1.25rem;
+}

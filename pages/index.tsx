@@ -1,6 +1,6 @@
 // pages/index.tsx
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where, getDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 
@@ -16,6 +16,8 @@ type Shop = {
   location: string;
   image: string;
   type: string;
+  rating?: number;
+  reviewCount?: number;
 };
 
 export default function Home() {
@@ -43,10 +45,33 @@ export default function Home() {
       setIsLoading(true);
       try {
         const querySnapshot = await getDocs(collection(db, "kitchens"));
-        const shopList: Shop[] = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Shop, "id">),
-        }));
+        const shopPromises = querySnapshot.docs.map(async (docSnapshot) => {
+          const shopData = docSnapshot.data() as Omit<Shop, "id" | "rating" | "reviewCount">;
+          const shopId = docSnapshot.id;
+          
+          // レビューコレクションを取得して平均評価とレビュー数を計算
+          const reviewsSnapshot = await getDocs(collection(db, "kitchens", shopId, "reviews"));
+          const reviewCount = reviewsSnapshot.docs.length;
+          
+          // 平均評価を計算
+          let avgRating = 0;
+          if (reviewCount > 0) {
+            const totalRating = reviewsSnapshot.docs.reduce((sum, reviewDoc) => {
+              const reviewData = reviewDoc.data();
+              return sum + (reviewData.rating || 0);
+            }, 0);
+            avgRating = totalRating / reviewCount;
+          }
+          
+          return {
+            id: shopId,
+            ...shopData,
+            rating: avgRating,
+            reviewCount: reviewCount
+          };
+        });
+        
+        const shopList = await Promise.all(shopPromises);
         setShops(shopList);
       } catch (error) {
         console.error("Error fetching shops:", error);
@@ -80,8 +105,10 @@ export default function Home() {
     return matchesSearch && matchesCategory;
   });
 
-  // おすすめのキッチンカー（最初の3件を表示）
-  const featuredShops = shops.slice(0, 3);
+  // おすすめのキッチンカー（評価が高い順に3件）
+  const featuredShops = [...shops]
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 3);
 
   return (
     <Layout>
@@ -128,6 +155,8 @@ export default function Home() {
                   location={shop.location}
                   image={shop.image}
                   type={shop.type}
+                  rating={shop.rating || 0}
+                  reviewCount={shop.reviewCount || 0}
                 />
               ))}
             </div>
@@ -191,6 +220,8 @@ export default function Home() {
                   location={shop.location}
                   image={shop.image}
                   type={shop.type}
+                  rating={shop.rating || 0}
+                  reviewCount={shop.reviewCount || 0}
                 />
               ))}
             </div>
