@@ -1,14 +1,15 @@
 // pages/shop/[id].tsx
-//eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useRouter } from "next/router";
-import { doc, getDoc, getDocs, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { 
+  doc, getDoc, getDocs, collection, addDoc, serverTimestamp, 
+  updateDoc, arrayUnion, arrayRemove, query, where
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { QueryDocumentSnapshot } from "firebase/firestore";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
-//import Link from "next/link";
 import styles from "../../styles/ShopDetail.module.css";
 
 // コンポーネントのインポート
@@ -29,18 +30,20 @@ type Shop = {
 };
 
 type Review = {
+  id: string;
   rating: number;
   comment: string;
   displayName: string;
   createdAt?: Timestamp;
+  likes: number;
+  likedBy: string[];
+  userLiked?: boolean;
 };
 
 export default function ShopDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [shop, setShop] = useState<Shop | null>(null);
-  const [rating, setRating] = useState(5);
-  const [comment, setComment] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -66,7 +69,7 @@ export default function ShopDetail() {
     };
     
     fetchData();
-  }, [id]);
+  }, [id, user]);
 
   const fetchShop = async () => {
     if (!id) return;
@@ -88,13 +91,24 @@ export default function ShopDetail() {
     try {
       const reviewRef = collection(db, "kitchens", String(id), "reviews");
       const snapshot = await getDocs(reviewRef);
-      const reviewList: Review[] = snapshot.docs.map((doc: QueryDocumentSnapshot) => doc.data() as Review);
       
-      // レビューを日付順に並べ替え（新しい順）
-      reviewList.sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0;
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
+      const reviewList: Review[] = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+        const data = doc.data();
+        const likedBy = data.likedBy || [];
+        
+        return {
+          id: doc.id,
+          rating: data.rating,
+          comment: data.comment,
+          displayName: data.displayName || '匿名ユーザー',
+          createdAt: data.createdAt,
+          likes: likedBy.length,
+          likedBy: likedBy,
+          // 現在のユーザーがいいねしているかどうかをチェック
+          userLiked: user ? likedBy.includes(user.uid) : false
+        };
       });
+      
       setReviews(reviewList);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -117,60 +131,91 @@ export default function ShopDetail() {
     }
   };
 
-  // pages/shop/[id].tsx の handleReviewSubmit 関数の修正
-
-const handleReviewSubmit = async (rating: number, comment: string) => {
-  if (!user || !id) return;
-  
-  setIsSubmitting(true);
-  try {
-    // ユーザープロフィールから表示名を取得
-    const userProfileRef = doc(db, "users", user.uid);
-    const userProfileSnap = await getDoc(userProfileRef);
-    const userProfile = userProfileSnap.exists() ? userProfileSnap.data() : null;
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    if (!user || !id) return;
     
-    // 表示名の決定（優先順位: プロフィールの表示名 > 匿名ID）
-    const displayName = userProfile?.displayName || `匿名ユーザー${user.uid.slice(-4)}`;
-    
-    // キッチンカーのレビューコレクションに追加
-    const reviewData = {
-      rating,
-      comment,
-      displayName: displayName, // プロフィールの表示名を使用
-      createdAt: serverTimestamp(),
-      userId: user.uid,
-    };
-    
-    // キッチンカーのレビューに追加
-    await addDoc(collection(db, "kitchens", String(id), "reviews"), reviewData);
-    
-    // ユーザーのレビュー履歴にも追加
-    if (shop) {
-      await addDoc(collection(db, "users", user.uid, "reviews"), {
-        ...reviewData,
-        shopId: id,
-        shopName: shop.name,
-      });
+    setIsSubmitting(true);
+    try {
+      // ユーザープロフィールから表示名を取得
+      const userProfileRef = doc(db, "users", user.uid);
+      const userProfileSnap = await getDoc(userProfileRef);
+      const userProfile = userProfileSnap.exists() ? userProfileSnap.data() : null;
+      
+      // 表示名の決定（優先順位: プロフィールの表示名 > 匿名ID）
+      const displayName = userProfile?.displayName || `匿名ユーザー${user.uid.slice(-4)}`;
+      
+      // キッチンカーのレビューコレクションに追加
+      const reviewData = {
+        rating,
+        comment,
+        displayName: displayName, // プロフィールの表示名を使用
+        createdAt: serverTimestamp(),
+        userId: user.uid,
+        likes: 0,
+        likedBy: [] // いいねしたユーザーのIDを格納する配列
+      };
+      
+      // キッチンカーのレビューに追加
+      const docRef = await addDoc(collection(db, "kitchens", String(id), "reviews"), reviewData);
+      
+      // ユーザーのレビュー履歴にも追加
+      if (shop) {
+        await addDoc(collection(db, "users", user.uid, "reviews"), {
+          ...reviewData,
+          shopId: id,
+          shopName: shop.name,
+          reviewId: docRef.id
+        });
+      }
+      
+      setSuccessMessage("レビューが投稿されました！");
+      
+      // レビュー一覧を更新
+      await fetchReviews();
+      
+      // 3秒後にメッセージを消す
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("レビューの投稿に失敗しました。もう一度お試しください。");
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setSuccessMessage("レビューが投稿されました！");
-    setRating(5);
-    setComment("");
-    
-    // レビュー一覧を更新
-    await fetchReviews();
-    
-    // 3秒後にメッセージを消す
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 3000);
-  } catch (error) {
-    console.error("Error submitting review:", error);
-    alert("レビューの投稿に失敗しました。もう一度お試しください。");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
+
+  const handleLikeReview = async (reviewId: string) => {
+    if (!user || !id) {
+      alert("いいねするにはログインしてください");
+      return;
+    }
+
+    try {
+      const reviewRef = doc(db, "kitchens", String(id), "reviews", reviewId);
+      const reviewSnap = await getDoc(reviewRef);
+      
+      if (reviewSnap.exists()) {
+        const reviewData = reviewSnap.data();
+        const likedBy = reviewData.likedBy || [];
+        
+        // すでにいいねしている場合は何もしない
+        if (likedBy.includes(user.uid)) {
+          return;
+        }
+        
+        // いいねを追加
+        await updateDoc(reviewRef, {
+          likedBy: arrayUnion(user.uid)
+        });
+        
+        // レビュー一覧を更新
+        await fetchReviews();
+      }
+    } catch (error) {
+      console.error("Error liking review:", error);
+    }
+  };
   
   // 日付のフォーマット関数
   const formatDate = (timestamp: Timestamp | null) => {
@@ -230,12 +275,12 @@ const handleReviewSubmit = async (rating: number, comment: string) => {
             
             {/* レビュー平均 */}
             {reviews.length > 0 && (
-              <div className="mt-4 flex items-center">
+              <div className="review-stats">
                 <RatingStars 
                   rating={reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length} 
                   size="lg" 
                 />
-                <span className="ml-2 text-gray-600">
+                <span className="review-count">
                   ({reviews.length}件のレビュー)
                 </span>
               </div>
@@ -284,24 +329,24 @@ const handleReviewSubmit = async (rating: number, comment: string) => {
         {/* タブコンテンツ */}
         {activeTab === 'info' ? (
           <div className={styles.section}>
-            <h2 className="text-xl font-bold mb-4">キッチンカー情報</h2>
+            <h2 className="section-title">キッチンカー情報</h2>
             
             {shop.description ? (
-              <p className="mb-4">{shop.description}</p>
+              <p className="shop-description">{shop.description}</p>
             ) : (
-              <p className="mb-4">このキッチンカーは、{shop.location}で営業しています。{shop.type}を提供しており、美味しい料理をお楽しみいただけます。</p>
+              <p className="shop-description">このキッチンカーは、{shop.location}で営業しています。{shop.type}を提供しており、美味しい料理をお楽しみいただけます。</p>
             )}
             
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-bold mb-2">営業情報</h3>
+            <div className="shop-detail-box">
+              <h3 className="detail-heading">営業情報</h3>
               <p>営業場所: {shop.location}</p>
               <p>料理ジャンル: {shop.type || "不明"}</p>
-              <p className="text-gray-500 text-sm mt-2">※営業時間は日によって異なる場合があります。詳細はお問い合わせください。</p>
+              <p className="detail-note">※営業時間は日によって異なる場合があります。詳細はお問い合わせください。</p>
             </div>
           </div>
         ) : (
           <div className={styles.section}>
-            <h2 className="text-xl font-bold mb-4">レビュー</h2>
+            <h2 className="section-title">レビュー</h2>
             
             {/* レビューフォーム */}
             {user ? (
@@ -325,13 +370,14 @@ const handleReviewSubmit = async (rating: number, comment: string) => {
               <ReviewList
                 reviews={reviews}
                 formatDate={(date) => date instanceof Timestamp ? formatDate(date) : ""}
+                onLikeReview={handleLikeReview}
               />
             </div>
           </div>
         )}
         
         {/* 戻るボタン */}
-        <div className="mt-12">
+        <div className="back-button-container">
           <Button href="/" variant="secondary">
             ホームに戻る
           </Button>
