@@ -84,3 +84,41 @@ npm run dev
 これを実行して、表示されたURLに行って表示されればOKです。
 
 
+# コンポーネントの説明
+
+
+基本コンポーネント:
+
+Header: ナビゲーションとユーザー認証を管理
+Footer: サイト全体の共通フッター
+Layout: ヘッダー、フッター、メタデータを含むページレイアウト
+
+
+プロフィール関連コンポーネント:
+
+ProfileContainer: プロフィールページの基本構造
+ProfileInfo: プロフィール詳細情報を表示
+ProfileComment: ユーザーの自己紹介セクション
+ProfileCompletion: プロフィール完成度バー
+StatsContainer: 統計情報を表示
+ActivitySection: アクティビティ一覧を表示
+
+
+UI コンポーネント:
+
+Button: さまざまなスタイルのボタン
+FormGroup, FormInput, FormSelect など: フォーム要素
+NoticeBanner: 通知バナー
+LoadingIndicator: ローディング状態表示
+SuccessMessage: 成功メッセージ
+
+
+ショップ関連コンポーネント:
+
+ShopCard: キッチンカーカード表示
+RatingStars: 星評価の表示
+ReviewForm: レビュー投稿フォーム
+ReviewList: レビュー一覧表示
+
+**共通で使うものは全てコンポーネントにしてメンテナンス性UP!!!**
+
