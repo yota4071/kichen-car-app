@@ -1,6 +1,7 @@
 // pages/_app.tsx
 import '@/styles/globals.css';
 import '@/styles/mypage.css'; // ここに移動
+import '@/styles/review-styles.css';
 import type { AppProps } from "next/app";
 import Head from "next/head";
 

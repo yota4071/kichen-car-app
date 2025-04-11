@@ -1,0 +1,330 @@
+/* review-styles.css */
+/* これを styles/review-styles.css に保存し、_app.tsx でインポートするか、既存のCSS（例：ShopDetail.module.css）に追加 */
+
+/* レビューフォームスタイル改善 */
+.review-form {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    margin-bottom: 3rem;
+    border: 1px solid #edf2f7;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .review-form:focus-within {
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+    transform: translateY(-3px);
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+    border-bottom: 2px solid #ebf4ff;
+    padding-bottom: 0.75rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+  }
+  
+  .rating-selection {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f7fafc;
+    border-radius: 0.5rem;
+    display: inline-block;
+  }
+  
+  .textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: inherit;
+    font-size: 1rem;
+    min-height: 120px;
+    resize: vertical;
+    background-color: #f8fafc;
+  }
+  
+  .textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background-color: white;
+  }
+  
+  .character-count {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    text-align: right;
+    color: #718096;
+  }
+  
+  .text-warning {
+    color: #ed8936;
+  }
+  
+  .submit-button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    display: inline-block;
+  }
+  
+  .submit-button:hover:not(:disabled) {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+  }
+  
+  .submit-button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  .submit-button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .success-message {
+    color: #38a169;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f0fff4;
+    border-radius: 0.5rem;
+    border: 1px solid #c6f6d5;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* レビュー一覧スタイル改善 */
+  .reviews-container {
+    margin-top: 2rem;
+  }
+  
+  .reviews-sort {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .sort-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-right: 1rem;
+  }
+  
+  .sort-options {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .sort-option {
+    background: none;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .sort-option:hover {
+    background-color: #f7fafc;
+    border-color: #cbd5e1;
+  }
+  
+  .sort-option.active {
+    background-color: #ebf8ff;
+    border-color: #90cdf4;
+    color: #2b6cb0;
+    font-weight: 600;
+  }
+  
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .review-item {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    border: 1px solid #edf2f7;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .review-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .review-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .review-comment {
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+  
+  .review-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #718096;
+    font-size: 0.875rem;
+  }
+  
+  .review-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .review-date {
+    color: #a0aec0;
+  }
+  
+  .review-likes {
+    display: flex;
+    align-items: center;
+  }
+  
+  .like-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .like-button:hover:not(:disabled) {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #e53e3e;
+  }
+  
+  .like-button.liked {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #e53e3e;
+  }
+  
+  .like-button:disabled {
+    cursor: default;
+  }
+  
+  .like-button.animating {
+    animation: likeAnimation 0.5s ease;
+  }
+  
+  @keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  
+  .like-count {
+    font-weight: 600;
+  }
+  
+  .no-reviews {
+    color: #718096;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f7fafc;
+    border-radius: 0.5rem;
+    border: 1px dashed #e2e8f0;
+  }
+  
+  .review-stats {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .review-count {
+    color: #718096;
+    font-size: 0.875rem;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+  }
+  
+  .shop-description {
+    color: #4a5568;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+  
+  .shop-detail-box {
+    padding: 1.5rem;
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .detail-heading {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2d3748;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+  }
+  
+  .detail-note {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: #718096;
+    font-style: italic;
+  }
+  
+  .back-button-container {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
