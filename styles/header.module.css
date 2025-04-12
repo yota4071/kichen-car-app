@@ -1,10 +1,14 @@
+/* @font-face の記述は削除またはコメントアウトしてください */
+/*
 @font-face {
-    font-family: 'Bangers-Local';
-    src: url('/Bangers.ttf') format('truetype'); /* publicディレクトリからのパス */
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Bangers-Local';
+  src: url('/Bangers.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+*/
+
+.logoFont {
+    font-family: 'Bangers', cursive; /* 'Bangers' に変更。fallbackとして cursive を追加 */
   }
   
-  .logoFont {
-    font-family: 'Bangers-Local', sans-serif;
-  }

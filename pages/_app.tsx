@@ -7,7 +7,7 @@ import '@/styles/about.css'; // 新しく追加したCSSファイル
 import '@/styles/games.css';
 import '@/styles/share-button.css';
 import '@/styles/menu-styles.css';
-import '@/styles/Header.module.css'; // 追加
+import '@/styles/header.module.css'; // 追加
 import type { AppProps } from "next/app";
 import Head from "next/head";
 

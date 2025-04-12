@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { auth, provider } from '@/lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+//import '@/styles/Header.module.css'; // 追加
 
 
 
@@ -80,7 +81,7 @@ export default function Header({  }: HeaderProps) {
       <div className="container">
         <div className="header-content">
         <Link href="/" className="logo">
-        <span style={{ fontFamily: "'Bangers-Local', sans-serif", fontSize: '45px'  }}>
+        <span style={{ fontFamily: "'Bangers', cursive", fontSize: '45px' }}>
             NOM ! NOM !
         </span>
         </Link>
