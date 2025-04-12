@@ -11,6 +11,7 @@ import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/aut
 import { auth, provider } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import styles from "../../styles/ShopDetail.module.css";
+import ShareButton from "@/components/ShareButton";
 
 // コンポーネントのインポート
 import Layout from "@/components/Layout";
@@ -261,6 +262,8 @@ export default function ShopDetail() {
           <div className={styles.shopImage}>
             <img src={shop.image} alt={shop.name} />
           </div>
+
+          
           
           <div className={styles.shopInfo}>
             <h1 className={styles.shopName}>{shop.name}</h1>
@@ -278,6 +281,8 @@ export default function ShopDetail() {
                 {shop.type}
               </div>
             )}
+
+            
             
             {/* レビュー平均 */}
             {reviews.length > 0 && (
@@ -293,6 +298,13 @@ export default function ShopDetail() {
             )}
           </div>
         </div>
+
+        {/* シェア機能 */}
+        <div className="flex items-center justify-end mt-2 mb-4">
+              <ShareButton
+                title={`${shop.name} | キッチンカー探し`}
+              />
+            </div>
         
         {/* ログイン状態表示セクション */}
         <div className={styles.loginSection}>

@@ -4,6 +4,7 @@ import '@/styles/mypage.css';
 import '@/styles/review-styles.css';
 import '@/styles/categories.css'; // 新しく追加
 import '@/styles/about.css'; // 新しく追加したCSSファイル
+import '@/styles/share-button.css';
 import type { AppProps } from "next/app";
 import Head from "next/head";
 

@@ -1,0 +1,160 @@
+/* styles/share-button.css */
+.share-button-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .share-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .share-button:hover {
+    background-color: #e5e7eb;
+    color: #1f2937;
+  }
+  
+  .share-button svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .share-options {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    z-index: 50;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .share-options-arrow {
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    transform: rotate(45deg);
+    box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.07);
+    z-index: -1;
+  }
+  
+  .share-options-content {
+    padding: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .share-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+  }
+  
+  .share-option:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .share-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-weight: bold;
+  }
+  
+  .twitter-icon {
+    background-color: #000000;
+    color: white;
+    font-size: 0.75rem;
+  }
+  
+  .facebook-icon {
+    background-color: #1877F2;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  .line-icon {
+    background-color: #06C755;
+    color: white;
+    font-size: 0.75rem;
+  }
+  
+  .copy-icon {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.875rem;
+  }
+  
+  .share-option-close {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    text-align: center;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.75rem;
+    border: none;
+    display: block;
+    width: 100%;
+  }
+  
+  .share-option-close:hover {
+    background-color: #e5e7eb;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* モバイル対応 */
+  @media (max-width: 640px) {
+    .share-options {
+      left: 0;
+      right: 0;
+      width: 100%;
+    }
+    
+    .share-options-arrow {
+      right: calc(50% - 8px);
+    }
+  }
