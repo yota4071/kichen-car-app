@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { 
   doc, getDoc, getDocs, collection, addDoc, serverTimestamp, 
-  updateDoc, arrayUnion, arrayRemove, query, where, setDoc, DocumentData
+  updateDoc, arrayUnion, arrayRemove, query, where, setDoc, DocumentData,deleteDoc
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
@@ -292,6 +292,7 @@ export default function ShopDetail() {
   };
 
   // レビュー報告の処理
+  // レビュー報告と自動削除の処理
   const handleReportReview = async (reviewId: string): Promise<boolean> => {
     if (!user || !id) {
       alert("レビューを報告するにはログインしてください");
@@ -306,6 +307,11 @@ export default function ShopDetail() {
         // 報告リストを取得
         const reportedByRef = doc(db, "reports", reviewId);
         const reportedBySnap = await getDoc(reportedByRef);
+        const reviewData = reviewSnap.data();
+        const currentReports = reviewData.reports || 0;
+        
+        // 報告処理
+        let newReportCount = currentReports + 1;
         
         if (reportedBySnap.exists()) {
           const reportData = reportedBySnap.data();
@@ -330,17 +336,40 @@ export default function ShopDetail() {
             kitchenId: id,
             reportedBy: [user.uid],
             count: 1,
-            content: reviewSnap.data().comment,
+            content: reviewData.comment,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           });
         }
         
         // レビューに報告回数を記録
-        const currentReports = reviewSnap.data().reports || 0;
         await updateDoc(reviewRef, {
-          reports: currentReports + 1
+          reports: newReportCount
         });
+        
+        // ここで報告数をチェックし、5を超えたら自動的に削除
+        const reportThreshold = 5;
+        if (newReportCount > reportThreshold) {
+          try {
+            // レビューを削除
+            await deleteDoc(reviewRef);
+            
+            // 報告ドキュメントにステータスを追加
+            await updateDoc(reportedByRef, {
+              status: 'deleted',
+              deletedAt: serverTimestamp()
+            });
+            
+            // ユーザーアラート
+            alert(`複数のユーザーから報告があったため、レビューは自動的に削除されました。`);
+            
+            // レビューを再取得
+            await fetchReviews();
+            return true;
+          } catch (deleteError) {
+            console.error("レビュー削除エラー:", deleteError);
+          }
+        }
         
         // レビュー一覧を更新（報告数も表示するため）
         await fetchReviews();
