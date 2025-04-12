@@ -1,0 +1,475 @@
+/* styles/map-styles.css */
+
+.map-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .map-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #3b82f6, #4f46e5);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .map-header::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 0;
+  }
+  
+  .map-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -5%;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 0;
+  }
+  
+  .map-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .map-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    z-index: 1;
+  }
+  
+  .map-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1rem;
+    border: 4px solid rgba(59, 130, 246, 0.2);
+    border-left-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .map-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  
+  .feature-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.75rem;
+  }
+  
+  .feature-description {
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+  
+  /* インタラクティブマップ固有のスタイル */
+  .interactive-map-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .campus-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.5) transparent;
+  }
+  
+  .campus-tabs::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .campus-tabs::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .campus-tabs::-webkit-scrollbar-thumb {
+    background-color: rgba(59, 130, 246, 0.5);
+    border-radius: 6px;
+  }
+  
+  .campus-tab {
+    padding: 0.75rem 1.5rem;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  
+  .campus-tab:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .campus-tab.active {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .campus-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #1f2937;
+  }
+  
+  .map-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .map-info-container {
+      flex-direction: row;
+    }
+    
+    .map-container {
+      flex: 3;
+    }
+    
+    .spot-info-panel {
+      flex: 2;
+    }
+  }
+  
+  .map-container {
+    position: relative;
+    background-color: white;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .map-image-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%; /* アスペクト比を調整 */
+    overflow: hidden;
+  }
+  
+  .campus-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* スポットマーカー */
+  .spot-marker {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .marker-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+    z-index: 2;
+    transition: all 0.3s;
+  }
+  
+  .marker-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    background-color: rgba(239, 68, 68, 0.4);
+    border-radius: 50%;
+    z-index: 1;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 0;
+    }
+  }
+  
+  .marker-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -20px;
+    white-space: nowrap;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  
+  .spot-marker:hover .marker-label,
+  .spot-marker.active .marker-label {
+    opacity: 1;
+    bottom: -25px;
+  }
+  
+  .spot-marker:hover .marker-dot,
+  .spot-marker.active .marker-dot {
+    width: 16px;
+    height: 16px;
+    background-color: #dc2626;
+  }
+  
+  .map-legend {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+  }
+  
+  .legend-help {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: right;
+  }
+  
+  .spot-info-panel {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .spot-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .spot-info p {
+    margin-bottom: 1.25rem;
+    color: #4b5563;
+    line-height: 1.5;
+  }
+  
+  .today-food-trucks h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .today-food-trucks h4::before {
+    content: "🚚";
+  }
+  
+  .today-food-trucks ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .today-food-trucks li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .food-truck-time {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background-color: #eff6ff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  
+  .food-truck-name {
+    color: #4b5563;
+  }
+  
+  .spot-info-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-grow: 1;
+    color: #6b7280;
+    padding: 1rem;
+  }
+  
+  .map-note {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+  
+  /* ズームコントロール */
+  .map-zoom-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 20;
+  }
+  
+  .zoom-button {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .zoom-button:hover {
+    background-color: #f9fafb;
+    color: #3b82f6;
+  }
+  
+  /* レスポンシブデザイン調整 */
+  @media (max-width: 640px) {
+    .map-title {
+      font-size: 2rem;
+    }
+    
+    .map-subtitle {
+      font-size: 1rem;
+    }
+    
+    .spot-info-panel {
+      padding: 1rem;
+    }
+    
+    .spot-info h3 {
+      font-size: 1.125rem;
+    }
+    
+    .food-truck-time {
+      font-size: 0.75rem;
+    }
+  }
