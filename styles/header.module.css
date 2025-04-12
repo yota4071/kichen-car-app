@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'Bangers-Local';
+    src: url('../Bangers.ttf') format('truetype'); /* componentsディレクトリからの相対パス */
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .logoFont {
+    font-family: 'Bangers-Local', sans-serif;
+  }

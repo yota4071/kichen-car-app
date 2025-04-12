@@ -5,6 +5,8 @@ import { useRouter } from 'next/router';
 import { auth, provider } from '@/lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
 
+
+
 type HeaderProps = {
   isDarkMode?: boolean;
   toggleDarkMode?: () => void;
@@ -77,9 +79,11 @@ export default function Header({  }: HeaderProps) {
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <Link href="/" className="logo">
-            NomNom!
-          </Link>
+        <Link href="/" className="logo">
+        <span style={{ fontFamily: "'Bangers-Local', sans-serif", fontSize: '45px'  }}>
+            NOM ! NOM !
+        </span>
+        </Link>
 
           <nav>
             <ul className="nav-list">
