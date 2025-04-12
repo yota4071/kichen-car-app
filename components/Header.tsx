@@ -70,7 +70,7 @@ export default function Header({  }: HeaderProps) {
       <div className="container">
         <div className="header-content">
           <Link href="/" className="logo">
-            キッチンカー探し
+            NomNom!
           </Link>
 
           <nav>
