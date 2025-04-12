@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Bangers-Local';
-    src: url('../Bangers.ttf') format('truetype'); /* componentsディレクトリからの相対パス */
+    src: url('/Bangers.ttf') format('truetype'); /* publicディレクトリからのパス */
     font-weight: normal;
     font-style: normal;
   }
