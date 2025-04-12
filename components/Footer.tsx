@@ -34,7 +34,7 @@ export default function Footer() {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {currentYear} キッチンカー探し. All rights reserved.</p>
+          <p>&copy; {currentYear} NOM!NOM!. All rights reserved.</p>
         </div>
       </div>
     </footer>
