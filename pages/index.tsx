@@ -1,14 +1,16 @@
 // pages/index.tsx
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs, query, where, getDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 // コンポーネントのインポート
 import Layout from "@/components/Layout";
 import ShopCard from "@/components/shop/ShopCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
+import CategoryCard from "@/components/category/CategoryCard";
 
 type Shop = {
   id: string;
@@ -16,6 +18,7 @@ type Shop = {
   location: string;
   image: string;
   type: string;
+  dish?: string; // カテゴリとして使用
   rating?: number;
   reviewCount?: number;
 };
@@ -26,6 +29,17 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  // URLからカテゴリーパラメータを取得
+  useEffect(() => {
+    if (router.query.category && typeof router.query.category === 'string') {
+      const category = decodeURIComponent(router.query.category);
+      if (categories.includes(category)) {
+        setActiveCategory(category);
+      }
+    }
+  }, [router.query]);
 
   // カテゴリーリスト
   const categories = [
@@ -44,7 +58,19 @@ export default function Home() {
     const fetchShops = async () => {
       setIsLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "kitchens"));
+        let shopsQuery;
+        
+        // カテゴリーでフィルタリング
+        if (activeCategory !== "すべて") {
+          shopsQuery = query(
+            collection(db, "kitchens"),
+            where("dish", "==", activeCategory)
+          );
+        } else {
+          shopsQuery = collection(db, "kitchens");
+        }
+        
+        const querySnapshot = await getDocs(shopsQuery);
         const shopPromises = querySnapshot.docs.map(async (docSnapshot) => {
           const shopData = docSnapshot.data() as Omit<Shop, "id" | "rating" | "reviewCount">;
           const shopId = docSnapshot.id;
@@ -81,7 +107,7 @@ export default function Home() {
     };
 
     fetchShops();
-  }, []);
+  }, [activeCategory]);
 
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
@@ -91,22 +117,37 @@ export default function Home() {
     }
   };
 
-  // フィルタリング
+  // カテゴリー変更ハンドラー
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    
+    // URLを更新（カテゴリーが「すべて」の場合はパラメータを削除）
+    if (category === "すべて") {
+      router.push("/", undefined, { shallow: true });
+    } else {
+      router.push(`/?category=${encodeURIComponent(category)}`, undefined, { shallow: true });
+    }
+  };
+
+  // フィルタリング - 検索クエリのみ適用
   const filteredShops = shops.filter(shop => {
     // 検索クエリによるフィルタリング
-    const matchesSearch = searchQuery === "" || 
+    return searchQuery === "" || 
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.type.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // カテゴリーによるフィルタリング
-    const matchesCategory = activeCategory === "すべて" || shop.type === activeCategory;
-    
-    return matchesSearch && matchesCategory;
+      (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase()));
   });
 
+  // カテゴリー別のカウント計算
+  const categoryCount = categories.reduce((acc, category) => {
+    if (category !== "すべて") {
+      acc[category] = shops.filter(shop => shop.dish === category).length;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
   // おすすめのキッチンカー（評価が高い順に3件）
-  const featuredShops = [...shops]
+  const featuredShops = [...filteredShops]
     .sort((a, b) => (b.rating || 0) - (a.rating || 0))
     .slice(0, 3);
 
@@ -136,7 +177,7 @@ export default function Home() {
       <div className="wave-divider"></div>
 
       {/* おすすめのキッチンカー */}
-      {featuredShops.length > 0 && (
+      {!isLoading && featuredShops.length > 0 && (
         <section className="section">
           <div className="container">
             <div className="section-title">
@@ -164,46 +205,71 @@ export default function Home() {
         </section>
       )}
 
+      {/* 人気のカテゴリー */}
+      {!isLoading && (
+        <section className="section" style={{ backgroundColor: "#f0f9ff" }}>
+          <div className="container">
+            <div className="section-title">
+              <h2>人気のカテゴリー</h2>
+              <Link href="/categories" className="view-all">
+                カテゴリー一覧へ
+              </Link>
+            </div>
+
+            <div className="top-categories-grid">
+              {categories.filter(cat => cat !== "すべて").map((category) => (
+                <CategoryCard 
+                  key={category}
+                  name={category}
+                  count={categoryCount[category] || 0}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 全キッチンカーセクション */}
       <section id="all-shops" className="section" style={{ backgroundColor: "#f8fafc" }}>
         <div className="container">
           <h2 className="section-title">キッチンカーを探す</h2>
 
-          {/* カテゴリーフィルター */}
-          <div className="filter-scroll">
-            <div className="category-list">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`category-button ${activeCategory === category ? 'active' : ''}`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+          {/* カテゴリーフィルター - 改良版 */}
+          <div className="main-categories-tabs">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => handleCategoryChange(category)}
+                className={`category-tab ${activeCategory === category ? 'active-tab' : ''}`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
 
           {/* 検索とフィルターの結果表示 */}
           {(searchQuery || activeCategory !== "すべて") && (
-            <div className="filter-results">
-              <div className="result-text">
-                {filteredShops.length}件のキッチンカーが見つかりました
-                {searchQuery && ` 「${searchQuery}」の検索結果`}
-                {activeCategory !== "すべて" && ` カテゴリー: ${activeCategory}`}
+            <div className="result-info-box">
+              <div className="result-info-content">
+                <div className="result-info-text">
+                  {filteredShops.length}件のキッチンカーが見つかりました
+                  {searchQuery && ` 「${searchQuery}」の検索結果`}
+                  {activeCategory !== "すべて" && ` カテゴリー: ${activeCategory}`}
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveCategory("すべて");
+                    setSearchQuery("");
+                    if (searchInputRef.current) {
+                      searchInputRef.current.value = "";
+                    }
+                    router.push("/", undefined, { shallow: true });
+                  }}
+                  className="filter-clear-button"
+                >
+                  絞り込みをクリア
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  setActiveCategory("すべて");
-                  setSearchQuery("");
-                  if (searchInputRef.current) {
-                    searchInputRef.current.value = "";
-                  }
-                }}
-                className="clear-filter"
-              >
-                絞り込みをクリア
-              </button>
             </div>
           )}
 
