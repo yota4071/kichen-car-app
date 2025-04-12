@@ -9,7 +9,11 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-column">
-            <h3>キッチンカー探し</h3>
+            <h3>
+            <span style={{ fontFamily: "'Bangers', cursive", fontSize: '24px' }}>
+                NOM ! NOM !
+            </span>
+            </h3>
             <p style={{ color: '#718096', marginBottom: '1rem' }}>
               お近くの美味しいキッチンカーをすぐに見つけられるアプリ
             </p>
@@ -34,7 +38,9 @@ export default function Footer() {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {currentYear} NOM!NOM!. All rights reserved.</p>
+          <p>&copy; {currentYear} <span style={{ fontFamily: "'Bangers', cursive", fontSize: '12px' }}>
+            NOM ! NOM !
+        </span> All rights reserved.</p>
         </div>
       </div>
     </footer>
