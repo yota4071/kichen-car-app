@@ -1,4 +1,4 @@
-// pages/categories.tsx
+// pages/categories.tsx（動的サブカテゴリー対応版）
 import { useEffect, useState, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -10,6 +10,8 @@ import ShopCard from "@/components/shop/ShopCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import NoticeBanner from "@/components/NoticeBanner";
 import CategoryCard from "@/components/category/CategoryCard";
+import TypeFilter from "@/components/shop/TypeFilter"; // 料理タイプのフィルター
+import DynamicSubCategoryFilter from "@/components/shop/DynamicSubCategoryFilter"; // 動的サブカテゴリーフィルター
 
 type Shop = {
   id: string;
@@ -17,6 +19,7 @@ type Shop = {
   location: string;
   image: string;
   dish: string;
+  type: string;
   subDish?: string;
   rating?: number;
   reviewCount?: number;
@@ -27,11 +30,13 @@ export default function CategoriesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [activeSubCategory, setActiveSubCategory] = useState("");
+  const [activeType, setActiveType] = useState(""); // typeによるフィルタリング用
   const [searchQuery, setSearchQuery] = useState("");
+  const [mainCategories, setMainCategories] = useState<string[]>(["すべて"]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // URLからカテゴリーパラメータを取得
+  // URLからパラメータを取得
   useEffect(() => {
     if (router.query.category && typeof router.query.category === 'string') {
       const category = decodeURIComponent(router.query.category);
@@ -39,30 +44,50 @@ export default function CategoriesPage() {
         setActiveCategory(category);
       }
     }
-  }, [router.query]);
+    
+    if (router.query.subCategory && typeof router.query.subCategory === 'string') {
+      setActiveSubCategory(decodeURIComponent(router.query.subCategory));
+    }
+    
+    if (router.query.type && typeof router.query.type === 'string') {
+      setActiveType(decodeURIComponent(router.query.type));
+    }
+  }, [router.query, mainCategories]);
 
-  // メインカテゴリーリスト
-  const mainCategories = [
-    "すべて",
-    "和食",
-    "洋食",
-    "中華",
-    "アジア料理",
-    "スイーツ",
-    "ドリンク",
-    "その他"
-  ];
+  // Firestoreから全カテゴリー（dish）を取得
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const kitchensRef = collection(db, "kitchens");
+        const kitchensSnapshot = await getDocs(kitchensRef);
+        
+        // dishフィールドを抽出して重複を排除
+        const categorySet = new Set<string>();
+        categorySet.add("すべて"); // デフォルトで「すべて」を含める
+        
+        kitchensSnapshot.docs.forEach(doc => {
+          const data = doc.data();
+          if (data.dish) {
+            categorySet.add(data.dish);
+          }
+        });
+        
+        // Setから配列に変換してソート
+        const categoryArray = Array.from(categorySet);
+        // 「すべて」を先頭に、それ以外をアルファベット順でソート
+        const sortedCategories = [
+          "すべて",
+          ...categoryArray.filter(cat => cat !== "すべて").sort()
+        ];
+        
+        setMainCategories(sortedCategories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
 
-  // サブカテゴリーのマッピング
-  const subCategories: Record<string, string[]> = {
-    "和食": ["ラーメン", "そば・うどん", "丼物", "おにぎり", "お好み焼き", "たこ焼き", "その他和食"],
-    "洋食": ["ハンバーガー", "パスタ", "ピザ", "サンドイッチ", "ホットドッグ", "その他洋食"],
-    "中華": ["餃子", "中華麺", "炒飯", "点心", "その他中華"],
-    "アジア料理": ["タイ料理", "ベトナム料理", "インド料理", "韓国料理", "その他アジア料理"],
-    "スイーツ": ["クレープ", "かき氷", "ソフトクリーム", "ドーナツ", "チョコレート", "その他スイーツ"],
-    "ドリンク": ["コーヒー", "紅茶", "フレッシュジュース", "スムージー", "その他ドリンク"],
-    "その他": ["ケータリング", "フュージョン", "ベジタリアン", "グルテンフリー"]
-  };
+    fetchCategories();
+  }, []);
 
   // キッチンカーデータの取得
   useEffect(() => {
@@ -122,7 +147,9 @@ export default function CategoriesPage() {
     const matchesSearch = searchQuery === "" || 
       shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       shop.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.dish?.toLowerCase().includes(searchQuery.toLowerCase());
+      shop.dish?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (shop.subDish && shop.subDish.toLowerCase().includes(searchQuery.toLowerCase()));
     
     // メインカテゴリーによるフィルタリング
     const matchesMainCategory = activeCategory === "すべて" || shop.dish === activeCategory;
@@ -130,20 +157,78 @@ export default function CategoriesPage() {
     // サブカテゴリーによるフィルタリング
     const matchesSubCategory = activeSubCategory === "" || shop.subDish === activeSubCategory;
     
-    return matchesSearch && matchesMainCategory && matchesSubCategory;
+    // typeによるフィルタリング
+    const matchesType = activeType === "" || shop.type === activeType;
+    
+    return matchesSearch && matchesMainCategory && matchesSubCategory && matchesType;
   });
 
   // カテゴリー変更ハンドラー
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
     setActiveSubCategory(""); // サブカテゴリーをリセット
+    setActiveType(""); // typeもリセット
     
-    // URLを更新（カテゴリーが「すべて」の場合はパラメータを削除）
+    // URLを更新
     if (category === "すべて") {
       router.push("/categories", undefined, { shallow: true });
     } else {
       router.push(`/categories?category=${encodeURIComponent(category)}`, undefined, { shallow: true });
     }
+  };
+
+  // サブカテゴリー変更ハンドラー
+  const handleSubCategoryChange = (subCategory: string) => {
+    setActiveSubCategory(subCategory);
+    
+    // URLを更新
+    const query: Record<string, string> = {};
+    if (activeCategory !== "すべて") {
+      query.category = activeCategory;
+    }
+    if (subCategory) {
+      query.subCategory = subCategory;
+    }
+    if (activeType) {
+      query.type = activeType;
+    }
+    
+    const queryString = Object.entries(query)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+    
+    router.push(
+      queryString ? `/categories?${queryString}` : "/categories", 
+      undefined, 
+      { shallow: true }
+    );
+  };
+
+  // typeフィルター変更ハンドラー
+  const handleTypeChange = (type: string) => {
+    setActiveType(type);
+    
+    // URLを更新
+    const query: Record<string, string> = {};
+    if (activeCategory !== "すべて") {
+      query.category = activeCategory;
+    }
+    if (activeSubCategory) {
+      query.subCategory = activeSubCategory;
+    }
+    if (type) {
+      query.type = type;
+    }
+    
+    const queryString = Object.entries(query)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+    
+    router.push(
+      queryString ? `/categories?${queryString}` : "/categories", 
+      undefined, 
+      { shallow: true }
+    );
   };
 
   // カテゴリー別のカウント計算
@@ -185,7 +270,7 @@ export default function CategoriesPage() {
         </div>
         
         {/* トップカテゴリー一覧 */}
-        {!isLoading && !searchQuery && activeCategory === "すべて" && (
+        {!isLoading && !searchQuery && activeCategory === "すべて" && !activeSubCategory && !activeType && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">人気のカテゴリー</h2>
             <div className="top-categories-grid">
@@ -215,29 +300,25 @@ export default function CategoriesPage() {
           </div>
         </div>
         
-        {/* サブカテゴリー（選択されたカテゴリーに基づく） */}
-        {activeCategory !== "すべて" && subCategories[activeCategory] && (
+        {/* 動的サブカテゴリーフィルター */}
+        {activeCategory !== "すべて" && (
           <div className="mb-8">
-            <h2 className="subcategory-title">{activeCategory}のジャンル</h2>
-            <div className="subcategory-tabs">
-              <button
-                onClick={() => setActiveSubCategory("")}
-                className={`subcategory-tab ${activeSubCategory === "" ? 'active-subcategory-tab' : ''}`}
-              >
-                すべて
-              </button>
-              {subCategories[activeCategory].map((subCategory) => (
-                <button
-                  key={subCategory}
-                  onClick={() => setActiveSubCategory(subCategory)}
-                  className={`subcategory-tab ${activeSubCategory === subCategory ? 'active-subcategory-tab' : ''}`}
-                >
-                  {subCategory}
-                </button>
-              ))}
-            </div>
+            <DynamicSubCategoryFilter 
+              selectedSubCategory={activeSubCategory}
+              onSubCategoryChange={handleSubCategoryChange}
+              dishCategory={activeCategory}
+            />
           </div>
         )}
+        
+        {/* タイプフィルター */}
+        <div className="mb-8">
+          <TypeFilter 
+            selectedType={activeType}
+            onTypeChange={handleTypeChange}
+            dishCategory={activeCategory !== "すべて" ? activeCategory : undefined}
+          />
+        </div>
         
         {/* 検索とフィルターの結果表示 */}
         <div className="result-info-box">
@@ -247,12 +328,14 @@ export default function CategoriesPage() {
               {searchQuery && ` 「${searchQuery}」の検索結果`}
               {activeCategory !== "すべて" && ` カテゴリー: ${activeCategory}`}
               {activeSubCategory && ` > ${activeSubCategory}`}
+              {activeType && ` タイプ: ${activeType}`}
             </div>
-            {(searchQuery || activeCategory !== "すべて" || activeSubCategory) && (
+            {(searchQuery || activeCategory !== "すべて" || activeSubCategory || activeType) && (
               <button
                 onClick={() => {
                   setActiveCategory("すべて");
                   setActiveSubCategory("");
+                  setActiveType("");
                   setSearchQuery("");
                   if (searchInputRef.current) {
                     searchInputRef.current.value = "";
@@ -279,7 +362,7 @@ export default function CategoriesPage() {
                 name={shop.name}
                 location={shop.location}
                 image={shop.image}
-                type={shop.dish}
+                type={shop.type}
                 rating={shop.rating || 0}
                 reviewCount={shop.reviewCount || 0}
               />

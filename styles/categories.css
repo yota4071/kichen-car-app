@@ -769,3 +769,71 @@
     background-color: white;
     border: 1px solid #e2e8f0;
   }
+
+  /* styles/categories.cssに追加するスタイル */
+
+/* タイプフィルターの追加スタイル */
+.type-filter {
+    margin-bottom: 1.5rem;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .filter-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+  }
+  
+  .filter-title::before {
+    content: "🏷️";
+    margin-right: 0.5rem;
+  }
+  
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .filter-option {
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .filter-option:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .filter-option.active {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+  
+  /* モバイル対応 */
+  @media (max-width: 640px) {
+    .filter-options {
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      white-space: nowrap;
+      display: flex;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .filter-option {
+      flex-shrink: 0;
+    }
+  }
