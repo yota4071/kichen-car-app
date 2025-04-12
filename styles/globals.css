@@ -574,3 +574,31 @@ img {
 .rating-stars.text-lg {
   font-size: 1.25rem;
 }
+
+/* ヘッダーの検索欄スタイルを修正 */
+.header .search-input {
+  color: black; /* ヘッダー内の文字色を黒に変更 */
+  background-color: white; /* ヘッダーの検索欄背景を白に変更 */
+}
+
+/* カテゴリーページの検索欄スタイルを修正 */
+.category-container .search-input {
+  color: black; /* 文字色を黒に変更 */
+  background-color: white; /* 背景色を白に明示的に設定 */
+  border: 1px solid #e2e8f0; /* 境界線を追加して視認性を高める */
+}
+
+/* ホバー時やフォーカス時のスタイルも追加 */
+.category-container .search-input:hover,
+.category-container .search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  outline: none;
+}
+
+/* モバイルメニュー内の検索欄も修正 */
+.mobile-menu .search-input {
+  color: black; /* 文字色を黒に変更 */
+  background-color: white;
+  border: 1px solid #e2e8f0;
+}
