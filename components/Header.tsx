@@ -62,20 +62,26 @@ export default function Header({  }: HeaderProps) {
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (searchQuery.trim().toLowerCase() === "waka") {
-      // "Waka"が検出された場合、インベーダーゲームページにリダイレクト
+  
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+  
+    if (!trimmedQuery) return;
+  
+    if (trimmedQuery === "waka") {
       router.push('/waka-invaders');
       setSearchQuery('');
       return;
     }
-    
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+  
+    if (trimmedQuery === "oz") {
+      router.push('/oz-invaders');
       setSearchQuery('');
+      return;
     }
+  
+    router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
+    setSearchQuery('');
   };
-
   return (
     <header className="header">
       <div className="container">
