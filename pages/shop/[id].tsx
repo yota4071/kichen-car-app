@@ -197,7 +197,7 @@ export default function ShopDetail() {
       alert("いいねするにはログインしてください");
       return;
     }
-
+  
     try {
       const reviewRef = doc(db, "kitchens", String(id), "reviews", reviewId);
       const reviewSnap = await getDoc(reviewRef);
@@ -206,21 +206,23 @@ export default function ShopDetail() {
         const reviewData = reviewSnap.data();
         const likedBy = reviewData.likedBy || [];
         
-        // すでにいいねしている場合は何もしない
+        // すでにいいねしている場合は取り消す
         if (likedBy.includes(user.uid)) {
-          return;
+          await updateDoc(reviewRef, {
+            likedBy: arrayRemove(user.uid)
+          });
+        } else {
+          // いいねを追加
+          await updateDoc(reviewRef, {
+            likedBy: arrayUnion(user.uid)
+          });
         }
-        
-        // いいねを追加
-        await updateDoc(reviewRef, {
-          likedBy: arrayUnion(user.uid)
-        });
         
         // レビュー一覧を更新
         await fetchReviews();
       }
     } catch (error) {
-      console.error("Error liking review:", error);
+      console.error("Error handling review like:", error);
     }
   };
   

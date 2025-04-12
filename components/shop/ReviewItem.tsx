@@ -39,7 +39,12 @@ export function ReviewItem({
   const handleLikeClick = () => {
     if (onLike) {
       onLike(reviewId);
-      if (!isLiked) {
+      
+      // すでにいいねしている場合は取り消し、していない場合は追加
+      if (isLiked) {
+        setLikeCount(prev => prev - 1);
+        setIsLiked(false);
+      } else {
         setLikeCount(prev => prev + 1);
         setIsLiked(true);
         setIsLikeAnimating(true);
@@ -58,7 +63,7 @@ export function ReviewItem({
           <button 
             className={`like-button ${isLiked ? 'liked' : ''} ${isLikeAnimating ? 'animating' : ''}`}
             onClick={handleLikeClick}
-            disabled={isLiked}
+            //disabled={isLiked}
           >
             {isLiked ? '❤️' : '🤍'} <span className="like-count">{likeCount}</span>
           </button>
