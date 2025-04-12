@@ -6,6 +6,7 @@ import '@/styles/categories.css'; // 新しく追加
 import '@/styles/about.css'; // 新しく追加したCSSファイル
 import '@/styles/games.css';
 import '@/styles/share-button.css';
+import '@/styles/menu-styles.css';
 import type { AppProps } from "next/app";
 import Head from "next/head";
 

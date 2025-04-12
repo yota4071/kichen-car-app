@@ -328,3 +328,175 @@
     padding-top: 1.5rem;
     border-top: 1px solid #e2e8f0;
   }
+
+  /* ここから追加 review-styles.css に追加するスタイル */
+
+/* レビュー操作ボタン */
+.review-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* 報告ボタン */
+  .report-button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    transition: all 0.2s;
+  }
+  
+  .report-button:hover {
+    color: #ef4444;
+    background-color: #fee2e2;
+  }
+  
+  .report-icon {
+    font-size: 0.875rem;
+  }
+  
+  /* 報告確認オーバーレイ */
+  .report-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .report-confirm-dialog {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .report-confirm-dialog h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+  }
+  
+  .report-confirm-dialog p {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+  }
+  
+  .report-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+  
+  .report-cancel-button,
+  .report-confirm-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .report-cancel-button {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: none;
+  }
+  
+  .report-cancel-button:hover {
+    background-color: #e5e7eb;
+    color: #1f2937;
+  }
+  
+  .report-confirm-button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+  }
+  
+  .report-confirm-button:hover:not(:disabled) {
+    background-color: #dc2626;
+  }
+  
+  .report-confirm-button:disabled,
+  .report-cancel-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .report-success {
+    padding: 1rem;
+    background-color: #f0fff4;
+    color: #22c55e;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* review-styles.cssに追加 */
+
+/* 報告確認オーバーレイのアニメーション調整 */
+.report-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* より高いz-indexを設定して確実に最前面に表示 */
+    animation: fadeIn 0.3s ease-out;
+    transition: opacity 0.3s ease;
+  }
+  
+  .report-success {
+    padding: 1rem;
+    background-color: #f0fff4;
+    color: #22c55e;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-out;
+    margin-top: 1rem;
+    border: 1px solid #dcfce7;
+  }
+  
+  /* フェードイン・アウトのアニメーションを修正 */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

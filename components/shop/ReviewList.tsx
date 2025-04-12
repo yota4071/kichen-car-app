@@ -11,15 +11,17 @@ type Review = {
   createdAt?: Timestamp | null;
   likes: number;
   userLiked?: boolean;
+  reports?: number; // 報告数を追加
 };
 
 type SortOption = 'newest' | 'highest-rated' | 'most-liked';
 
 type ReviewListProps = {
-    reviews: Review[];
-    formatDate?: (date: Timestamp | Date | null) => string;
-    onLikeReview: (reviewId: string) => Promise<boolean>; // 戻り値の型を変更
-  };
+  reviews: Review[];
+  formatDate?: (date: Timestamp | Date | null) => string;
+  onLikeReview: (reviewId: string) => Promise<boolean>;
+  onReportReview?: (reviewId: string) => Promise<boolean>; // 報告機能を追加
+};
 
 export function ReviewList({ 
   reviews, 
@@ -28,7 +30,8 @@ export function ReviewList({
     if (date instanceof Date) return date.toLocaleDateString('ja-JP');
     return new Date(date.toMillis()).toLocaleDateString('ja-JP');
   },
-  onLikeReview
+  onLikeReview,
+  onReportReview
 }: ReviewListProps) {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
 
@@ -100,7 +103,9 @@ export function ReviewList({
             likes={review.likes}
             onLike={onLikeReview}
             userHasLiked={review.userLiked}
-        />
+            onReport={onReportReview}
+            reports={review.reports}
+          />
         ))}
       </div>
     </div>

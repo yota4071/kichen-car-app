@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { 
   doc, getDoc, getDocs, collection, addDoc, serverTimestamp, 
-  updateDoc, arrayUnion, arrayRemove, query, where
+  updateDoc, arrayUnion, arrayRemove, query, where, setDoc, DocumentData
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ import { RatingStars } from "@/components/shop/RatingStars";
 import { ReviewForm } from "@/components/shop/ReviewForm";
 import { ReviewList } from "@/components/shop/ReviewList";
 import NoticeBanner from "@/components/NoticeBanner";
+import { MenuList } from "@/components/shop/MenuList";
 
 type Shop = {
   name: string;
@@ -39,6 +40,19 @@ type Review = {
   likes: number;
   likedBy: string[];
   userLiked?: boolean;
+  reports?: number;
+};
+
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+  image?: string;
+  category?: string;
+  likes: number;
+  likedBy: string[];
+  userLiked?: boolean;
 };
 
 export default function ShopDetail() {
@@ -47,8 +61,9 @@ export default function ShopDetail() {
   const [shop, setShop] = useState<Shop | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState<'info' | 'reviews'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'menu' | 'reviews'>('info');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,7 +80,7 @@ export default function ShopDetail() {
     
     const fetchData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchShop(), fetchReviews()]);
+      await Promise.all([fetchShop(), fetchReviews(), fetchMenuItems()]);
       setIsLoading(false);
     };
     
@@ -93,22 +108,37 @@ export default function ShopDetail() {
       const reviewRef = collection(db, "kitchens", String(id), "reviews");
       const snapshot = await getDocs(reviewRef);
       
-      const reviewList: Review[] = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
-        const data = doc.data();
+      // レビューデータの取得
+      const reviewList: Review[] = await Promise.all(snapshot.docs.map(async (docSnapshot) => {
+        // ここで明示的に型指定
+        const data = docSnapshot.data() as DocumentData;
         const likedBy = data.likedBy || [];
         
+        // 報告数を取得
+        let reportCount = 0;
+        try {
+          const reportRef = doc(db, "reports", docSnapshot.id);
+          const reportSnap = await getDoc(reportRef);
+          if (reportSnap.exists()) {
+            const reportData = reportSnap.data() as DocumentData;
+            reportCount = reportData.count || 0;
+          }
+        } catch (e) {
+          console.error("Error fetching report count:", e);
+        }
+        
         return {
-          id: doc.id,
+          id: docSnapshot.id,
           rating: data.rating,
           comment: data.comment,
           displayName: data.displayName || '匿名ユーザー',
           createdAt: data.createdAt,
           likes: likedBy.length,
           likedBy: likedBy,
-          // 現在のユーザーがいいねしているかどうかをチェック
-          userLiked: user ? likedBy.includes(user.uid) : false
+          userLiked: user ? likedBy.includes(user.uid) : false,
+          reports: reportCount
         };
-      });
+      }));
       
       setReviews(reviewList);
     } catch (error) {
@@ -116,6 +146,37 @@ export default function ShopDetail() {
     }
   };
 
+  const fetchMenuItems = async () => {
+    if (!id) return;
+    try {
+      const menuRef = collection(db, "kitchens", String(id), "menu");
+      const snapshot = await getDocs(menuRef);
+      
+      const menuList: MenuItem[] = snapshot.docs.map((docSnapshot) => {
+        // ここで明示的に型指定
+        const data = docSnapshot.data() as DocumentData;
+        const likedBy = data.likedBy || [];
+        
+        return {
+          id: docSnapshot.id,
+          name: data.name,
+          price: data.price,
+          description: data.description,
+          image: data.image,
+          category: data.category,
+          likes: likedBy.length,
+          likedBy: likedBy,
+          userLiked: user ? likedBy.includes(user.uid) : false
+        };
+      });
+      
+      setMenuItems(menuList);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+      
+    
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, provider);
@@ -162,6 +223,7 @@ export default function ShopDetail() {
         userId: user.uid,
         likes: 0,
         likedBy: [],
+        reports: 0
       };
   
       const docRef = await addDoc(
@@ -228,6 +290,106 @@ export default function ShopDetail() {
       return false; // エラーが発生した場合
     }
   };
+
+  // レビュー報告の処理
+  const handleReportReview = async (reviewId: string): Promise<boolean> => {
+    if (!user || !id) {
+      alert("レビューを報告するにはログインしてください");
+      return false;
+    }
+    
+    try {
+      const reviewRef = doc(db, "kitchens", String(id), "reviews", reviewId);
+      const reviewSnap = await getDoc(reviewRef);
+      
+      if (reviewSnap.exists()) {
+        // 報告リストを取得
+        const reportedByRef = doc(db, "reports", reviewId);
+        const reportedBySnap = await getDoc(reportedByRef);
+        
+        if (reportedBySnap.exists()) {
+          const reportData = reportedBySnap.data();
+          const reportedBy = reportData.reportedBy || [];
+          
+          // すでに報告している場合は報告しない
+          if (reportedBy.includes(user.uid)) {
+            alert("すでにこのレビューを報告しています");
+            return false;
+          }
+          
+          // 報告者リストに追加して報告数を更新
+          await updateDoc(reportedByRef, {
+            reportedBy: arrayUnion(user.uid),
+            count: (reportData.count || 0) + 1,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          // 新規報告を作成
+          await setDoc(reportedByRef, {
+            reviewId: reviewId,
+            kitchenId: id,
+            reportedBy: [user.uid],
+            count: 1,
+            content: reviewSnap.data().comment,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+        
+        // レビューに報告回数を記録
+        const currentReports = reviewSnap.data().reports || 0;
+        await updateDoc(reviewRef, {
+          reports: currentReports + 1
+        });
+        
+        // レビュー一覧を更新（報告数も表示するため）
+        await fetchReviews();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("レビュー報告エラー:", error);
+      return false;
+    }
+  };
+  
+  // メニューアイテムへのいいね処理
+  const handleLikeMenuItem = async (menuId: string): Promise<boolean> => {
+    if (!user || !id) {
+      alert("いいねするにはログインしてください");
+      return false;
+    }
+    
+    try {
+      const menuRef = doc(db, "kitchens", String(id), "menu", menuId);
+      const menuSnap = await getDoc(menuRef);
+      
+      if (menuSnap.exists()) {
+        const menuData = menuSnap.data();
+        const likedBy = menuData.likedBy || [];
+        
+        // すでにいいねしている場合は取り消す
+        if (likedBy.includes(user.uid)) {
+          await updateDoc(menuRef, {
+            likedBy: arrayRemove(user.uid)
+          });
+        } else {
+          // いいねを追加
+          await updateDoc(menuRef, {
+            likedBy: arrayUnion(user.uid)
+          });
+        }
+        
+        // メニュー一覧を更新
+        await fetchMenuItems();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error handling menu item like:", error);
+      return false;
+    }
+  };
   
   // 日付のフォーマット関数
   const formatDate = (timestamp: Timestamp | null) => {
@@ -267,8 +429,6 @@ export default function ShopDetail() {
           <div className={styles.shopImage}>
             <img src={shop.image} alt={shop.name} />
           </div>
-
-          
           
           <div className={styles.shopInfo}>
             <h1 className={styles.shopName}>{shop.name}</h1>
@@ -286,8 +446,6 @@ export default function ShopDetail() {
                 {shop.type}
               </div>
             )}
-
-            
             
             {/* レビュー平均 */}
             {reviews.length > 0 && (
@@ -306,10 +464,10 @@ export default function ShopDetail() {
 
         {/* シェア機能 */}
         <div className="flex items-center justify-end mt-2 mb-4">
-              <ShareButton
-                title={`${shop.name} | キッチンカー探し`}
-              />
-            </div>
+          <ShareButton
+            title={`${shop.name} | キッチンカー探し`}
+          />
+        </div>
         
         {/* ログイン状態表示セクション */}
         <div className={styles.loginSection}>
@@ -342,6 +500,12 @@ export default function ShopDetail() {
             基本情報
           </div>
           <div 
+            className={`${styles.tab} ${activeTab === 'menu' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('menu')}
+          >
+            メニュー ({menuItems.length})
+          </div>
+          <div 
             className={`${styles.tab} ${activeTab === 'reviews' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('reviews')}
           >
@@ -367,6 +531,32 @@ export default function ShopDetail() {
               <p className="detail-note">※営業時間は日によって異なる場合があります。詳細はお問い合わせください。</p>
             </div>
           </div>
+        ) : activeTab === 'menu' ? (
+          <div className={styles.section}>
+            <h2 className="section-title">メニュー</h2>
+            
+            {user ? (
+              <MenuList
+                menuItems={menuItems}
+                onLikeMenuItem={handleLikeMenuItem}
+                displayLimit={6}
+              />
+            ) : (
+              <>
+                <NoticeBanner
+                  title="メニューアイテムにいいねするには"
+                  message="いいね機能を使うにはログインが必要です。右上のログインボタンからログインしてください。"
+                />
+                <div className="mt-4">
+                  <MenuList
+                    menuItems={menuItems}
+                    onLikeMenuItem={handleLikeMenuItem}
+                    displayLimit={6}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         ) : (
           <div className={styles.section}>
             <h2 className="section-title">レビュー</h2>
@@ -391,10 +581,11 @@ export default function ShopDetail() {
             <div className={styles.reviewsSection}>
               <h3 className={styles.reviewsTitle}>ユーザーレビュー</h3>
               <ReviewList
-                reviews={reviews}
-                formatDate={(date) => date instanceof Timestamp ? formatDate(date) : ""}
-                onLikeReview={handleLikeReview}
-              />
+                  reviews={reviews}
+                  formatDate={(date) => date instanceof Timestamp ? formatDate(date) : ""}
+                  onLikeReview={handleLikeReview}
+                  onReportReview={handleReportReview} // 必須になった可能性がある
+                />
             </div>
           </div>
         )}
