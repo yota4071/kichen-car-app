@@ -11,7 +11,7 @@ type ReviewItemProps = {
   date?: Timestamp | Date | null;
   formatDate?: (date: Timestamp | Date | null) => string;
   likes: number;
-  onLike?: (reviewId: string) => void;
+  onLike?: (reviewId: string) => Promise<boolean>; // Promise<boolean>を返すように変更
   userHasLiked?: boolean;
 };
 
@@ -36,19 +36,22 @@ export function ReviewItem({
       formatDate(date)
   ) : '';
 
-  const handleLikeClick = () => {
+  const handleLikeClick = async () => {
     if (onLike) {
-      onLike(reviewId);
+      // onLike関数がtrueを返した場合のみUIを更新する
+      const success = await onLike(reviewId);
       
-      // すでにいいねしている場合は取り消し、していない場合は追加
-      if (isLiked) {
-        setLikeCount(prev => prev - 1);
-        setIsLiked(false);
-      } else {
-        setLikeCount(prev => prev + 1);
-        setIsLiked(true);
-        setIsLikeAnimating(true);
-        setTimeout(() => setIsLikeAnimating(false), 500);
+      if (success) {
+        // すでにいいねしている場合は取り消し、していない場合は追加
+        if (isLiked) {
+          setLikeCount(prev => prev - 1);
+          setIsLiked(false);
+        } else {
+          setLikeCount(prev => prev + 1);
+          setIsLiked(true);
+          setIsLikeAnimating(true);
+          setTimeout(() => setIsLikeAnimating(false), 500);
+        }
       }
     }
   };

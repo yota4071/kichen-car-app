@@ -16,10 +16,10 @@ type Review = {
 type SortOption = 'newest' | 'highest-rated' | 'most-liked';
 
 type ReviewListProps = {
-  reviews: Review[];
-  formatDate?: (date: Timestamp | Date | null) => string;
-  onLikeReview: (reviewId: string) => void;
-};
+    reviews: Review[];
+    formatDate?: (date: Timestamp | Date | null) => string;
+    onLikeReview: (reviewId: string) => Promise<boolean>; // 戻り値の型を変更
+  };
 
 export function ReviewList({ 
   reviews, 
@@ -100,7 +100,7 @@ export function ReviewList({
             likes={review.likes}
             onLike={onLikeReview}
             userHasLiked={review.userLiked}
-          />
+        />
         ))}
       </div>
     </div>

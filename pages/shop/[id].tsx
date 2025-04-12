@@ -192,10 +192,10 @@ export default function ShopDetail() {
     }
   };
 
-  const handleLikeReview = async (reviewId: string) => {
+  const handleLikeReview = async (reviewId: string): Promise<boolean> => {
     if (!user || !id) {
       alert("いいねするにはログインしてください");
-      return;
+      return false; // ログインしていない場合はfalseを返してUIが更新されないようにする
     }
   
     try {
@@ -220,9 +220,12 @@ export default function ShopDetail() {
         
         // レビュー一覧を更新
         await fetchReviews();
+        return true; // 処理成功
       }
+      return false; // レビューが存在しない場合
     } catch (error) {
       console.error("Error handling review like:", error);
+      return false; // エラーが発生した場合
     }
   };
   
