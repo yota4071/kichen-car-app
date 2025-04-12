@@ -1,0 +1,570 @@
+import { useEffect, useRef, useState } from 'react';
+
+const WakaInvaders = ({ isMobile = false }) => {
+  const canvasRef = useRef(null);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [level, setLevel] = useState(1);
+  const [lives, setLives] = useState(3);
+  
+  // ゲームのステートを保持するためのrefを使用
+  const gameStateRef = useRef({
+    player: {
+      x: 0,
+      y: 0,
+      width: 30,
+      height: 15,
+      speed: 5,
+      color: '#3b82f6',
+      isMovingLeft: false,
+      isMovingRight: false,
+    },
+    bullets: [],
+    enemies: [],
+    lastEnemyMove: 0,
+    enemyDirection: 1,
+    enemyMoveSpeed: 30,
+    enemyMoveInterval: 1000,
+    lastShot: 0,
+    shotInterval: 300,
+    animationFrameId: null,
+    canvas: null,
+    ctx: null,
+    canvasWidth: 0,
+    canvasHeight: 0,
+    touchStartX: 0,
+  });
+
+  // ゲームを初期化する関数
+  const initGame = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas.getBoundingClientRect();
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    const state = gameStateRef.current;
+    state.canvas = canvas;
+    state.ctx = ctx;
+    state.canvasWidth = width;
+    state.canvasHeight = height;
+    
+    // プレイヤーの初期位置
+    state.player.x = width / 2 - state.player.width / 2;
+    state.player.y = height - 30;
+    
+    // 敵の初期配置
+    state.enemies = [];
+    const rows = 4;
+    const cols = 8;
+    const padding = 10;
+    const enemyWidth = 30;
+    const enemyHeight = 20;
+    const startX = (width - (cols * (enemyWidth + padding) - padding)) / 2;
+    
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const enemy = {
+          x: startX + col * (enemyWidth + padding),
+          y: 50 + row * (enemyHeight + padding),
+          width: enemyWidth,
+          height: enemyHeight,
+          color: row === 0 ? '#ef4444' : row === 1 ? '#f97316' : row === 2 ? '#84cc16' : '#06b6d4',
+          type: row,
+          points: (4 - row) * 10
+        };
+        state.enemies.push(enemy);
+      }
+    }
+    
+    // レベルに応じて敵の移動速度を調整
+    state.enemyMoveInterval = Math.max(200, 1000 - (level - 1) * 100);
+    
+    setGameOver(false);
+    setGameStarted(true);
+  };
+
+  // ゲームのメインループ
+  const gameLoop = (timestamp) => {
+    const state = gameStateRef.current;
+    const { ctx, canvas, canvasWidth, canvasHeight } = state;
+    
+    // 背景をクリア
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+    // プレイヤーの移動
+    if (state.player.isMovingLeft && state.player.x > 0) {
+      state.player.x -= state.player.speed;
+    }
+    if (state.player.isMovingRight && state.player.x < canvasWidth - state.player.width) {
+      state.player.x += state.player.speed;
+    }
+    
+    // プレイヤーの描画
+    ctx.fillStyle = state.player.color;
+    ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
+    
+    // プレイヤーの砲台部分を描画
+    ctx.fillRect(state.player.x + state.player.width / 2 - 2, state.player.y - 8, 4, 8);
+    
+    // 弾の移動と描画
+    for (let i = state.bullets.length - 1; i >= 0; i--) {
+      const bullet = state.bullets[i];
+      bullet.y -= bullet.speed;
+      
+      // 画面外に出た弾を削除
+      if (bullet.y < 0) {
+        state.bullets.splice(i, 1);
+        continue;
+      }
+      
+      // 弾の描画
+      ctx.fillStyle = bullet.color;
+      ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+      
+      // 敵との衝突判定
+      for (let j = state.enemies.length - 1; j >= 0; j--) {
+        const enemy = state.enemies[j];
+        if (
+          bullet.x < enemy.x + enemy.width &&
+          bullet.x + bullet.width > enemy.x &&
+          bullet.y < enemy.y + enemy.height &&
+          bullet.y + bullet.height > enemy.y
+        ) {
+          // 衝突した場合、敵と弾を削除し、スコアを加算
+          state.bullets.splice(i, 1);
+          state.enemies.splice(j, 1);
+          setScore(prevScore => prevScore + enemy.points);
+          break;
+        }
+      }
+    }
+    
+    // 敵の移動と描画
+    if (timestamp - state.lastEnemyMove > state.enemyMoveInterval) {
+      let shouldChangeDirection = false;
+      let lowestEnemy = 0;
+      
+      state.enemies.forEach(enemy => {
+        enemy.x += state.enemyDirection * 10;
+        
+        // 画面端に到達したかチェック
+        if (
+          (state.enemyDirection > 0 && enemy.x + enemy.width > canvasWidth) ||
+          (state.enemyDirection < 0 && enemy.x < 0)
+        ) {
+          shouldChangeDirection = true;
+        }
+        
+        // 一番下の敵の位置を記録
+        if (enemy.y + enemy.height > lowestEnemy) {
+          lowestEnemy = enemy.y + enemy.height;
+        }
+      });
+      
+      // 方向転換が必要な場合
+      if (shouldChangeDirection) {
+        state.enemyDirection *= -1;
+        state.enemies.forEach(enemy => {
+          enemy.y += 20; // 下に移動
+        });
+      }
+      
+      state.lastEnemyMove = timestamp;
+      
+      // 敵がプレイヤーに到達したらゲームオーバー
+      if (lowestEnemy >= state.player.y) {
+        setLives(0);
+        setGameOver(true);
+        return;
+      }
+    }
+    
+    // 敵の描画
+    state.enemies.forEach(enemy => {
+      ctx.fillStyle = enemy.color;
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    });
+    
+    // 敵の弾（ランダムに発射）
+    if (state.enemies.length > 0 && Math.random() < 0.01) {
+      const randomEnemy = state.enemies[Math.floor(Math.random() * state.enemies.length)];
+      const enemyBullet = {
+        x: randomEnemy.x + randomEnemy.width / 2 - 1,
+        y: randomEnemy.y + randomEnemy.height,
+        width: 2,
+        height: 5,
+        speed: -5,
+        color: '#ff4444',
+        isEnemy: true
+      };
+      state.bullets.push(enemyBullet);
+    }
+    
+    // 敵の弾とプレイヤーの衝突判定
+    for (let i = state.bullets.length - 1; i >= 0; i--) {
+      const bullet = state.bullets[i];
+      if (bullet.isEnemy) {
+        bullet.y -= bullet.speed; // 敵の弾は下に移動
+        
+        // 画面外に出た弾を削除
+        if (bullet.y > canvasHeight) {
+          state.bullets.splice(i, 1);
+          continue;
+        }
+        
+        // プレイヤーとの衝突判定
+        if (
+          bullet.x < state.player.x + state.player.width &&
+          bullet.x + bullet.width > state.player.x &&
+          bullet.y < state.player.y + state.player.height &&
+          bullet.y + bullet.height > state.player.y
+        ) {
+          // 衝突した場合、弾を削除し、ライフを減らす
+          state.bullets.splice(i, 1);
+          setLives(prevLives => {
+            const newLives = prevLives - 1;
+            if (newLives <= 0) {
+              setGameOver(true);
+            }
+            return newLives;
+          });
+          break;
+        }
+      }
+    }
+    
+    // 敵を全て倒したら次のレベルへ
+    if (state.enemies.length === 0) {
+      setLevel(prevLevel => prevLevel + 1);
+      initGame();
+      return;
+    }
+    
+    // UIの描画
+    ctx.fillStyle = '#fff';
+    ctx.font = '16px Arial';
+    ctx.fillText(`スコア: ${score}`, 10, 20);
+    ctx.fillText(`レベル: ${level}`, canvasWidth / 2 - 30, 20);
+    ctx.fillText(`ライフ: ${'❤️'.repeat(lives)}`, canvasWidth - 100, 20);
+    
+    // ゲームオーバーでなければアニメーションを継続
+    if (!gameOver) {
+      state.animationFrameId = requestAnimationFrame(gameLoop);
+    } else {
+      // ゲームオーバー画面
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = '30px Arial';
+      ctx.fillText('GAME OVER', canvasWidth / 2 - 90, canvasHeight / 2 - 15);
+      
+      ctx.font = '20px Arial';
+      ctx.fillText(`最終スコア: ${score}`, canvasWidth / 2 - 60, canvasHeight / 2 + 20);
+      
+      ctx.font = '16px Arial';
+      ctx.fillText('もう一度プレイするにはクリック', canvasWidth / 2 - 120, canvasHeight / 2 + 60);
+    }
+  };
+
+  // ショット発射関数
+  const shoot = () => {
+    const state = gameStateRef.current;
+    const now = Date.now();
+    
+    // ショット間隔のチェック
+    if (now - state.lastShot < state.shotInterval) return;
+    
+    const bullet = {
+      x: state.player.x + state.player.width / 2 - 1,
+      y: state.player.y - 5,
+      width: 2,
+      height: 5,
+      speed: 7,
+      color: '#60a5fa',
+      isEnemy: false
+    };
+    
+    state.bullets.push(bullet);
+    state.lastShot = now;
+  };
+
+  // キーボード操作のイベントリスナー
+  useEffect(() => {
+    if (!gameStarted) return;
+    
+    const handleKeyDown = (e) => {
+      const state = gameStateRef.current;
+      if (e.key === 'ArrowLeft') {
+        state.player.isMovingLeft = true;
+      } else if (e.key === 'ArrowRight') {
+        state.player.isMovingRight = true;
+      } else if (e.key === ' ' || e.key === 'Spacebar') {
+        shoot();
+        e.preventDefault(); // スペースキーによるスクロールを防止
+      }
+    };
+    
+    const handleKeyUp = (e) => {
+      const state = gameStateRef.current;
+      if (e.key === 'ArrowLeft') {
+        state.player.isMovingLeft = false;
+      } else if (e.key === 'ArrowRight') {
+        state.player.isMovingRight = false;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [gameStarted]);
+
+  // タッチ操作のイベントリスナー（モバイル用）
+  useEffect(() => {
+    if (!isMobile || !gameStarted) return;
+    
+    const canvas = canvasRef.current;
+    const state = gameStateRef.current;
+    
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const touchX = touch.clientX - rect.left;
+      
+      state.touchStartX = touchX;
+      
+      // 画面上部タップでショット
+      if (touch.clientY - rect.top < rect.height / 3) {
+        shoot();
+      }
+    };
+    
+    const handleTouchMove = (e) => {
+      e.preventDefault(); // タッチ操作によるスクロールを防止
+      
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const touchX = touch.clientX - rect.left;
+      
+      // 左右の移動
+      state.player.isMovingLeft = false;
+      state.player.isMovingRight = false;
+      
+      const moveDiff = touchX - state.touchStartX;
+      
+      if (Math.abs(moveDiff) > 10) {
+        if (moveDiff < 0) {
+          state.player.isMovingLeft = true;
+        } else {
+          state.player.isMovingRight = true;
+        }
+        state.touchStartX = touchX;
+      }
+    };
+    
+    const handleTouchEnd = () => {
+      state.player.isMovingLeft = false;
+      state.player.isMovingRight = false;
+    };
+    
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isMobile, gameStarted]);
+
+  // ゲーム開始
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    
+    // キャンバスのサイズをウィンドウに合わせる
+    const handleResize = () => {
+      if (!canvasRef.current) return;
+      
+      const canvas = canvasRef.current;
+      const { width } = canvas.parentElement.getBoundingClientRect();
+      const height = Math.min(600, window.innerHeight - 200);
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      gameStateRef.current.canvasWidth = width;
+      gameStateRef.current.canvasHeight = height;
+      
+      // ゲーム中なら再初期化
+      if (gameStarted && !gameOver) {
+        initGame();
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      
+      // アニメーションフレームをクリア
+      if (gameStateRef.current.animationFrameId) {
+        cancelAnimationFrame(gameStateRef.current.animationFrameId);
+      }
+    };
+  }, []);
+
+  // ゲームを開始/再開
+  const startGame = () => {
+    if (gameStateRef.current.animationFrameId) {
+      cancelAnimationFrame(gameStateRef.current.animationFrameId);
+    }
+    
+    setScore(0);
+    setLevel(1);
+    setLives(3);
+    setGameOver(false);
+    
+    initGame();
+    gameStateRef.current.animationFrameId = requestAnimationFrame(gameLoop);
+  };
+
+  // モバイル向けのコントロールレイアウト
+  const renderMobileControls = () => {
+    if (!isMobile) return null;
+    
+    return (
+      <div className="mobile-controls">
+        <button 
+          className="shoot-button"
+          onClick={shoot}
+        >
+          シュート
+        </button>
+        <div className="movement-hint">
+          画面の左右をタップして移動
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="game-component">
+      {!gameStarted ? (
+        <div className="start-screen">
+          <h2>Waka Invaders</h2>
+          <p>インベーダーゲームで遊ぼう！</p>
+          <button onClick={startGame} className="start-button">
+            ゲームスタート
+          </button>
+        </div>
+      ) : (
+        <>
+          <canvas
+            ref={canvasRef}
+            onClick={gameOver ? startGame : undefined}
+            className="game-canvas"
+          />
+          {renderMobileControls()}
+        </>
+      )}
+      <style jsx>{`
+        .game-component {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4/3;
+          background-color: #000;
+          overflow: hidden;
+        }
+        
+        .game-canvas {
+          display: block;
+          width: 100%;
+          height: 100%;
+          touch-action: none;
+        }
+        
+        .start-screen {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background-color: rgba(0, 0, 0, 0.8);
+          color: white;
+          text-align: center;
+        }
+        
+        .start-screen h2 {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          color: #3b82f6;
+        }
+        
+        .start-button {
+          margin-top: 2rem;
+          padding: 0.75rem 1.5rem;
+          background-color: #3b82f6;
+          color: white;
+          border: none;
+          border-radius: 0.25rem;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        
+        .start-button:hover {
+          background-color: #2563eb;
+        }
+        
+        .mobile-controls {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+        }
+        
+        .shoot-button {
+          position: absolute;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 0.5rem 1rem;
+          background-color: rgba(59, 130, 246, 0.6);
+          color: white;
+          border: none;
+          border-radius: 0.25rem;
+          font-size: 1rem;
+          pointer-events: auto;
+        }
+        
+        .movement-hint {
+          position: absolute;
+          bottom: 10px;
+          left: 0;
+          width: 100%;
+          text-align: center;
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.875rem;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default WakaInvaders;

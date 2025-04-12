@@ -59,6 +59,14 @@ export default function Header({  }: HeaderProps) {
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (searchQuery.trim().toLowerCase() === "waka") {
+      // "Waka"が検出された場合、インベーダーゲームページにリダイレクト
+      router.push('/waka-invaders');
+      setSearchQuery('');
+      return;
+    }
+    
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
