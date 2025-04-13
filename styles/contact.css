@@ -1,0 +1,135 @@
+/* styles/contact.css */
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .contact-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .contact-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+  }
+  
+  .contact-form-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-header {
+    margin-bottom: 2rem;
+  }
+  
+  .error-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    margin-bottom: 1.5rem;
+  }
+  
+  .character-count {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  
+  .character-count-warning {
+    color: #f59e0b;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .contact-info {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .contact-info-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+  }
+  
+  .contact-methods {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 640px) {
+    .contact-methods {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .contact-method {
+    background-color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .method-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .method-hours {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+  }
+  
+  .method-detail {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #1d4ed8;
+  }
+  
+  .privacy-note {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 2rem;
+  }
+  
+  /* アニメーション */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .success-animation {
+    animation: fadeIn 0.5s ease-out;
+  }

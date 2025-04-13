@@ -9,6 +9,7 @@ import '@/styles/share-button.css';
 import '@/styles/menu-styles.css';
 import '@/styles/header.module.css'; // 追加
 import '@/styles/map-styles.css'; // 追加
+import '@/styles/contact.css'; // 追加
 import type { AppProps } from "next/app";
 import Head from "next/head";
 
