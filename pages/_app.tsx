@@ -17,8 +17,8 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>キッチンカー探し | 地元で人気のキッチンカーを見つけよう</title>
-        <meta name="description" content="お近くの美味しいキッチンカーをすぐに見つけられるアプリ。ユーザーのレビューやお気に入り機能も充実。" />
+        <title>Nom!Nom!</title>
+        <meta name="description" content="立命館大学のキッチンカーを探すならNOM!NOM!" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
