@@ -2,6 +2,8 @@
 import Image from "next/image";
 import Layout from "@/components/Layout";
 
+const currentYear = new Date().getFullYear();
+
 type Developer = {
   name: string;
   image: string;
@@ -34,7 +36,8 @@ export default function AboutPage() {
 
         <div className="about-description">
           <p>
-            「キッチンカー探し」は、大学キャンパスや地域イベントで出店するキッチンカー情報をわかりやすく提供するWebアプリです。
+          <p><span style={{ fontFamily: "'Bangers', cursive", fontSize: '19px' }}>
+            NOM ! NOM ! は、大学キャンパスや地域イベントで出店するキッチンカー情報をわかりやすく提供するアプリです。 </span></p>
           </p>
           <p>
             利用者は出店中のキッチンカーの位置、メニュー、レビューを閲覧できるほか、
