@@ -2,11 +2,10 @@
 import { useRouter } from "next/router";
 import { 
   doc, getDoc, getDocs, collection, addDoc, serverTimestamp, 
-  updateDoc, arrayUnion, arrayRemove, query, where, setDoc, DocumentData,deleteDoc
+  updateDoc, arrayUnion, arrayRemove, query, where, setDoc, DocumentData, deleteDoc
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
-import { QueryDocumentSnapshot } from "firebase/firestore";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
@@ -22,6 +21,7 @@ import { ReviewForm } from "@/components/shop/ReviewForm";
 import { ReviewList } from "@/components/shop/ReviewList";
 import NoticeBanner from "@/components/NoticeBanner";
 import { MenuList } from "@/components/shop/MenuList";
+import ShopSchedule from "@/components/shop/ShopSchedule"; // 追加：今後の出店予定コンポーネント
 
 type Shop = {
   name: string;
@@ -559,6 +559,9 @@ export default function ShopDetail() {
               <p>料理ジャンル: {shop.type || "不明"}</p>
               <p className="detail-note">※営業時間は日によって異なる場合があります。詳細はお問い合わせください。</p>
             </div>
+            
+            {/* 今後の出店予定を表示 */}
+            <ShopSchedule shopId={id as string} />
           </div>
         ) : activeTab === 'menu' ? (
           <div className={styles.section}>

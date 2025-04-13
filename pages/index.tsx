@@ -1,4 +1,4 @@
-// pages/index.tsx
+// pages/index.tsx（修正版）
 import { useEffect, useState, useRef } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -11,6 +11,7 @@ import ShopCard from "@/components/shop/ShopCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
 import CategoryCard from "@/components/category/CategoryCard";
+import TodaysFoodTrucks from "@/components/home/TodaysFoodTrucks"; // 追加
 
 type Shop = {
   id: string;
@@ -146,11 +147,6 @@ export default function Home() {
     return acc;
   }, {} as Record<string, number>);
 
-  // おすすめのキッチンカー（評価が高い順に3件）
-  const featuredShops = [...filteredShops]
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 3);
-
   return (
     <Layout>
       {/* ヒーローセクション */}
@@ -176,34 +172,8 @@ export default function Home() {
       {/* 波形の区切り */}
       <div className="wave-divider"></div>
 
-      {/* おすすめのキッチンカー */}
-      {!isLoading && featuredShops.length > 0 && (
-        <section className="section">
-          <div className="container">
-            <div className="section-title">
-              <h2>おすすめのキッチンカー</h2>
-              <Link href="#all-shops" className="view-all">
-                すべて見る
-              </Link>
-            </div>
-
-            <div className="shop-grid">
-              {featuredShops.map((shop) => (
-                <ShopCard
-                  key={`featured-${shop.id}`}
-                  id={shop.id}
-                  name={shop.name}
-                  location={shop.location}
-                  image={shop.image}
-                  type={shop.type}
-                  rating={shop.rating || 0}
-                  reviewCount={shop.reviewCount || 0}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* 本日のキッチンカー */}
+      <TodaysFoodTrucks />
 
       {/* 人気のカテゴリー */}
       {!isLoading && (
