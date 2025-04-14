@@ -23,6 +23,7 @@ import Layout from '@/components/Layout';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import Button from '@/components/ui/Button';
 import NoticeBanner from '@/components/NoticeBanner';
+import { checkIsAdmin } from '@/lib/admin'; // 追加
 
 
 
@@ -59,8 +60,8 @@ type CalendarDay = {
 
 // 管理者ユーザーID
 const ADMIN_USER_IDS = [
-  'ZoBOb8slRfTCOOknolAWZk7kX6P2',  // ここに実際の管理者ユーザーIDを追加
-  'adminUserId2',
+  '1',  // ここに実際の管理者ユーザーIDを追加
+  'ad2',
   // 他の管理者IDも追加可能
 ];
 
@@ -93,8 +94,8 @@ const AdminCalendarPage = () => {
       setUser(user);
       
       if (user) {
-        // 管理者チェック
-        const isUserAdmin = ADMIN_USER_IDS.includes(user.uid);
+        // 管理者チェックを新しい関数に置き換え
+        const isUserAdmin = await checkIsAdmin(user);
         setIsAdmin(isUserAdmin);
         
         if (!isUserAdmin) {

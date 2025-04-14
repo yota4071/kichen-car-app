@@ -11,11 +11,12 @@ import Layout from '@/components/Layout';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import Button from '@/components/ui/Button';
 import NoticeBanner from '@/components/NoticeBanner';
+import { checkIsAdmin } from '@/lib/admin'; // 追加
 
 // 管理者ユーザーID（実際の環境に合わせて設定）
 const ADMIN_USER_IDS = [
-  'ZoBOb8slRfTCOOknolAWZk7kX6P2',  // ここに実際の管理者ユーザーIDを追加
-  'lJgt23pnbCQ9y8CoKbgwAVA9RKI3',
+  '1',  // ここに実際の管理者ユーザーIDを追加
+  '2',
 ];
 
 // カテゴリーリスト
@@ -49,8 +50,8 @@ const AdminShopsPage = () => {
       setUser(user);
       
       if (user) {
-        // 管理者チェック
-        const isUserAdmin = ADMIN_USER_IDS.includes(user.uid);
+        // 管理者チェックを新しい関数に置き換え
+        const isUserAdmin = await checkIsAdmin(user);
         setIsAdmin(isUserAdmin);
         
         if (!isUserAdmin) {

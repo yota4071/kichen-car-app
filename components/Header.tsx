@@ -5,12 +5,13 @@ import { useRouter } from 'next/router';
 import { auth, provider } from '@/lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
 //import '@/styles/Header.module.css'; // 追加
+import { checkIsAdmin } from '@/lib/admin'; // 追加
 
 // 管理者ユーザーIDの配列
 const ADMIN_USER_IDS: string[] = [
   // 管理者のuidをここに追加
-  "ZoBOb8slRfTCOOknolAWZk7kX6P2",
-  "lJgt23pnbCQ9y8CoKbgwAVA9RKI3"
+  "2",
+  "1"
 ];
 
 
@@ -26,11 +27,20 @@ export default function Header({  }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false); // 管理者フラグ追加
 
-  // ユーザー認証状態の監視
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+   // ユーザー認証状態の監視
+   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+      
+      if (user) {
+        // 管理者かどうか確認
+        const adminStatus = await checkIsAdmin(user);
+        setIsAdmin(adminStatus);
+      } else {
+        setIsAdmin(false);
+      }
     });
     
     return () => unsubscribe();
@@ -142,8 +152,8 @@ const handleSearch = (e: React.FormEvent) => {
       マイページ
     </Link>
     
-    {/* 管理者向けメニューを追加 */}
-    {ADMIN_USER_IDS.includes(user.uid) && (
+    {/* 管理者向けメニューを追加 - ハードコードされたIDの配列を使わず、isAdmin状態を使用 */}
+    {isAdmin && (
       <div className="admin-menu-dropdown">
         <button className="admin-dropdown-button">
           管理メニュー ▼
