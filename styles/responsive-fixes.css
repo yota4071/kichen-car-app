@@ -1,0 +1,311 @@
+/* スマホ版レイアウト修正用CSS */
+/* styles/responsive-fixes.css として保存し、_app.tsxでインポートしてください */
+
+/* グローバル修正 */
+@media (max-width: 640px) {
+    /* コンテナの余白調整 */
+    .container {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    
+    /* フォントサイズの調整 - 小さい画面でも読みやすく */
+    h1 {
+      font-size: 1.75rem !important;
+      word-break: keep-all;
+      line-height: 1.3;
+    }
+    
+    h2 {
+      font-size: 1.5rem !important;
+      word-break: keep-all;
+    }
+    
+    /* 長いテキストの改行制御 */
+    p, .description, .subtitle, .shop-description {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      /* 日本語の単語内での改行を避ける */
+      word-break: normal;
+    }
+    
+    /* ボタンがはみ出ないように */
+    .btn, button {
+      white-space: normal;
+      height: auto;
+      min-height: 2.5rem;
+    }
+    
+    /* タッチターゲットのサイズ調整 */
+    .nav-link, .category-tab, .subcategory-tab, .filter-option {
+      padding: 0.75rem 0.5rem;
+      min-height: 44px; /* タッチターゲットの最小サイズ */
+    }
+    
+    /* フレックスボックスのはみ出し防止 */
+    .flex, .form-actions, .admin-actions {
+      flex-wrap: wrap;
+    }
+  }
+  
+  /* ヘッダー関連の修正 */
+  @media (max-width: 640px) {
+    .header-content {
+      padding: 0.75rem 0;
+    }
+    
+    .logo {
+      font-size: 1.5rem !important;
+    }
+    
+    /* ロゴのフォントサイズ調整 */
+    .logo span {
+      font-size: 30px !important;
+    }
+    
+    /* モバイルヘッダーの整理 */
+    .user-menu {
+      display: none !important; /* モバイルではハンバーガーメニューに */
+    }
+    
+    /* ハンバーガーメニューの位置調整 */
+    .mobile-menu-button {
+      margin-left: auto;
+    }
+  }
+  
+  /* ヒーローセクション関連の修正 */
+  @media (max-width: 640px) {
+    .hero {
+      padding: 2rem 0;
+    }
+    
+    .hero-title {
+      font-size: 1.75rem !important;
+      line-height: 1.3;
+    }
+    
+    .hero-description {
+      font-size: 1rem !important;
+    }
+    
+    /* 検索バーのサイズ調整 */
+    .hero-search-input {
+      height: 3rem;
+      padding: 0 1rem 0 2.5rem;
+    }
+    
+    .hero-search-icon {
+      left: 0.75rem;
+    }
+  }
+  
+  /* カード関連の修正 */
+  @media (max-width: 640px) {
+    /* カードレイアウトの調整 */
+    .shop-grid {
+      gap: 1rem !important;
+    }
+    
+    .shop-card {
+      width: 100% !important;
+    }
+    
+    .shop-name {
+      font-size: 1rem !important;
+      word-break: keep-all;
+      line-height: 1.4;
+    }
+    
+    /* カテゴリータブのスクロール */
+    .main-categories-tabs, .subcategory-tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: nowrap !important;
+    }
+    
+    .category-tab, .subcategory-tab {
+      flex-shrink: 0;
+    }
+  }
+  
+  /* フォーム関連の修正 */
+  @media (max-width: 640px) {
+    .form-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .form-actions .btn {
+      width: 100%;
+    }
+    
+    /* モバイルでのフォーム余白調整 */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    
+    .form-input, .form-select, .form-textarea {
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+  }
+  
+  /* 詳細ページ関連の修正 */
+  @media (max-width: 640px) {
+    .shopHeader {
+      flex-direction: column;
+    }
+    
+    .shopImage {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    
+    .shopInfo {
+      width: 100%;
+    }
+    
+    .shopName {
+      font-size: 1.5rem !important;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
+    }
+    
+    /* タブの調整 */
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .tab {
+      flex-shrink: 0;
+      padding: 0.75rem 1rem;
+    }
+  }
+  
+  /* テーブル関連の修正 */
+  @media (max-width: 640px) {
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    th, td {
+      min-width: 6rem;
+      white-space: nowrap;
+    }
+  }
+  
+  /* カレンダー関連の修正 */
+  @media (max-width: 640px) {
+    .calendar-grid {
+      font-size: 0.875rem;
+    }
+    
+    .calendar-day {
+      min-height: 80px;
+      padding: 0.375rem;
+    }
+    
+    .day-events {
+      max-height: 60px;
+    }
+    
+    .event-item {
+      padding: 0.25rem;
+      font-size: 0.7rem;
+    }
+  }
+  
+  /* マイページ関連の修正 */
+  @media (max-width: 640px) {
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      bottom: -50px;
+    }
+    
+    .profile-body {
+      padding-top: 3.5rem;
+    }
+    
+    .profile-title {
+      font-size: 1.5rem !important;
+    }
+    
+    .profile-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .profile-actions .btn {
+      width: 100%;
+    }
+  }
+  
+  /* レビュー関連の修正 */
+  @media (max-width: 640px) {
+    .review-form {
+      padding: 1.25rem;
+    }
+    
+    .review-item {
+      padding: 1rem;
+    }
+    
+    .review-item-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .review-actions {
+      align-self: flex-end;
+    }
+    
+    .review-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+  
+  /* モバイルでのUIタッチポイント拡大 */
+  @media (max-width: 640px) {
+    /* ボタンやリンクをクリックしやすく */
+    button, .btn, a.nav-link, .tab, .category-tab {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* フォーム要素の調整 */
+    input, select, textarea {
+      font-size: 16px !important; /* iOSでズームインを防止 */
+    }
+  }
+  
+  /* 特定の余白調整 */
+  @media (max-width: 640px) {
+    section {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+    
+    .section-title {
+      margin-bottom: 1.25rem;
+    }
+    
+    /* セクション間の余白 */
+    .section + .section {
+      margin-top: 0;
+    }
+  }
