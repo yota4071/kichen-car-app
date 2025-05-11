@@ -1,14 +1,142 @@
-/* @font-face の記述は削除またはコメントアウトしてください */
-/*
-@font-face {
-  font-family: 'Bangers-Local';
-  src: url('/Bangers.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-*/
+/* styles/header.module.css - 色変数を統一 */
 
 .logoFont {
-    font-family: 'Bangers', cursive; /* 'Bangers' に変更。fallbackとして cursive を追加 */
-  }
-  
+  font-family: 'Bangers', cursive; /* fallbackとして cursive を追加 */
+}
+
+/* 管理者メニュードロップダウン */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-menu-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.admin-dropdown-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.admin-dropdown-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.admin-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 160px;
+  background-color: white;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  border-radius: 0.375rem;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.admin-menu-dropdown:hover .admin-dropdown-content {
+  display: block;
+}
+
+.admin-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.admin-link:hover {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* モバイルメニューのログイン・ログアウトボタン */
+.mobile-login-button, .mobile-logout-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.mobile-login-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.mobile-login-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.mobile-logout-button {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.mobile-logout-button:hover {
+  background-color: #fecaca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+}
+
+/* アイコンを追加 */
+.mobile-login-button::before {
+  content: "👤";
+  margin-right: 0.75rem;
+}
+
+.mobile-logout-button::before {
+  content: "🚪";
+  margin-right: 0.75rem;
+}
+
+/* mobile-nav-item のスタイル調整 */
+.mobile-nav-item {
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+/* 親要素のli内でボタンを正しく配置 */
+.mobile-nav-item .mobile-login-button,
+.mobile-nav-item .mobile-logout-button {
+  margin: 0;
+  width: 100%;
+}
+
+/* モバイル管理者メニュー */
+.mobile-admin-title {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.mobile-admin-item {
+  padding-left: 1rem;
+}
+
+.mobile-admin-item a {
+  color: var(--primary-color);
+}

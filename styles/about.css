@@ -1,173 +1,174 @@
-/* styles/about.css */
+/* styles/about.css - 色変数を統一 */
+
 .about-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-  
-  .about-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1d4ed8;
-    margin-bottom: 1rem;
-  }
-  
-  .about-subtitle {
-    font-size: 1.1rem;
-    color: #6b7280;
-  }
-  
-  .about-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
-  }
-  
-  .about-description {
-    background-color: white;
-    border-radius: 0.75rem;
-    padding: 2rem;
-    margin-bottom: 3rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .about-description p {
-    color: #374151;
-    line-height: 1.7;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .section-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-left: 1rem;
-    border-left: 4px solid #3b82f6;
-  }
-  
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.about-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.about-description {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.about-description p {
+  color: var(--text-color);
+  line-height: 1.7;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-left: 1rem;
+  border-left: 4px solid var(--primary-color);
+}
+
+.developers-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
   .developers-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 1fr 1fr;
   }
-  
-  @media (min-width: 768px) {
-    .developers-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  
+}
+
+.developer-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+@media (min-width: 640px) {
   .developer-card {
-    background-color: white;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.3s, box-shadow 0.3s;
+    flex-direction: row;
+    text-align: left;
   }
-  
-  @media (min-width: 640px) {
-    .developer-card {
-      flex-direction: row;
-      text-align: left;
-    }
-  }
-  
-  .developer-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-  }
-  
+}
+
+.developer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px var(--shadow-color);
+}
+
+.developer-image {
+  width: 7rem;
+  height: 7rem;
+  position: relative;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--primary-light);
+}
+
+@media (min-width: 640px) {
   .developer-image {
-    width: 7rem;
-    height: 7rem;
-    position: relative;
-    margin-bottom: 1rem;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 4px solid #dbeafe;
+    margin-right: 1.5rem;
+    margin-bottom: 0;
   }
-  
-  @media (min-width: 640px) {
-    .developer-image {
-      margin-right: 1.5rem;
-      margin-bottom: 0;
-    }
-  }
-  
-  .developer-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1d4ed8;
-    margin-bottom: 0.5rem;
-  }
-  
-  .developer-comment {
-    color: #6b7280;
-    font-style: italic;
-  }
-  
-  .company-section {
-    background-color: #2563eb;
-    background-image: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-    padding: 3rem 2rem;
-    border-radius: 1rem;
-    text-align: center;
-    margin-bottom: 3rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
-  }
-  
-  .company-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('/images/pattern-bg.png');
-    background-size: cover;
-    opacity: 0.1;
-  }
-  
-  .company-content {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .company-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    letter-spacing: 0.05em;
-  }
-  
-  .company-divider {
-    width: 4rem;
-    height: 0.25rem;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin: 0 auto 1.5rem auto;
-    border-radius: 9999px;
-  }
-  
-  .company-description {
-    font-size: 1.25rem;
-    font-weight: 300;
-    max-width: 30rem;
-    margin: 0 auto;
-    line-height: 1.7;
-  }
-  
-  .last-updated {
-    text-align: right;
-    font-size: 0.875rem;
-    color: #9ca3af;
-    font-style: italic;
-  }
+}
+
+.developer-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.developer-comment {
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.company-section {
+  background-color: var(--primary-color);
+  background-image: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(var(--primary-color-rgb), 0.4);
+}
+
+.company-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/images/pattern-bg.png');
+  background-size: cover;
+  opacity: 0.1;
+}
+
+.company-content {
+  position: relative;
+  z-index: 1;
+}
+
+.company-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.company-divider {
+  width: 4rem;
+  height: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 0 auto 1.5rem auto;
+  border-radius: 9999px;
+}
+
+.company-description {
+  font-size: 1.25rem;
+  font-weight: 300;
+  max-width: 30rem;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.last-updated {
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--text-light);
+  font-style: italic;
+}
