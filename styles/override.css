@@ -1,0 +1,257 @@
+/* styles/override.css - TSXファイル内のインラインスタイルをオーバーライド */
+
+/* 共通のカラー変数のRGB値（rgba()で使用するため） */
+:root {
+    --primary-color-rgb: 255, 127, 80; /* コーラル色のRGB値 */
+  }
+  
+  /* Header.tsx のインラインスタイル上書き */
+  .admin-dropdown-button {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .admin-dropdown-button:hover {
+    background-color: var(--primary-hover) !important;
+  }
+  
+  .mobile-login-button {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .mobile-login-button:hover {
+    background-color: var(--primary-hover) !important;
+    box-shadow: 0 4px 6px rgba(var(--primary-color-rgb), 0.2) !important;
+  }
+  
+  .mobile-admin-item a {
+    color: var(--primary-color) !important;
+  }
+  
+  /* CategoryCard.tsx のインラインスタイル上書き */
+  .styled-category-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 20px var(--shadow-color) !important;
+  }
+  
+  /* InteractiveMap.tsx のインラインスタイル上書き */
+  .campus-tab.active {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .marker-dot {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.3) !important;
+  }
+  
+  .marker-pulse {
+    background-color: rgba(var(--primary-color-rgb), 0.4) !important;
+  }
+  
+  .spot-marker:hover .marker-dot,
+  .spot-marker.active .marker-dot {
+    background-color: var(--primary-hover) !important;
+  }
+  
+  .today-foodtrucks-button {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 4px rgba(var(--primary-color-rgb), 0.2) !important;
+  }
+  
+  .today-foodtrucks-button:hover {
+    background-color: var(--primary-hover) !important;
+    box-shadow: 0 4px 6px rgba(var(--primary-color-rgb), 0.3) !important;
+  }
+  
+  /* ReviewItem.tsx, MenuItem.tsx などのインラインスタイル上書き */
+  .menu-like-button.liked,
+  .review-item .like-button.liked {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-medium) !important;
+  }
+  
+  .menu-like-button:hover:not(:disabled),
+  .like-button:hover:not(:disabled) {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-medium) !important;
+    color: var(--primary-color) !important;
+  }
+  
+  /* NoticeBanner.tsx のインラインスタイル上書き */
+  .notice-banner {
+    background-color: var(--primary-light) !important;
+    border-left: 4px solid var(--primary-color) !important;
+  }
+  
+  .notice-icon {
+    background-color: rgba(var(--primary-color-rgb), 0.2) !important;
+    color: var(--primary-color) !important;
+  }
+  
+  /* SuccessMessage.tsx のインラインスタイル上書き */
+  .success-message {
+    margin-top: 1rem !important;
+    padding: 1rem !important;
+    background-color: #f0fff4 !important;
+    color: #38a169 !important;
+    border-radius: 0.5rem !important;
+    text-align: center !important;
+    border: 1px solid #c6f6d5 !important;
+  }
+  
+  /* FoodTypeSelector.tsx のインラインスタイル上書き */
+  .food-type-selector button {
+    background: var(--bg-color) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-light) !important;
+  }
+  
+  .food-type-selector button.selected {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+  }
+  
+  /* 管理者ページ関連のスタイル上書き */
+  .admin-title {
+    color: var(--text-color) !important;
+  }
+  
+  .admin-panel {
+    background-color: white !important;
+    box-shadow: 0 4px 6px var(--shadow-color) !important;
+  }
+  
+  .calendar-navigation .current-month {
+    color: var(--text-color) !important;
+  }
+  
+  .selected-date {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+  }
+  
+  .menu-item-card.selected-card {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-medium) !important;
+  }
+  
+  /* ボタンスタイルの上書き */
+  .btn-primary, 
+  .primary-button,
+  .submit-button,
+  .login-button {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+  }
+  
+  .btn-primary:hover, 
+  .primary-button:hover,
+  .submit-button:hover:not(:disabled),
+  .login-button:hover {
+    background-color: var(--primary-hover) !important;
+  }
+  
+  /* ゲーム関連のスタイル上書き */
+  .game-header h1, 
+  .game-logo h2 {
+    color: var(--primary-color) !important;
+    text-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.8) !important;
+  }
+  
+  .start-button,
+  .back-button {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .start-button:hover,
+  .back-button:hover {
+    background-color: var(--primary-hover) !important;
+  }
+  
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.8) !important;
+    }
+    to {
+      text-shadow: 0 0 20px rgba(var(--primary-color-rgb), 1), 0 0 30px rgba(var(--primary-color-rgb), 0.6) !important;
+    }
+  }
+  
+  /* ホーム・カテゴリーページのスタイル上書き */
+  .hero, 
+  .category-banner,
+  .map-header,
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+  }
+  
+  .view-all, 
+  .filter-clear-button,
+  .detailed-search-button,
+  .footer-link:hover {
+    color: var(--primary-color) !important;
+  }
+  
+  /* フォーム要素のスタイル上書き */
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-select:focus,
+  .textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.2) !important;
+  }
+  
+  /* カレンダー関連の上書き */
+  .calendar-day.selected {
+    border: 2px solid var(--primary-color) !important;
+  }
+  
+  .event-dot {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .food-truck-time {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-light) !important;
+  }
+  
+  /* スマホ・タブレット向け上書き */
+  @media (max-width: 768px) {
+    .mobile-login-button, 
+    .mobile-admin-item a,
+    .mobile-nav-item a:hover {
+      color: var(--primary-color) !important;
+    }
+  }
+  
+  /* マイページ関連のスタイル上書き */
+  .profile-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+  }
+  
+  .stat-value {
+    color: var(--primary-color) !important;
+  }
+  
+  .completion-progress {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-hover)) !important;
+  }
+  
+  .activity-item {
+    border-left: 4px solid var(--primary-color) !important;
+  }
+  
+  .developer-name {
+    color: var(--primary-color) !important;
+  }
+  
+  .company-section {
+    background-image: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+    box-shadow: 0 10px 25px rgba(var(--primary-color-rgb), 0.4) !important;
+  }
+  
+  /* ロゴフォント関連 */
+  .logo span {
+    font-family: 'Bangers', cursive !important;
+  }
