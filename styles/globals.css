@@ -43,7 +43,7 @@ img {
 
 /* ヘッダー */
 .header {
-  background-color: #3b82f6;
+  background-color: #F37167;
   color: white;
   position: sticky;
   top: 0;
@@ -115,7 +115,7 @@ img {
 
 .login-button {
   background-color: white;
-  color: #3b82f6;
+  color: #F37167;
   padding: 0.5rem 1rem;
   border-radius: 999px;
   font-weight: bold;
@@ -137,7 +137,7 @@ img {
 
 /* ヒーローセクション */
 .hero {
-  background-color: #3b82f6;
+  background-color: #F37167;
   color: white;
   padding: 4rem 0;
   position: relative;
@@ -183,7 +183,7 @@ img {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #3b82f6;
+  color: #F37167;
 }
 
 .wave-divider {
@@ -210,7 +210,7 @@ img {
 
 .view-all {
   font-size: 0.875rem;
-  color: #3b82f6;
+  color: #F37167;
 }
 
 .shop-grid {
@@ -253,7 +253,7 @@ img {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background-color: #3b82f6;
+  background-color: #F37167;
   color: white;
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
@@ -333,9 +333,9 @@ img {
 }
 
 .category-button.active {
-  background-color: #3b82f6;
+  background-color: #F37167;
   color: white;
-  border-color: #3b82f6;
+  border-color: #F37167;
 }
 
 .category-button:hover:not(.active) {
@@ -360,13 +360,13 @@ img {
 
 .clear-filter {
   font-size: 0.875rem;
-  color: #3b82f6;
+  color: #F37167;
   cursor: pointer;
 }
 
 /* Call to Action セクション */
 .cta-section {
-  background-color: #3b82f6;
+  background-color: #F37167;
   color: white;
   padding: 4rem 0;
 }
@@ -395,7 +395,7 @@ img {
 
 .cta-button {
   background-color: white;
-  color: #3b82f6;
+  color: #F37167;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: bold;
@@ -458,7 +458,7 @@ img {
 }
 
 .footer-link:hover {
-  color: #3b82f6;
+  color: #F37167;
 }
 
 .footer-bottom {
@@ -591,7 +591,7 @@ img {
 /* ホバー時やフォーカス時のスタイルも追加 */
 .category-container .search-input:hover,
 .category-container .search-input:focus {
-  border-color: #3b82f6;
+  border-color: #F37167;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   outline: none;
 }
