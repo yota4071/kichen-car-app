@@ -1,3 +1,16 @@
+/* グローバルカラー変数を定義 */
+:root {
+  --primary-color: #FF7F50; /* コーラル色：メインカラー */
+  --primary-hover: #FF6347; /* トマト色：ホバー時 */
+  --primary-light: #FFF0EB; /* 薄いコーラル色：背景など */
+  --primary-medium: #FFDFD3; /* 中間コーラル色：選択状態など */
+  --text-color: #1a202c; /* 黒に近い色：本文テキスト */
+  --text-light: #718096; /* グレー：サブテキスト */
+  --bg-color: #f7fafc; /* 背景色 */
+  --border-color: #e2e8f0; /* 境界線 */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* 影の色 */
+}
+
 /* リセットCSS */
 * {
   margin: 0;
@@ -14,8 +27,8 @@ html, body {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  color: #1a202c;
-  background-color: #f7fafc;
+  color: var(--text-color);
+  background-color: var(--bg-color);
 }
 
 a {
@@ -43,12 +56,12 @@ img {
 
 /* ヘッダー */
 .header {
-  background-color: #F37167;
+  background-color: var(--primary-color);
   color: white;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .header-content {
@@ -98,12 +111,12 @@ img {
   padding: 0.5rem 1rem 0.5rem 2.5rem;
   border: none;
   border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-light);
 }
 
 .search-icon {
@@ -111,15 +124,18 @@ img {
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
+  color: var(--primary-color);
 }
 
 .login-button {
   background-color: white;
-  color: #F37167;
+  color: var(--primary-color);
   padding: 0.5rem 1rem;
   border-radius: 999px;
   font-weight: bold;
   transition: background-color 0.3s;
+  border: none;
+  cursor: pointer;
 }
 
 .login-button:hover {
@@ -129,15 +145,42 @@ img {
 /* モバイルメニュー */
 .mobile-menu-button {
   display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .mobile-menu {
   display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  z-index: 99;
+}
+
+.mobile-menu.active {
+  display: block;
+}
+
+.mobile-nav-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.mobile-nav-item:last-child {
+  border-bottom: none;
 }
 
 /* ヒーローセクション */
 .hero {
-  background-color: #F37167;
+  background-color: var(--primary-color);
   color: white;
   padding: 4rem 0;
   position: relative;
@@ -183,7 +226,7 @@ img {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #F37167;
+  color: var(--primary-color);
 }
 
 .wave-divider {
@@ -210,7 +253,7 @@ img {
 
 .view-all {
   font-size: 0.875rem;
-  color: #F37167;
+  color: var(--primary-color);
 }
 
 .shop-grid {
@@ -223,7 +266,7 @@ img {
   background-color: white;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px var(--shadow-color);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -253,7 +296,7 @@ img {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background-color: #F37167;
+  background-color: var(--primary-color);
   color: white;
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
@@ -271,7 +314,7 @@ img {
 }
 
 .shop-location {
-  color: #718096;
+  color: var(--text-light);
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -281,13 +324,13 @@ img {
 .rating {
   display: flex;
   align-items: center;
-  font-size: 0.875rem;
-  color: #718096;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-.stars {
+.rating-stars {
   display: flex;
-  margin-right: 0.25rem;
+  align-items: center;
 }
 
 .star {
@@ -295,55 +338,57 @@ img {
   margin-right: 0.125rem;
 }
 
-/* カテゴリーフィルター */
-.filter-scroll {
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.filter-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-
-.filter-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.filter-scroll::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-}
-
-.category-list {
-  display: inline-flex;
-  gap: 0.5rem;
-}
-
-.category-button {
-  padding: 0.5rem 1rem;
-  background-color: white;
-  border-radius: 999px;
+.review-count {
   font-size: 0.875rem;
-  transition: background-color 0.3s, color 0.3s;
-  border: 1px solid #e2e8f0;
+  color: var(--text-light);
 }
 
-.category-button.active {
-  background-color: #F37167;
+/* 改良された星評価のスタイル */
+.rating-stars.text-sm {
+  font-size: 0.875rem;
+}
+
+.rating-stars.text-base {
+  font-size: 1rem;
+}
+
+.rating-stars.text-lg {
+  font-size: 1.25rem;
+}
+
+/* カテゴリーフィルター */
+.main-categories-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+}
+
+.category-tab {
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.category-tab:hover {
+  background-color: var(--primary-light);
+}
+
+.active-tab {
+  background-color: var(--primary-color);
   color: white;
-  border-color: #F37167;
-}
-
-.category-button:hover:not(.active) {
-  background-color: #f0f9ff;
+  border-color: var(--primary-color);
 }
 
 /* フィルター結果 */
-.filter-results {
+.result-info-box {
   background-color: white;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -351,22 +396,33 @@ img {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 1px 3px var(--shadow-color);
 }
 
-.result-text {
-  font-size: 0.875rem;
-  color: #718096;
+.result-info-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
-.clear-filter {
+.result-info-text {
   font-size: 0.875rem;
-  color: #F37167;
+  color: var(--text-light);
+}
+
+.filter-clear-button {
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  background: none;
+  border: none;
   cursor: pointer;
+  text-decoration: underline;
 }
 
 /* Call to Action セクション */
 .cta-section {
-  background-color: #F37167;
+  background-color: var(--primary-color);
   color: white;
   padding: 4rem 0;
 }
@@ -395,12 +451,15 @@ img {
 
 .cta-button {
   background-color: white;
-  color: #F37167;
+  color: var(--primary-color);
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   font-weight: bold;
   display: inline-block;
   transition: background-color 0.3s;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .cta-button:hover {
@@ -426,11 +485,57 @@ img {
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
+/* ボタン共通スタイル */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+  text-decoration: none;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: var(--text-color);
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-danger {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-danger:hover {
+  background-color: #fecaca;
+}
+
+.btn-disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* フッター */
 .footer {
   background-color: white;
   padding: 3rem 0;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
 }
 
 .footer-grid {
@@ -443,7 +548,7 @@ img {
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: #4a5568;
+  color: var(--text-color);
 }
 
 .footer-links {
@@ -453,20 +558,20 @@ img {
 }
 
 .footer-link {
-  color: #718096;
+  color: var(--text-light);
   transition: color 0.3s;
 }
 
 .footer-link:hover {
-  color: #F37167;
+  color: var(--primary-color);
 }
 
 .footer-bottom {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
   text-align: center;
-  color: #a0aec0;
+  color: var(--text-light);
   font-size: 0.875rem;
 }
 
@@ -482,36 +587,6 @@ img {
   
   .mobile-menu-button {
     display: block;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-  
-  .mobile-menu {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background-color: white;
-    padding: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 99;
-  }
-  
-  .mobile-menu.active {
-    display: block;
-  }
-  
-  .mobile-nav-item {
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #e2e8f0;
-    color: #4a5568;
-  }
-  
-  .mobile-nav-item:last-child {
-    border-bottom: none;
   }
   
   .hero-title {
@@ -540,65 +615,4 @@ img {
   .hero-title {
     font-size: 1.75rem;
   }
-}
-
-/* styles/globals.cssに追加 */
-
-/* 改良された星評価のスタイル */
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.rating-stars {
-  display: flex;
-  align-items: center;
-}
-
-.review-count {
-  font-size: 0.875rem;
-  color: #718096;
-}
-
-/* サイズバリエーション */
-.rating-stars.text-sm {
-  font-size: 0.875rem;
-}
-
-.rating-stars.text-base {
-  font-size: 1rem;
-}
-
-.rating-stars.text-lg {
-  font-size: 1.25rem;
-}
-
-/* ヘッダーの検索欄スタイルを修正 */
-.header .search-input {
-  color: black; /* ヘッダー内の文字色を黒に変更 */
-  background-color: white; /* ヘッダーの検索欄背景を白に変更 */
-}
-
-/* カテゴリーページの検索欄スタイルを修正 */
-.category-container .search-input {
-  color: black; /* 文字色を黒に変更 */
-  background-color: white; /* 背景色を白に明示的に設定 */
-  border: 1px solid #e2e8f0; /* 境界線を追加して視認性を高める */
-}
-
-/* ホバー時やフォーカス時のスタイルも追加 */
-.category-container .search-input:hover,
-.category-container .search-input:focus {
-  border-color: #F37167;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  outline: none;
-}
-
-/* モバイルメニュー内の検索欄も修正 */
-.mobile-menu .search-input {
-  color: black; /* 文字色を黒に変更 */
-  background-color: white;
-  border: 1px solid #e2e8f0;
 }
