@@ -189,37 +189,53 @@ const handleSearch = (e: React.FormEvent) => {
       </div>
 
       {/* モバイルメニュー */}
-      <div className={`mobile-menu ${isMenuOpen ? 'active' : ''}`}>
-        <div className="container">
-          <form onSubmit={handleSearch} className="mobile-search">
-            <input
-              type="text"
-              placeholder="キッチンカーを検索..."
-              className="search-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <span className="search-icon">🔍</span>
-          </form>
-          <ul>
-            <li className="mobile-nav-item"><Link href="/">ホーム</Link></li>
-            <li className="mobile-nav-item"><Link href="/categories">カテゴリー</Link></li>
-            <li className="mobile-nav-item"><Link href="/map">マップ</Link></li>
-            {user ? (
-              <>
-                <li className="mobile-nav-item"><Link href="/mypage">マイページ</Link></li>
-                <li className="mobile-nav-item">
-                  <button onClick={handleLogout}>ログアウト</button>
-                </li>
-              </>
-            ) : (
-              <li className="mobile-nav-item">
-                <button onClick={handleLogin}>ログイン</button>
+<div className={`mobile-menu ${isMenuOpen ? 'active' : ''}`}>
+  <div className="container">
+    <form onSubmit={handleSearch} className="mobile-search">
+      <input
+        type="text"
+        placeholder="キッチンカーを検索..."
+        className="search-input"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+      <span className="search-icon"></span>
+    </form>
+    <ul>
+      <li className="mobile-nav-item"><Link href="/">ホーム</Link></li>
+      <li className="mobile-nav-item"><Link href="/categories">カテゴリー</Link></li>
+      <li className="mobile-nav-item"><Link href="/map">マップ</Link></li>
+      <li className="mobile-nav-item"><Link href="/calendar">カレンダー</Link></li>
+      
+      {user ? (
+        <>
+          <li className="mobile-nav-item"><Link href="/mypage">マイページ</Link></li>
+          {/* 管理者メニュー */}
+          {ADMIN_USER_IDS.includes(user.uid) && (
+            <>
+              <li className="mobile-nav-item mobile-admin-title">管理者メニュー</li>
+              <li className="mobile-nav-item mobile-admin-item">
+                <Link href="/admin/calendar">カレンダー管理</Link>
               </li>
-            )}
-          </ul>
-        </div>
-      </div>
+              <li className="mobile-nav-item mobile-admin-item">
+                <Link href="/admin/shops">店舗管理</Link>
+              </li>
+            </>
+          )}
+          <li className="mobile-nav-item">
+            <button onClick={handleLogout} className="mobile-logout-button">ログアウト</button>
+          </li>
+        </>
+      ) : (
+        <li className="mobile-nav-item">
+          <button onClick={handleLogin} className="mobile-login-button">ログイン</button>
+        </li>
+      )}
+      
+      
+    </ul>
+  </div>
+</div>
     </header>
   );
 
@@ -280,6 +296,69 @@ const handleSearch = (e: React.FormEvent) => {
       background-color: #f3f4f6;
       color: #1f2937;
     }
+
+     /* モバイルメニューのログイン・ログアウトボタン */
+.mobile-login-button, .mobile-logout-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.mobile-login-button {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.mobile-login-button:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.mobile-logout-button {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.mobile-logout-button:hover {
+  background-color: #fecaca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+}
+
+/* アイコンを追加 */
+.mobile-login-button::before {
+  content: "👤";
+  margin-right: 0.75rem;
+}
+
+.mobile-logout-button::before {
+  content: "🚪";
+  margin-right: 0.75rem;
+}
+
+/* mobile-nav-item のスタイル調整 */
+.mobile-nav-item {
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+/* 親要素のli内でボタンを正しく配置 */
+.mobile-nav-item .mobile-login-button,
+.mobile-nav-item .mobile-logout-button {
+  margin: 0;
+  width: 100%;
+}
+
   `}</style>
 
 }

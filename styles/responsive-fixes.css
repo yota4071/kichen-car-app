@@ -1,0 +1,483 @@
+/* スマホ版レイアウト修正用CSS - 色変数を統一 */
+
+/* グローバル修正 */
+@media (max-width: 640px) {
+  /* コンテナの余白調整 */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* フォントサイズの調整 - 小さい画面でも読みやすく */
+  h1 {
+    font-size: 1.75rem !important;
+    word-break: keep-all;
+    line-height: 1.3;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+    word-break: keep-all;
+  }
+  
+  /* 長いテキストの改行制御 */
+  p, .description, .subtitle, .shop-description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    /* 日本語の単語内での改行を避ける */
+    word-break: normal;
+  }
+  
+  /* ボタンがはみ出ないように */
+  .btn, button {
+    white-space: normal;
+    height: auto;
+    min-height: 2.5rem;
+  }
+  
+  /* タッチターゲットのサイズ調整 */
+  .nav-link, .category-tab, .subcategory-tab, .filter-option {
+    padding: 0.75rem 0.5rem;
+    min-height: 44px; /* タッチターゲットの最小サイズ */
+  }
+  
+  /* フレックスボックスのはみ出し防止 */
+  .flex, .form-actions, .admin-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ヘッダー関連の修正 */
+@media (max-width: 640px) {
+  .header-content {
+    padding: 0.75rem 0;
+  }
+  
+  .logo {
+    font-size: 1.5rem !important;
+  }
+  
+  /* ロゴのフォントサイズ調整 */
+  .logo span {
+    font-size: 30px !important;
+  }
+  
+  /* モバイルヘッダーの整理 - ユーザーメニューとログインボタンを非表示 */
+  .user-menu, .login-button {
+    display: none !important; /* モバイルではハンバーガーメニューに */
+  }
+  
+  /* ハンバーガーメニューの位置調整 */
+  .mobile-menu-button {
+    margin-left: auto;
+  }
+}
+
+/* ヒーローセクション関連の修正 */
+@media (max-width: 640px) {
+  .hero {
+    padding: 2rem 0;
+  }
+  
+  .hero-title {
+    font-size: 1.75rem !important;
+    line-height: 1.3;
+  }
+  
+  .hero-description {
+    font-size: 1rem !important;
+  }
+  
+  /* 検索バーのサイズ調整 */
+  .hero-search-input {
+    height: 3rem;
+    padding: 0 1rem 0 2.5rem;
+  }
+  
+  .hero-search-icon {
+    left: 0.75rem;
+  }
+}
+
+/* カード関連の修正 */
+@media (max-width: 640px) {
+  /* カードレイアウトの調整 */
+  .shop-grid {
+    gap: 1rem !important;
+  }
+  
+  .shop-card {
+    width: 100% !important;
+  }
+  
+  .shop-name {
+    font-size: 1rem !important;
+    word-break: keep-all;
+    line-height: 1.4;
+  }
+  
+  /* カテゴリータブのスクロール */
+  .main-categories-tabs, .subcategory-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: nowrap !important;
+  }
+  
+  .category-tab, .subcategory-tab {
+    flex-shrink: 0;
+  }
+}
+
+/* フォーム関連の修正 */
+@media (max-width: 640px) {
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+  }
+  
+  /* モバイルでのフォーム余白調整 */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-input, .form-select, .form-textarea {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+}
+
+/* 詳細ページ関連の修正 */
+@media (max-width: 640px) {
+  .shopHeader {
+    flex-direction: column;
+  }
+  
+  .shopImage {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .shopInfo {
+    width: 100%;
+  }
+  
+  .shopName {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* タブの調整 */
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .tab {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* テーブル関連の修正 */
+@media (max-width: 640px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  th, td {
+    min-width: 6rem;
+    white-space: nowrap;
+  }
+}
+
+/* カレンダー関連の修正 */
+@media (max-width: 640px) {
+  .calendar-grid {
+    font-size: 0.875rem;
+  }
+  
+  .calendar-day {
+    min-height: 80px;
+    padding: 0.375rem;
+  }
+  
+  .day-events {
+    max-height: 60px;
+  }
+  
+  .event-item {
+    padding: 0.25rem;
+    font-size: 0.7rem;
+  }
+  
+  /* カレンダーナビゲーションボタンの修正 */
+  .calendar-navigation {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .nav-button,
+  .today-button {
+    min-width: unset;
+    flex: 1;
+    height: 44px; /* タッチしやすい高さ */
+  }
+}
+
+/* マイページ関連の修正 */
+@media (max-width: 640px) {
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    bottom: -50px;
+  }
+  
+  .profile-body {
+    padding-top: 3.5rem;
+  }
+  
+  .profile-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .profile-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .profile-actions .btn {
+    width: 100%;
+  }
+}
+
+/* レビュー関連の修正 */
+@media (max-width: 640px) {
+  .review-form {
+    padding: 1.25rem;
+  }
+  
+  .review-item {
+    padding: 1rem;
+  }
+  
+  .review-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .review-actions {
+    align-self: flex-end;
+  }
+  
+  .review-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* モバイルでのUIタッチポイント拡大 */
+@media (max-width: 640px) {
+  /* ボタンやリンクをクリックしやすく */
+  button, .btn, a.nav-link, .tab, .category-tab {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* フォーム要素の調整 */
+  input, select, textarea {
+    font-size: 16px !important; /* iOSでズームインを防止 */
+  }
+  
+  /* モバイルメニュースタイル調整 */
+  .mobile-menu {
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+  }
+  
+  .mobile-menu ul {
+    margin-top: 1rem;
+  }
+  
+  .mobile-nav-item {
+    padding: 0.875rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-nav-item:last-child {
+    border-bottom: none;
+  }
+  
+  .mobile-nav-item a, 
+  .mobile-nav-item button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0;
+    min-height: 44px;
+    font-size: 1rem;
+  }
+  
+  .mobile-search {
+    padding: 0.5rem 0;
+  }
+}
+
+/* カレンダーページのスマホ対応改善用CSS */
+@media (max-width: 768px) {
+  /* カレンダー管理ページ */
+  .admin-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .admin-subtitle {
+    font-size: 0.875rem;
+  }
+  
+  /* カレンダーグリッドをスマホ向けに最適化 */
+  .calendar-grid {
+    min-width: unset;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  
+  .calendar-header-cell {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .calendar-day {
+    min-height: 60px;
+    height: auto;
+    aspect-ratio: 1/1;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    overflow: hidden;
+  }
+  
+  /* イベント表示の調整 */
+  .day-events {
+    max-height: 40px;
+  }
+  
+  .event-item {
+    padding: 0.125rem;
+    font-size: 0.65rem;
+    gap: 0.125rem;
+  }
+  
+  .event-dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 0.125rem;
+  }
+  
+  .event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: calc(100% - 20px);
+  }
+  
+  .event-name {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .event-location {
+    display: none; /* スマホではスペース節約のため非表示 */
+  }
+  
+  /* コントロールパネルの調整 */
+  .control-panel {
+    padding: 1rem;
+  }
+  
+  .control-title {
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .selected-date {
+    font-size: 0.875rem;
+    padding: 0.375rem;
+  }
+  
+  .form-group label {
+    font-size: 0.875rem;
+  }
+  
+  .form-group select {
+    font-size: 1rem;
+    height: 44px; /* タッチしやすいサイズに */
+  }
+}
+
+/* 極小画面（iPhone SEなど）向け追加調整 */
+@media (max-width: 374px) {
+  .calendar-day {
+    min-height: 45px;
+    font-size: 0.7rem;
+    padding: 0.125rem;
+  }
+  
+  .day-number {
+    font-size: 0.75rem;
+  }
+  
+  .day-events {
+    max-height: 30px;
+  }
+  
+  .event-item {
+    padding: 0.1rem;
+    font-size: 0.6rem;
+  }
+  
+  .event-delete {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .nav-button,
+  .today-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .current-month {
+    font-size: 1.25rem;
+  }
+}
+
+/* 縦向き/横向き切り替え対応 */
+@media (orientation: portrait) {
+  .admin-content {
+    grid-template-columns: 1fr !important;
+  }
+}

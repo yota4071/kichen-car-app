@@ -49,13 +49,13 @@ export default function CategoryCard({
     
     // 各カテゴリーのデフォルト画像（実際のプロジェクトでは適切な画像URLに置き換える）
     const imageMap: Record<string, string> = {
-      '和食': '/images/categories/sample.jpg',
-      '洋食': '/images/categories/sample.jpg',
-      '中華': '/images/categories/sample.jpg',
-      'アジア料理': '/images/categories/sample.jpg',
-      'スイーツ': '/images/categories/sample.jpg',
-      'ドリンク': '/images/categories/sample.jpg',
-      'その他': '/images/categories/sample.jpg',
+      '和食': '/images/categories/Japan.jpg',
+      '洋食': '/images/categories/EU.jpg',
+      '中華': '/images/categories/China.jpg',
+      'アジア料理': '/images/categories/Asian.jpg',
+      'スイーツ': '/images/categories/swiitee.jpg',
+      'ドリンク': '/images/categories/drink.avif',
+      'その他': '/images/categories/Other.jpg',
     };
     
     return imageMap[name] || '/images/categories/default.jpg';

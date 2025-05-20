@@ -1,178 +1,318 @@
-/* styles/game.css */
+/* styles/games.css - 色変数を統一 */
+
 .game-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-  
-  .game-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.game-header h1 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.game-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.game-wrapper {
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px var(--shadow-color);
+  margin-bottom: 2rem;
+}
+
+.game-instructions {
+  margin-bottom: 2rem;
+}
+
+.instructions-box {
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.instructions-box h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.instructions-box ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.instructions-box li {
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+.back-to-home {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.back-button {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: var(--primary-hover);
+}
+
+/* ゲームコンポーネント内のスタイル */
+.game-component {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.start-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  text-align: center;
+}
+
+.start-screen h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.game-logo {
+  margin-bottom: 30px;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.game-logo h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.8);
+  margin: 0;
+}
+
+.game-intro {
+  margin-bottom: 30px;
+}
+
+.game-intro p {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  margin: 10px 0;
+  color: #e2e8f0;
+}
+
+.start-button {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.controls-info {
+  margin-top: 30px;
+  font-family: monospace;
+  background-color: rgba(30, 58, 138, 0.3);
+  padding: 15px 20px;
+  border-radius: 8px;
+  max-width: 80%;
+}
+
+.controls-info ul {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+}
+
+.controls-info li {
+  margin: 10px 0;
+  color: #cbd5e1;
+}
+
+/* モバイルコントロール */
+.mobile-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.mobile-instruction {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 0.75rem;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.shoot-button {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background-color: rgba(var(--primary-color-rgb), 0.6);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  pointer-events: auto;
+}
+
+.movement-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+}
+
+/* パワーアップリスト */
+.powerup-list {
+  list-style: none;
+  margin-bottom: 1.5rem;
+}
+
+.powerup-list li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.powerup-icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.powerup-speed {
+  background-color: #22c55e;
+  color: white;
+}
+
+.powerup-shield {
+  background-color: #60a5fa;
+  color: white;
+}
+
+.powerup-multi {
+  background-color: #fbbf24;
+  color: white;
+}
+
+.enemy-list {
+  list-style: none;
+}
+
+.enemy-list li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.enemy-icon {
+  display: inline-block;
+  width: 24px;
+  height: 16px;
+  margin-right: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.enemy-red {
+  background-color: #ef4444;
+}
+
+.enemy-orange {
+  background-color: #f97316;
+}
+
+.enemy-green {
+  background-color: #84cc16;
+}
+
+.enemy-blue {
+  background-color: #06b6d4;
+}
+
+.enemy-purple {
+  background-color: #8b5cf6;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
   .game-header h1 {
-    font-size: 2.5rem;
-    color: #3b82f6;
-    margin-bottom: 0.5rem;
+    font-size: 2rem;
   }
   
   .game-subtitle {
-    color: #64748b;
-    font-size: 1.1rem;
-  }
-  
-  .game-wrapper {
-    background-color: #000;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    margin-bottom: 2rem;
-  }
-  
-  .game-instructions {
-    margin-bottom: 2rem;
+    font-size: 1rem;
   }
   
   .instructions-box {
-    background-color: #f8fafc;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
   }
-  
-  .instructions-box h2 {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    color: #334155;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(var(--primary-color-rgb), 0.8);
   }
-  
-  .instructions-box ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
+  to {
+    text-shadow: 0 0 20px rgba(var(--primary-color-rgb), 1), 0 0 30px rgba(var(--primary-color-rgb), 0.6);
   }
-  
-  .instructions-box li {
-    margin-bottom: 0.5rem;
-    color: #475569;
-  }
-  
-  .back-to-home {
-    text-align: center;
-    margin-top: 2rem;
-  }
-  
-  .back-button {
-    display: inline-block;
-    background-color: #3b82f6;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: background-color 0.3s;
-  }
-  
-  .back-button:hover {
-    background-color: #2563eb;
-  }
-  
-  /* ゲームコンポーネント内のスタイル */
-  .game-component {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 4/3;
-    background-color: #000;
-    overflow: hidden;
-  }
-  
-  .game-canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-  }
-  
-  .start-screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    text-align: center;
-  }
-  
-  .start-screen h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #3b82f6;
-  }
-  
-  .start-button {
-    margin-top: 2rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .start-button:hover {
-    background-color: #2563eb;
-  }
-  
-  /* モバイルコントロール */
-  .mobile-controls {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  
-  .shoot-button {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem 1rem;
-    background-color: rgba(59, 130, 246, 0.6);
-    color: white;
-    border: none;
-    border-radius: 0.25rem;
-    font-size: 1rem;
-    pointer-events: auto;
-  }
-  
-  .movement-hint {
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.875rem;
-  }
-  
-  /* レスポンシブ調整 */
-  @media (max-width: 768px) {
-    .game-header h1 {
-      font-size: 2rem;
-    }
-    
-    .game-subtitle {
-      font-size: 1rem;
-    }
-    
-    .instructions-box {
-      padding: 1rem;
-    }
-  }
+}
