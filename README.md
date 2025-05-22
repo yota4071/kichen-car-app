@@ -138,3 +138,4 @@ npm run dev
 
 これを実行して、表示されたURLに行って表示されればOKです。
 ```
+//trigger redeploy
