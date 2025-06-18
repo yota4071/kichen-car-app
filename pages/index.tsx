@@ -114,11 +114,18 @@ export default function Home() {
 
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInputRef.current) {
-      setSearchQuery(searchInputRef.current.value);
+  e.preventDefault();
+  if (searchInputRef.current) {
+    const query = searchInputRef.current.value.trim();
+    if (query) {
+      // search ページにリダイレクト
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    } else {
+      // 空の場合は search ページのトップに移動
+      router.push('/search');
     }
-  };
+  }
+};
 
   // カテゴリー変更ハンドラー
   const handleCategoryChange = (category: string) => {
@@ -133,14 +140,13 @@ export default function Home() {
     }
   };
 
-  // フィルタリング - 検索クエリのみ適用
   const filteredShops = shops.filter(shop => {
-    // 検索クエリによるフィルタリング
-    return searchQuery === "" || 
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase()));
-  });
+  // 検索クエリによるフィルタリング（undefined チェック追加）
+  return searchQuery === "" || 
+    (shop.name && shop.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (shop.location && shop.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase()));
+});
 
   // 表示するショップ
   const displayedShops = isExpanded ? filteredShops : filteredShops.slice(0, displayLimit);

@@ -1,4 +1,4 @@
-// pages/categories.tsx（動的サブカテゴリー対応版）
+// pages/categories.tsx（人気のカテゴリーを常に表示するように修正）
 import { useEffect, useState, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -145,10 +145,10 @@ export default function CategoriesPage() {
   const filteredShops = shops.filter(shop => {
     // 検索クエリによるフィルタリング
     const matchesSearch = searchQuery === "" || 
-      shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.dish?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (shop.name && shop.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (shop.location && shop.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (shop.dish && shop.dish.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (shop.subDish && shop.subDish.toLowerCase().includes(searchQuery.toLowerCase()));
     
     // メインカテゴリーによるフィルタリング
@@ -239,6 +239,9 @@ export default function CategoriesPage() {
     return acc;
   }, {} as Record<string, number>);
 
+  // 人気カテゴリーを表示するかどうかの判定（修正：検索クエリがない場合は常に表示）
+  const showTopCategories = !isLoading && !searchQuery;
+
   return (
     <Layout title="カテゴリー | キッチンカー探し">
       <div className="category-banner">
@@ -269,21 +272,27 @@ export default function CategoriesPage() {
           </form>
         </div>
         
-        {/* トップカテゴリー一覧 */}
-        {!isLoading && !searchQuery && activeCategory === "すべて" && !activeSubCategory && !activeType && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">人気のカテゴリー</h2>
-            <div className="top-categories-grid">
-              {mainCategories.filter(cat => cat !== "すべて").map((category) => (
-                <CategoryCard 
-                  key={category}
-                  name={category}
-                  count={categoryCount[category] || 0}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* トップカテゴリー一覧 - 修正版（検索クエリがない場合は常に表示） */}
+        <div className="mb-12" style={{ 
+          minHeight: showTopCategories ? 'auto' : '0',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease-in-out'
+        }}>
+          {showTopCategories && (
+            <>
+              <h2 className="text-2xl font-bold mb-6">人気のカテゴリー</h2>
+              <div className="top-categories-grid">
+                {mainCategories.filter(cat => cat !== "すべて").map((category) => (
+                  <CategoryCard 
+                    key={category}
+                    name={category}
+                    count={categoryCount[category] || 0}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         
         {/* メインカテゴリータブ */}
         <div className="mb-8">
