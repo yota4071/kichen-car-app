@@ -1,7 +1,7 @@
-// pages/search.tsx（改良版）
+// pages/search.tsx（Vercel対応シンプル版）
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
-import { collection, getDocs, query, where, orderBy, startAt, endAt } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Layout from "@/components/Layout";
 import ShopCard from "@/components/shop/ShopCard";
@@ -31,14 +31,20 @@ export default function SearchPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>('name');
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(12);
+  const [mounted, setMounted] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // クライアントサイドマウント確認
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // URLからクエリパラメータを取得
   useEffect(() => {
+    if (!mounted) return;
+    
     if (router.query.q && typeof router.query.q === 'string') {
       const query = decodeURIComponent(router.query.q);
       setSearchQuery(query);
@@ -50,15 +56,7 @@ export default function SearchPage() {
     if (router.query.sort && typeof router.query.sort === 'string') {
       setSortBy(router.query.sort as SortOption);
     }
-  }, [router.query]);
-
-  // 検索履歴をローカルストレージから取得
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('searchHistory');
-    if (savedHistory) {
-      setSearchHistory(JSON.parse(savedHistory));
-    }
-  }, []);
+  }, [router.query, mounted]);
 
   // キッチンカーデータの取得
   useEffect(() => {
@@ -139,30 +137,30 @@ export default function SearchPage() {
   // 表示制限適用
   const displayedShops = filteredAndSortedShops.slice(0, displayLimit);
 
-  // 検索履歴に追加
-  const addToSearchHistory = (query: string) => {
-    if (!query.trim()) return;
-    
-    const newHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 5);
-    setSearchHistory(newHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-  };
-
   // 検索フォーム送信処理
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchInputRef.current) {
       const newQuery = searchInputRef.current.value.trim();
       setSearchQuery(newQuery);
-      setDisplayLimit(12); // 検索時にリセット
+      setDisplayLimit(12);
       
       if (newQuery) {
-        addToSearchHistory(newQuery);
-        router.push(`/search?q=${encodeURIComponent(newQuery)}${sortBy !== 'name' ? `&sort=${sortBy}` : ''}`, undefined, { shallow: true });
+        const queryParams = new URLSearchParams();
+        queryParams.set('q', newQuery);
+        if (sortBy !== 'name') queryParams.set('sort', sortBy);
+        router.push(`/search?${queryParams.toString()}`, undefined, { shallow: true });
       } else {
         router.push('/search', undefined, { shallow: true });
       }
-      setShowSuggestions(false);
+    }
+  };
+
+  // キーダウンイベント処理（改行対策）
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearch(e as any);
     }
   };
 
@@ -172,9 +170,10 @@ export default function SearchPage() {
       searchInputRef.current.value = keyword;
     }
     setSearchQuery(keyword);
-    addToSearchHistory(keyword);
-    router.push(`/search?q=${encodeURIComponent(keyword)}${sortBy !== 'name' ? `&sort=${sortBy}` : ''}`, undefined, { shallow: true });
-    setShowSuggestions(false);
+    const queryParams = new URLSearchParams();
+    queryParams.set('q', keyword);
+    if (sortBy !== 'name') queryParams.set('sort', sortBy);
+    router.push(`/search?${queryParams.toString()}`, undefined, { shallow: true });
   };
 
   // ソート変更処理
@@ -196,7 +195,6 @@ export default function SearchPage() {
       searchInputRef.current.value = "";
     }
     router.push('/search', undefined, { shallow: true });
-    setShowSuggestions(false);
   };
 
   // もっと見る処理
@@ -204,15 +202,17 @@ export default function SearchPage() {
     setDisplayLimit(prev => prev + 12);
   };
 
-  // 入力フォーカス時の処理
-  const handleInputFocus = () => {
-    setShowSuggestions(true);
-  };
-
-  // 入力外クリック時の処理
-  const handleInputBlur = () => {
-    setTimeout(() => setShowSuggestions(false), 200);
-  };
+  if (!mounted) {
+    return (
+      <Layout title="検索 | キッチンカー探し">
+        <div className="search-page">
+          <div className="container">
+            <LoadingIndicator message="ページを読み込み中..." />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout title={`検索結果${searchQuery ? `: ${searchQuery}` : ''} | キッチンカー探し`}>
@@ -232,58 +232,14 @@ export default function SearchPage() {
                     placeholder="キッチンカー名、料理名、場所で検索..."
                     className="search-main-input"
                     defaultValue={searchQuery}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                    inputMode="search"
                   />
                   <button type="submit" className="search-submit-button">
                     
                   </button>
                 </div>
-                
-                {/* 検索候補 */}
-                {showSuggestions && (searchHistory.length > 0 || !searchQuery) && (
-                  <div className="search-suggestions">
-                    {searchHistory.length > 0 && (
-                      <div className="suggestion-section">
-                        <h4 className="suggestion-title">最近の検索</h4>
-                        <div className="suggestion-items">
-                          {searchHistory.map((item, index) => (
-                            <button
-                              key={index}
-                              onClick={() => searchKeyword(item)}
-                              className="suggestion-item"
-                            >
-                              <svg className="suggestion-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              {item}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {!searchQuery && (
-                      <div className="suggestion-section">
-                        <h4 className="suggestion-title">人気のキーワード</h4>
-                        <div className="suggestion-items">
-                          {POPULAR_KEYWORDS.map((keyword) => (
-                            <button
-                              key={keyword}
-                              onClick={() => searchKeyword(keyword)}
-                              className="suggestion-item"
-                            >
-                              <svg className="suggestion-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                              {keyword}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </form>
             </div>
             
