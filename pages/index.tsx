@@ -1,4 +1,4 @@
-// pages/index.tsx（改良版：折りたたみ機能・詳細検索リンク追加）
+// pages/index.tsx（改良版：NoticeSlider追加・折りたたみ機能・詳細検索リンク・ダイナミックメッセージ追加）
 import { useEffect, useState, useRef } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -12,6 +12,8 @@ import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
 import CategoryCard from "@/components/category/CategoryCard";
 import TodaysFoodTrucks from "@/components/home/TodaysFoodTrucks";
+import NoticeSlider from "@/components/NoticeSlider";
+import { useHeroMessage } from "@/hooks/useHeroMessage";
 
 type Shop = {
   id: string;
@@ -33,6 +35,9 @@ export default function Home() {
   const [displayLimit, setDisplayLimit] = useState(8); // 初期表示数
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  // ダイナミックヒーローメッセージのフック
+  const { heroMessage, isLoading: isMessageLoading } = useHeroMessage();
 
   // URLからカテゴリーパラメータを取得
   useEffect(() => {
@@ -114,18 +119,18 @@ export default function Home() {
 
   // 検索処理
   const handleSearch = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (searchInputRef.current) {
-    const query = searchInputRef.current.value.trim();
-    if (query) {
-      // search ページにリダイレクト
-      router.push(`/search?q=${encodeURIComponent(query)}`);
-    } else {
-      // 空の場合は search ページのトップに移動
-      router.push('/search');
+    e.preventDefault();
+    if (searchInputRef.current) {
+      const query = searchInputRef.current.value.trim();
+      if (query) {
+        // search ページにリダイレクト
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      } else {
+        // 空の場合は search ページのトップに移動
+        router.push('/search');
+      }
     }
-  }
-};
+  };
 
   // カテゴリー変更ハンドラー
   const handleCategoryChange = (category: string) => {
@@ -141,12 +146,12 @@ export default function Home() {
   };
 
   const filteredShops = shops.filter(shop => {
-  // 検索クエリによるフィルタリング（undefined チェック追加）
-  return searchQuery === "" || 
-    (shop.name && shop.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (shop.location && shop.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase()));
-});
+    // 検索クエリによるフィルタリング（undefined チェック追加）
+    return searchQuery === "" || 
+      (shop.name && shop.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (shop.location && shop.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (shop.type && shop.type.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   // 表示するショップ
   const displayedShops = isExpanded ? filteredShops : filteredShops.slice(0, displayLimit);
@@ -180,12 +185,29 @@ export default function Home() {
 
   return (
     <Layout>
+      {/* お知らせスライダー - ヘッダーとヒーローセクションの間 */}
+      <NoticeSlider />
+
       {/* ヒーローセクション */}
       <section className="hero">
         <div className="container">
           <div className="hero-content">
-            <h1 className="hero-title">あなたの近くの美味しい<br />キッチンカーを見つけよう</h1>
-            <p className="hero-description">立命館大学で人気のキッチンカーを検索して、新しい味の発見を楽しみましょう</p>
+            {isMessageLoading ? (
+              // メッセージ読み込み中の表示
+              <>
+                <div className="hero-title-skeleton">
+                  <div className="skeleton-line skeleton-title" />
+                </div>
+                <div className="hero-description-skeleton">
+                  <div className="skeleton-line skeleton-description" />
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="hero-title">{heroMessage.title}</h1>
+                <p className="hero-description">{heroMessage.subtitle}</p>
+              </>
+            )}
             
             <form onSubmit={handleSearch} className="hero-search">
               <input
@@ -201,7 +223,7 @@ export default function Home() {
       </section>
 
       {/* 波形の区切り */}
-      <div className="wave-divider"></div>
+      <div className="wave-divider"></div> 
 
       {/* 本日のキッチンカー */}
       <TodaysFoodTrucks />
@@ -364,7 +386,7 @@ export default function Home() {
             </div>
             <div className="cta-image">
               <div className="map-placeholder">
-                🗺️
+                <img src="/images/map.png" alt="キャンパスマップ" />
               </div>
             </div>
           </div>
@@ -459,6 +481,40 @@ export default function Home() {
           font-size: 0.95rem;
         }
         
+        /* スケルトンローディング */
+        .hero-title-skeleton,
+        .hero-description-skeleton {
+          margin-bottom: 1rem;
+        }
+        
+        .skeleton-line {
+          border-radius: 0.5rem;
+          animation: skeleton-pulse 2s ease-in-out infinite;
+        }
+        
+        .skeleton-title {
+          height: 3.5rem;
+          background: rgba(255, 255, 255, 0.3);
+          margin-bottom: 1rem;
+          max-width: 600px;
+        }
+        
+        .skeleton-description {
+          height: 1.5rem;
+          background: rgba(255, 255, 255, 0.2);
+          margin-bottom: 2rem;
+          max-width: 500px;
+        }
+        
+        @keyframes skeleton-pulse {
+          0%, 100% {
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.8;
+          }
+        }
+        
         @media (max-width: 640px) {
           .detailed-search-cta {
             flex-direction: column;
@@ -468,6 +524,14 @@ export default function Home() {
           
           .detailed-search-cta button {
             width: 100%;
+          }
+          
+          .skeleton-title {
+            height: 2.5rem;
+          }
+          
+          .skeleton-description {
+            height: 1.25rem;
           }
         }
       `}</style>

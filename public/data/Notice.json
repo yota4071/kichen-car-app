@@ -1,0 +1,88 @@
+{
+  "notices": [
+    {
+      "id": "1",
+      "title": "NomNomリリース！！",
+      "link": "/NoticePages/nomnom-release",
+      "isExternal": false,
+      "color": "blue",
+      "isActive": true,
+      "startDate": "2025-06-01T00:00:00Z",
+      "endDate": "2025-07-31T23:59:59Z",
+      "priority": 1,
+      "createdAt": "2025-06-21T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "title": "📅 来週の出店スケジュールを更新しました",
+      "link": "/calendar",
+      "isExternal": false,
+      "color": "green",
+      "isActive": false,
+      "startDate": "2025-06-21T00:00:00Z",
+      "endDate": "2025-06-28T23:59:59Z",
+      "priority": 2,
+      "createdAt": "2025-06-21T09:00:00Z"
+    },
+    {
+      "id": "3",
+      "title": "⚠️ 本日は強風のため一部キッチンカーの出店を中止しています",
+      "link": null,
+      "isExternal": false,
+      "color": "orange",
+      "isActive": false,
+      "startDate": "2025-06-21T00:00:00Z",
+      "endDate": "2025-06-21T23:59:59Z",
+      "priority": 0,
+      "createdAt": "2025-06-21T08:00:00Z"
+    },
+    {
+      "id": "4",
+      "title": "🏆 月間人気キッチンカーランキングを発表！",
+      "link": "/categories",
+      "isExternal": false,
+      "color": "purple",
+      "isActive": false,
+      "startDate": "2025-06-01T00:00:00Z",
+      "endDate": "2025-06-30T23:59:59Z",
+      "priority": 3,
+      "createdAt": "2025-06-01T12:00:00Z"
+    },
+    {
+      "id": "5",
+      "title": "🍛 新メニュー「季節限定カレー」が登場",
+      "link": "/categories?category=カレー",
+      "isExternal": false,
+      "color": "red",
+      "isActive": false,
+      "startDate": "2025-06-15T00:00:00Z",
+      "endDate": "2025-08-31T23:59:59Z",
+      "priority": 4,
+      "createdAt": "2025-06-15T14:00:00Z"
+    },
+    {
+      "id": "6",
+      "title": "💰 学生証提示で10%オフキャンペーン実施中！",
+      "link": "/categories",
+      "isExternal": false,
+      "color": "green",
+      "isActive": false,
+      "startDate": "2025-06-20T00:00:00Z",
+      "endDate": "2025-07-20T23:59:59Z",
+      "priority": 2,
+      "createdAt": "2025-06-20T10:00:00Z"
+    },
+    {
+      "id": "7",
+      "title": "🌟 公式アプリがリリースされました！",
+      "link": "https://apps.apple.com/jp/app/nom-nom",
+      "isExternal": true,
+      "color": "blue",
+      "isActive": false,
+      "startDate": "2025-05-01T00:00:00Z",
+      "endDate": "2025-05-31T23:59:59Z",
+      "priority": 5,
+      "createdAt": "2025-05-01T16:00:00Z"
+    }
+  ]
+}

@@ -143,20 +143,31 @@
   z-index: 1;
 }
 
+.company-logo {
+  margin-bottom: 0.25rem; /* さらに縮小 */
+  display: flex;
+  justify-content: center;
+}
+
+.company-svg {
+  width: 200px; /* さらに小さく */
+  height: 200px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
 .company-title {
+  font-family: 'Sintony', sans-serif;
   font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem; /* さらに縮小 */
   letter-spacing: 0.05em;
 }
 
 .company-divider {
-  width: 4rem;
-  height: 0.25rem;
-  background-color: rgba(255, 255, 255, 0.5);
-  margin: 0 auto 1.5rem auto;
-  border-radius: 9999px;
+  margin: 0 auto 0.75rem auto; /* さらに縮小 */
 }
+
 
 .company-description {
   font-size: 1.25rem;

@@ -48,8 +48,8 @@ const InteractiveMap: React.FC = () => {
   // キャンパス名の表示名
   const campusNames: Record<CampusKey, string> = {
     oic: 'OIC（大阪いばらきキャンパス）',
-    bkc: 'BKC（びわこ・くさつキャンパス）',
-    kinugasa: '衣笠キャンパス'
+    bkc: '',
+    kinugasa: ''
   };
 
   
@@ -175,18 +175,7 @@ const SpotInfo: React.FC<{ spot: Spot }> = ({ spot }) => {
         >
           OIC
         </button>
-        <button 
-          className={`campus-tab ${activeTab === 'bkc' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('bkc'); setActiveSpot(null); }}
-        >
-          BKC
-        </button>
-        <button 
-          className={`campus-tab ${activeTab === 'kinugasa' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('kinugasa'); setActiveSpot(null); }}
-        >
-          衣笠
-        </button>
+        
       </div>
 
       <h2 className="campus-title">{campusNames[activeTab]}</h2>

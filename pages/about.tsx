@@ -18,8 +18,8 @@ const developers: Developer[] = [
   },
   {
     name: "Waka",
-    image: "/images/developers/wakamiya.jpg",
-    comment: "アサイーボウルに人生を救われた男。",
+    image: "/images/waka.png",
+    comment: "finding the best food trucks.",
   },
 ];
 
@@ -36,12 +36,11 @@ export default function AboutPage() {
 
         <div className="about-description">
           <p>
-          <p><span style={{ fontFamily: "'Bangers', cursive", fontSize: '19px' }}>
-            NOM ! NOM ! は、大学キャンパスや地域イベントで出店するキッチンカー情報をわかりやすく提供するアプリです。 </span></p>
-          </p>
-          <p>
-            利用者は出店中のキッチンカーの位置、メニュー、レビューを閲覧できるほか、
-            お気に入りのキッチンカーを探したりレビュー投稿も可能です。
+          <span style={{ fontFamily: "'Bangers', cursive", fontSize: '19px' }}>
+            NOM ! NOM ! は、大学キャンパスや地域イベントで出店するキッチンカー情報をわかりやすく提供するサイトです。
+          </span>
+          <br />
+            
           </p>
         </div>
 
@@ -67,14 +66,20 @@ export default function AboutPage() {
         </div>
 
         <div className="company-section">
-          <div className="company-content">
-            <h2 className="company-title">株式会社</h2>
-            <div className="company-divider"></div>
-            <p className="company-description">
-              キッチンカーと地域をつなぐ<br className="sm-only-break" />未来の架け橋をつくる。
-            </p>
-          </div>
-        </div>
+  <div className="company-content">
+    {/* SVGアイコンを追加 */}
+    <div className="company-logo">
+      <img src="/images/LogoOnly.svg" alt="Qurest Logo" className="company-svg" />
+    </div>
+    <h2 className="company-title" style={{ fontFamily: "'Sintony', sans-serif" }}>
+      Qurest
+    </h2>
+    <div className="company-divider"></div>
+    <p className="company-description">
+      最高のキッチンカーを見つけよう<br className="sm-only-break" />
+    </p>
+  </div>
+</div>
 
         <p className="last-updated">最終更新：2025年4月</p>
       </div>
