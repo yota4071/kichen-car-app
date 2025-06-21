@@ -690,3 +690,74 @@ img {
     font-size: 1.75rem;
   }
 }
+
+/* ヒーローセクションのレスポンシブタイトル修正 */
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  text-align: center;
+  
+  /* 日本語テキストの最適化 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+  letter-spacing: -0.02em;
+  
+  /* スムーズな遷移 */
+  transition: font-size 0.3s ease;
+}
+
+/* タブレット向け調整 */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+}
+
+/* スマホ横向き */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.8rem;
+    line-height: 1.3;
+    padding: 0 0.5rem;
+  }
+}
+
+/* スマホ縦向け */
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    padding: 0 0.75rem;
+  }
+}
+
+/* 小さなスマホ（iPhone SE等） */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.3rem;
+    line-height: 1.4;
+    padding: 0 0.5rem;
+  }
+}
+
+/* 極小画面 */
+@media (max-width: 375px) {
+  .hero-title {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    padding: 0 0.25rem;
+  }
+}
+
+/* 超極小画面 */
+@media (max-width: 320px) {
+  .hero-title {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    padding: 0;
+  }
+}
