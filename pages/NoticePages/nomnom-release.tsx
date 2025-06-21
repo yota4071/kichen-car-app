@@ -67,7 +67,7 @@ export default function NomNomReleasePage() {
   ];
 
   return (
-    <Layout title="NomNom! リリースのお知らせ | キッチンカー探し">
+    <Layout title="Nom!Nom! リリースのお知らせ | キッチンカー探し">
       {/* ヒーローセクション */}
       <section className="hero-section">
         <div className="container">

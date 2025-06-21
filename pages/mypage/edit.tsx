@@ -106,7 +106,7 @@ export default function EditProfile() {
         emailNotifications,
         updatedAt: serverTimestamp(),
         createdAt: serverTimestamp(), // 新規作成時のみ設定される
-      }, { merge: true });
+      }, { merge: true }); //ここ帰る
 
       setSaveSuccess(true);
       setTimeout(() => {

@@ -14,13 +14,18 @@ const developers: Developer[] = [
   {
     name: "Oz",
     image: "/images/developers/ozawa.jpg", // 画像パス
-    comment: "IoTと社会課題解決に挑戦中！",
+    comment: "いっぱい使ってください！！",
   },
   {
     name: "Waka",
     image: "/images/waka.png",
     comment: "finding the best food trucks.",
   },
+  {
+    name: "rei",
+    image: "/images/developers/rei.jpg", // 画像パス
+    comment: "半年は暇やから",
+  }
 ];
 
 export default function AboutPage() {
