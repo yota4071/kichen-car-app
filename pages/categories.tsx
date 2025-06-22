@@ -247,7 +247,7 @@ export default function CategoriesPage() {
       <div className="category-banner">
         <div className="category-banner-content">
           <h1>カテゴリーから探す</h1>
-          <p>お好みの料理ジャンルから、キャンパス周辺の美味しいキッチンカーを見つけましょう</p>
+          <p>お好みの料理ジャンルから、キャンパス周辺の美味しいキッチンカーを見つけましょう！</p>
         </div>
       </div>
       

@@ -223,7 +223,7 @@ const AdminShopsPage = () => {
       alert("店舗情報が削除されました。");
     } catch (error) {
       console.error("Error deleting shop:", error);
-      alert("削除中にエラーが発生しました。もう一度お試しください。");
+      alert("削除中にエラーが発生しました😭もう一度お試しください。");
     }
   };
 
