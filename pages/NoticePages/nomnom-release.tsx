@@ -268,12 +268,18 @@ export default function NomNomReleasePage() {
       </section>
 
       <style jsx>{`
+
+        
         .hero-section {
           background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
           color: white;
-          padding: 4rem 0;
+          padding: 4rem 1rem;
           position: relative;
-          overflow: hidden;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
         }
 
         .hero-section::before {
@@ -304,8 +310,11 @@ export default function NomNomReleasePage() {
         }
 
         .announcement-badge {
-          display: inline-block;
-          margin-bottom: 1.5rem;
+          display: flex;
+          margin-bottom: 15rem;
+          text-align: center;
+          justify-content: center;
+          width: 100%
         }
 
         .badge-text {
@@ -315,6 +324,8 @@ export default function NomNomReleasePage() {
           font-size: 0.875rem;
           font-weight: 600;
           backdrop-filter: blur(10px);
+          white-space: nowrap;
+          writing-mode: horizontal-tb;
         }
 
         .hero-title {
