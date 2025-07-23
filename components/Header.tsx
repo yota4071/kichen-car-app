@@ -127,6 +127,7 @@ const handleSearch = (e: React.FormEvent) => {
               {/* <li><Link href="/" className="nav-link">ホーム</Link></li> */}
               <li><Link href="/categories" className="nav-link">カテゴリー</Link></li>
               <li><Link href="/map" className="nav-link">マップ</Link></li>
+              <li><Link href="/ranking" className="nav-link">ランキング</Link></li>
             </ul>
           </nav>
 
@@ -206,6 +207,7 @@ const handleSearch = (e: React.FormEvent) => {
       <li className="mobile-nav-item"><Link href="/categories">カテゴリー</Link></li>
       <li className="mobile-nav-item"><Link href="/map">マップ</Link></li>
       <li className="mobile-nav-item"><Link href="/calendar">カレンダー</Link></li>
+      <li className="mobile-nav-item"><Link href="/ranking">ランキング</Link></li>
       
       {user ? (
         <>
