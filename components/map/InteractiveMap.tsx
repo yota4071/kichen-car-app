@@ -1,8 +1,10 @@
 // components/map/InteractiveMap.tsx
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 // 型定義
-type CampusKey = 'oic' | 'bkc' | 'kinugasa';
+type CampusKey = 'oic' | 'bkc' | 'kinugasa' | 'all';
+//kinugasaはKICに変更（衣笠にキッチンカーはないから多分変更しないでいい）
 
 type Spot = {
   id: string;
@@ -35,21 +37,24 @@ const InteractiveMap: React.FC = () => {
       { id: 'front-gate', name: '正門前', x: 50, y: 30, description: 'キャンパスの玄関口。多様なキッチンカーが出店します。' },
       { id: 'cafeteria', name: '食堂裏', x: 65, y: 55, description: '静かで穴場的なスポット。特色あるメニューを提供するキッチンカーが多いです。' },
       { id: 'garden', name: '中庭', x: 35, y: 65, description: '自然に囲まれた落ち着いた環境。季節限定メニューも楽しめます。' }
-    ]
+    ],
+    all: [ ], // 全世界のマップ用のスポットデータ（必要に応じて追加）
   };
 
   // マップ画像パス
   const mapImages: Record<CampusKey, string> = {
     oic: '/images/map.png', // OICのマップ画像
     bkc: '/images/bkc_map.png', // BKCのマップ画像（実際の画像に置き換えてください）
-    kinugasa: '/images/kinugasa_map.png' // 衣笠のマップ画像（実際の画像に置き換えてください）
+    kinugasa: '/images/kinugasa_map.png', // 衣笠のマップ画像（実際の画像に置き換えてください）
+    all: '/images/all_map.png', // 全世界のマップ画像（実際のgoogle mapに置き換え）
   };
 
   // キャンパス名の表示名
   const campusNames: Record<CampusKey, string> = {
     oic: 'OIC（大阪いばらきキャンパス）',
     bkc: '',
-    kinugasa: ''
+    kinugasa: '',
+    all: '全世界のマップ'
   };
 
   
@@ -175,7 +180,9 @@ const SpotInfo: React.FC<{ spot: Spot }> = ({ spot }) => {
         >
           OIC
         </button>
-        
+        <Link href="/map/all" passHref legacyBehavior>
+          <a className="campus-tab">ALL</a>
+        </Link>
       </div>
 
       <h2 className="campus-title">{campusNames[activeTab]}</h2>
