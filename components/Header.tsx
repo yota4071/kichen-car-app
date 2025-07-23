@@ -125,7 +125,8 @@ const handleSearch = (e: React.FormEvent) => {
           <nav>
             <ul className="nav-list">
               {/* <li><Link href="/" className="nav-link">ホーム</Link></li> */}
-              <li><Link href="/categories" className="nav-link">カテゴリー</Link></li>
+              {/* ブランチのテスト */}
+              <li><Link href="/categories" className="nav-link">カテゴリーだよ</Link></li>
               <li><Link href="/map" className="nav-link">マップ</Link></li>
             </ul>
           </nav>
