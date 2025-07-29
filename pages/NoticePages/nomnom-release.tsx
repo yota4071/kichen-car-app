@@ -280,6 +280,7 @@ export default function NomNomReleasePage() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
+          overflow-x: hidden;
         }
 
         .hero-section::before {
@@ -300,6 +301,8 @@ export default function NomNomReleasePage() {
           padding: 0 1rem;
           position: relative;
           z-index: 1;
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .hero-content {
@@ -307,13 +310,15 @@ export default function NomNomReleasePage() {
           grid-template-columns: 1fr 1fr;
           gap: 3rem;
           align-items: center;
+          max-width: 100%;
+          overflow-x: hidden;
         }
 
         .announcement-badge {
           display: flex;
-          margin-bottom: 15rem;
+          margin-bottom: 1.5rem;
           text-align: center;
-          justify-content: center;
+          justify-content: flex-start;
           width: 100%
         }
 
@@ -689,13 +694,37 @@ export default function NomNomReleasePage() {
 
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
+          .hero-section {
+            padding: 2rem 0.5rem;
+            min-height: auto;
+          }
+
           .hero-content {
             grid-template-columns: 1fr;
             text-align: center;
+            gap: 2rem;
           }
 
           .hero-title {
             font-size: 2rem;
+            line-height: 1.3;
+          }
+
+          .hero-description {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .hero-actions {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+          }
+
+          .cta-button, .about-button {
+            width: 100%;
+            max-width: 280px;
+            padding: 0.875rem 1.5rem;
           }
 
           .features-container {
@@ -719,12 +748,55 @@ export default function NomNomReleasePage() {
           .cta-actions {
             flex-direction: column;
             align-items: center;
+            gap: 0.75rem;
+          }
+
+          .main-cta, .map-cta {
+            width: 100%;
+            max-width: 280px;
           }
 
           .phone-mockup {
-            width: 150px;
-            height: 300px;
+            width: 180px;
+            height: 360px;
             padding: 15px;
+          }
+
+          .container {
+            padding: 0 0.75rem;
+          }
+
+          .announcement-badge {
+            justify-content: center;
+            margin-bottom: 1rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-section {
+            padding: 1.5rem 0.5rem;
+          }
+
+          .hero-title {
+            font-size: 1.75rem;
+          }
+
+          .brand-name {
+            display: block;
+            margin-bottom: 0.5rem;
+          }
+
+          .hero-description {
+            font-size: 0.95rem;
+          }
+
+          .phone-mockup {
+            width: 160px;
+            height: 320px;
+          }
+
+          .container {
+            padding: 0 0.5rem;
           }
         }
       `}</style>
