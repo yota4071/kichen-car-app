@@ -312,13 +312,14 @@ export default function NomNomReleasePage() {
           align-items: center;
           max-width: 100%;
           overflow-x: hidden;
+          text-align: center;
         }
 
         .announcement-badge {
           display: flex;
           margin-bottom: 1.5rem;
           text-align: center;
-          justify-content: flex-start;
+          justify-content: center;
           width: 100%
         }
 
@@ -355,6 +356,7 @@ export default function NomNomReleasePage() {
         .hero-actions {
           display: flex;
           gap: 1rem;
+          justify-content: center;
         }
 
         .cta-button, .about-button {
