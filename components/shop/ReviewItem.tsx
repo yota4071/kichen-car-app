@@ -82,17 +82,18 @@ export function ReviewItem({
     try {
       const success = await onReport(reviewId);
       if (success) {
+        setShowReportConfirm(false);
         setReportSuccess(true);
         // 3秒後に成功メッセージを非表示にする
         setTimeout(() => {
           setReportSuccess(false);
-          setShowReportConfirm(false);
         }, 3000);
       } else {
         setShowReportConfirm(false);
       }
     } catch (error) {
       console.error("レビュー報告エラー:", error);
+      setShowReportConfirm(false);
     } finally {
       setIsReporting(false);
     }
@@ -173,28 +174,33 @@ export function ReviewItem({
             <h4>このレビューを報告しますか？</h4>
             <p>不適切な内容や誹謗中傷が含まれる場合に報告してください。</p>
             
-            {reportSuccess ? (
-              <div className="report-success">
-                報告を受け付けました。
-              </div>
-            ) : (
-              <div className="report-buttons">
-                <button 
-                  className="report-cancel-button"
-                  onClick={() => setShowReportConfirm(false)}
-                  disabled={isReporting}
-                >
-                  キャンセル
-                </button>
-                <button 
-                  className="report-confirm-button"
-                  onClick={confirmReport}
-                  disabled={isReporting}
-                >
-                  {isReporting ? '報告中...' : '報告する'}
-                </button>
-              </div>
-            )}
+            <div className="report-buttons">
+              <button 
+                className="report-cancel-button"
+                onClick={() => setShowReportConfirm(false)}
+                disabled={isReporting}
+              >
+                キャンセル
+              </button>
+              <button 
+                className="report-confirm-button"
+                onClick={confirmReport}
+                disabled={isReporting}
+              >
+                {isReporting ? '報告中...' : '報告する'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 報告成功メッセージ（画面中央） */}
+      {reportSuccess && (
+        <div className="report-success-overlay">
+          <div className="report-success-message">
+            <div className="success-icon">✓</div>
+            <h3>報告を受け付けました</h3>
+            <p>ご報告ありがとうございます。内容を確認いたします。</p>
           </div>
         </div>
       )}
