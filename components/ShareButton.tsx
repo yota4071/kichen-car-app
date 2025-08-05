@@ -11,8 +11,8 @@ export default function ShareButton({ title, url, className = '' }: ShareButtonP
   const [copied, setCopied] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
-  // 共有するURL（指定がなければ現在のURL）
-  const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  // 共有するURL（指定がなければhttps://nomnom-eats.com/）
+  const shareUrl = url || 'https://nomnom-eats.com/';
 
   // Web Share APIを使った共有（モバイルやサポートしているブラウザのみ）
   const handleShare = async () => {
