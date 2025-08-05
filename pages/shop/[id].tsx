@@ -41,6 +41,7 @@ type Review = {
   likedBy: string[];
   userLiked?: boolean;
   reports?: number;
+  userId?: string; // レビュー投稿者のユーザーID
 };
 
 type MenuItem = {
@@ -136,7 +137,8 @@ export default function ShopDetail() {
           likes: likedBy.length,
           likedBy: likedBy,
           userLiked: user ? likedBy.includes(user.uid) : false,
-          reports: reportCount
+          reports: reportCount,
+          userId: data.userId // レビュー投稿者のユーザーID
         };
       }));
       
@@ -381,6 +383,41 @@ export default function ShopDetail() {
       return false;
     }
   };
+
+  // レビュー削除の処理
+  const handleDeleteReview = async (reviewId: string): Promise<boolean> => {
+    if (!user || !id) {
+      alert("レビューを削除するにはログインしてください");
+      return false;
+    }
+    
+    try {
+      const reviewRef = doc(db, "kitchens", String(id), "reviews", reviewId);
+      const reviewSnap = await getDoc(reviewRef);
+      
+      if (reviewSnap.exists()) {
+        const reviewData = reviewSnap.data();
+        
+        // 投稿者本人のみ削除可能
+        if (reviewData.userId !== user.uid) {
+          alert("自分のレビューのみ削除できます");
+          return false;
+        }
+        
+        // レビューを削除
+        await deleteDoc(reviewRef);
+        
+        // レビュー一覧を更新
+        await fetchReviews();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("レビュー削除エラー:", error);
+      alert("レビューの削除に失敗しました");
+      return false;
+    }
+  };
   
   // メニューアイテムへのいいね処理
   const handleLikeMenuItem = async (menuId: string): Promise<boolean> => {
@@ -616,7 +653,9 @@ export default function ShopDetail() {
                   reviews={reviews}
                   formatDate={(date) => date instanceof Timestamp ? formatDate(date) : ""}
                   onLikeReview={handleLikeReview}
-                  onReportReview={handleReportReview} // 必須になった可能性がある
+                  onReportReview={handleReportReview}
+                  onDeleteReview={handleDeleteReview}
+                  currentUserId={user?.uid}
                 />
             </div>
           </div>

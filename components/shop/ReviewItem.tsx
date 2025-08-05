@@ -15,6 +15,8 @@ type ReviewItemProps = {
   userHasLiked?: boolean;
   onReport?: (reviewId: string) => Promise<boolean>; // 報告機能を追加
   reports?: number; // 報告数を表示（管理者向け）
+  onDelete?: (reviewId: string) => Promise<boolean>; // 削除機能を追加
+  canDelete?: boolean; // 削除権限の有無
 };
 
 export function ReviewItem({ 
@@ -28,7 +30,9 @@ export function ReviewItem({
   onLike,
   userHasLiked = false,
   onReport,
-  reports = 0
+  reports = 0,
+  onDelete,
+  canDelete = false
 }: ReviewItemProps) {
   const [isLiked, setIsLiked] = useState(userHasLiked);
   const [likeCount, setLikeCount] = useState(likes);
@@ -36,6 +40,8 @@ export function ReviewItem({
   const [isReporting, setIsReporting] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
   const [showReportConfirm, setShowReportConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const formattedDate = date ? (
     date instanceof Timestamp ? 
@@ -92,6 +98,29 @@ export function ReviewItem({
     }
   };
 
+  // 削除ボタンがクリックされたときの処理
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  // 削除確認ダイアログでの確定処理
+  const confirmDelete = async () => {
+    if (!onDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await onDelete(reviewId);
+      if (success) {
+        // 削除成功時はダイアログを閉じる（親コンポーネントでリストから削除される）
+        setShowDeleteConfirm(false);
+      }
+    } catch (error) {
+      console.error("レビュー削除エラー:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="review-item">
       <div className="review-item-header">
@@ -113,6 +142,16 @@ export function ReviewItem({
           >
             <span className="report-icon">🚩</span>
           </button>
+
+          {canDelete && (
+            <button
+              className="delete-button"
+              onClick={handleDeleteClick}
+              aria-label="このレビューを削除"
+            >
+              <span className="delete-icon">🗑️</span>
+            </button>
+          )}
         </div>
       </div>
       <p className="review-comment">{comment}</p>
@@ -154,6 +193,33 @@ export function ReviewItem({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 削除確認ダイアログ */}
+      {showDeleteConfirm && (
+        <div className="delete-confirm-overlay">
+          <div className="delete-confirm-dialog">
+            <h4>このレビューを削除しますか？</h4>
+            <p>削除したレビューは元に戻すことができません。</p>
+            
+            <div className="delete-buttons">
+              <button 
+                className="delete-cancel-button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+              >
+                キャンセル
+              </button>
+              <button 
+                className="delete-confirm-button"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? '削除中...' : '削除する'}
+              </button>
+            </div>
           </div>
         </div>
       )}

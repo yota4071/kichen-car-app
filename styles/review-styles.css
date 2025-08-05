@@ -443,3 +443,113 @@
 .report-icon {
   font-size: 0.875rem;
 }
+
+/* 削除ボタン */
+.delete-button {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.delete-button:hover {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.delete-icon {
+  font-size: 0.875rem;
+}
+
+/* 削除確認オーバーレイ */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  transition: opacity 0.3s ease;
+}
+
+.delete-confirm-dialog {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+.delete-confirm-dialog h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.delete-confirm-dialog p {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.delete-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.delete-cancel-button,
+.delete-confirm-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-cancel-button {
+  background-color: var(--bg-color);
+  color: var(--text-light);
+  border: none;
+}
+
+.delete-cancel-button:hover {
+  background-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.delete-confirm-button {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.delete-confirm-button:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.delete-confirm-button:disabled,
+.delete-cancel-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

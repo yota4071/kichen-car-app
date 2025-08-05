@@ -12,6 +12,7 @@ type Review = {
   likes: number;
   userLiked?: boolean;
   reports?: number; // 報告数を追加
+  userId?: string; // レビュー投稿者のユーザーID
 };
 
 type SortOption = 'newest' | 'highest-rated' | 'most-liked';
@@ -21,6 +22,8 @@ type ReviewListProps = {
   formatDate?: (date: Timestamp | Date | null) => string;
   onLikeReview: (reviewId: string) => Promise<boolean>;
   onReportReview?: (reviewId: string) => Promise<boolean>; // 報告機能を追加
+  onDeleteReview?: (reviewId: string) => Promise<boolean>; // 削除機能を追加
+  currentUserId?: string; // 現在のユーザーID
 };
 
 export function ReviewList({ 
@@ -31,7 +34,9 @@ export function ReviewList({
     return new Date(date.toMillis()).toLocaleDateString('ja-JP');
   },
   onLikeReview,
-  onReportReview
+  onReportReview,
+  onDeleteReview,
+  currentUserId
 }: ReviewListProps) {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
 
@@ -105,6 +110,8 @@ export function ReviewList({
             userHasLiked={review.userLiked}
             onReport={onReportReview}
             reports={review.reports}
+            onDelete={onDeleteReview}
+            canDelete={!!(currentUserId && review.userId === currentUserId)}
           />
         ))}
       </div>
