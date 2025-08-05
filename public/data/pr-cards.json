@@ -1,0 +1,11 @@
+[
+  {
+    "id": "pr-card-1",
+    "name": "PRセクション",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "サンプルPRセクションです",
+    "url": "https://example.com/special-offer",
+    "isActive": true
+  }
+]

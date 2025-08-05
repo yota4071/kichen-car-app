@@ -8,7 +8,7 @@
       "color": "blue",
       "isActive": true,
       "startDate": "2025-06-01T00:00:00Z",
-      "endDate": "2025-07-31T23:59:59Z",
+      "endDate": "2025-09-30T23:59:59Z",
       "priority": 1,
       "createdAt": "2025-06-21T10:00:00Z"
     },

@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 // コンポーネントのインポート
 import Layout from "@/components/Layout";
 import ShopCard from "@/components/shop/ShopCard";
+import PRCard from "@/components/shop/PRCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
 import CategoryCard from "@/components/category/CategoryCard";
@@ -26,8 +27,19 @@ type Shop = {
   reviewCount?: number;
 };
 
+type PRCard = {
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+  prMessage: string;
+  url: string;
+  isActive: boolean;
+};
+
 export default function Home() {
   const [shops, setShops] = useState<Shop[]>([]);
+  const [prCards, setPrCards] = useState<PRCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,6 +50,23 @@ export default function Home() {
 
   // ダイナミックヒーローメッセージのフック
   const { heroMessage, isLoading: isMessageLoading } = useHeroMessage();
+
+  // PRカードデータの取得
+  useEffect(() => {
+    const fetchPRCards = async () => {
+      try {
+        const response = await fetch('/data/pr-cards.json');
+        if (response.ok) {
+          const data = await response.json();
+          setPrCards(data.filter((card: PRCard) => card.isActive));
+        }
+      } catch (error) {
+        console.error("Error fetching PR cards:", error);
+      }
+    };
+
+    fetchPRCards();
+  }, []);
 
   // URLからカテゴリーパラメータを取得
   useEffect(() => {
@@ -315,6 +344,19 @@ export default function Home() {
           ) : filteredShops.length > 0 ? (
             <>
               <div className="shop-grid">
+                {/* PR領域 - JSONから動的に生成 */}
+                {prCards.map((prCard) => (
+                  <PRCard
+                    key={prCard.id}
+                    id={prCard.id}
+                    name={prCard.name}
+                    location={prCard.location}
+                    image={prCard.image}
+                    prMessage={prCard.prMessage}
+                    url={prCard.url}
+                  />
+                ))}
+                
                 {displayedShops.map((shop) => (
                   <ShopCard
                     key={shop.id}
@@ -515,6 +557,18 @@ export default function Home() {
           }
         }
         
+        /* PRCard専用スタイル */
+        .pr-message {
+          color: #059669;
+          font-size: 0.875rem;
+          font-weight: 500;
+          margin-top: 0.5rem;
+          background-color: #ecfdf5;
+          padding: 0.5rem;
+          border-radius: 0.375rem;
+          border-left: 3px solid #10b981;
+        }
+
         @media (max-width: 640px) {
           .detailed-search-cta {
             flex-direction: column;
