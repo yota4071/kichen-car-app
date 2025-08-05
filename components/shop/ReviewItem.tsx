@@ -135,13 +135,15 @@ export function ReviewItem({
             {isLiked ? '❤️' : '🤍'} <span className="like-count">{likeCount}</span>
           </button>
           
-          <button
-            className="report-button"
-            onClick={handleReportClick}
-            aria-label="このレビューを報告"
-          >
-            <span className="report-icon">🚩</span>
-          </button>
+          {!canDelete && (
+            <button
+              className="report-button"
+              onClick={handleReportClick}
+              aria-label="このレビューを報告"
+            >
+              <span className="report-icon">🚩</span>
+            </button>
+          )}
 
           {canDelete && (
             <button
@@ -173,7 +175,7 @@ export function ReviewItem({
             
             {reportSuccess ? (
               <div className="report-success">
-                報告ありがとうございます。運営チームが確認します。
+                報告を受け付けました。
               </div>
             ) : (
               <div className="report-buttons">
