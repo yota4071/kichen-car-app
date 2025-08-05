@@ -110,23 +110,10 @@ export default function ShopDetail() {
       const snapshot = await getDocs(reviewRef);
       
       // レビューデータの取得
-      const reviewList: Review[] = await Promise.all(snapshot.docs.map(async (docSnapshot) => {
+      const reviewList: Review[] = snapshot.docs.map((docSnapshot) => {
         // ここで明示的に型指定
         const data = docSnapshot.data() as DocumentData;
         const likedBy = data.likedBy || [];
-        
-        // 報告数を取得
-        let reportCount = 0;
-        try {
-          const reportRef = doc(db, "reports", docSnapshot.id);
-          const reportSnap = await getDoc(reportRef);
-          if (reportSnap.exists()) {
-            const reportData = reportSnap.data() as DocumentData;
-            reportCount = reportData.count || 0;
-          }
-        } catch (e) {
-          console.error("Error fetching report count:", e);
-        }
         
         return {
           id: docSnapshot.id,
@@ -137,10 +124,10 @@ export default function ShopDetail() {
           likes: likedBy.length,
           likedBy: likedBy,
           userLiked: user ? likedBy.includes(user.uid) : false,
-          reports: reportCount,
+          reports: data.reports || 0,
           userId: data.userId // レビュー投稿者のユーザーID
         };
-      }));
+      });
       
       setReviews(reviewList);
     } catch (error) {
@@ -225,6 +212,7 @@ export default function ShopDetail() {
         userId: user.uid,
         likes: 0,
         likedBy: [],
+        reportedBy: [],
         reports: 0
       };
   
@@ -294,7 +282,6 @@ export default function ShopDetail() {
   };
 
   // レビュー報告の処理
-  // レビュー報告と自動削除の処理
   const handleReportReview = async (reviewId: string): Promise<boolean> => {
     if (!user || !id) {
       alert("レビューを報告するにはログインしてください");
@@ -306,74 +293,47 @@ export default function ShopDetail() {
       const reviewSnap = await getDoc(reviewRef);
       
       if (reviewSnap.exists()) {
-        // 報告リストを取得
-        const reportedByRef = doc(db, "reports", reviewId);
-        const reportedBySnap = await getDoc(reportedByRef);
         const reviewData = reviewSnap.data();
-        const currentReports = reviewData.reports || 0;
+        const reportedBy = reviewData.reportedBy || [];
         
-        // 報告処理
-        let newReportCount = currentReports + 1;
-        
-        if (reportedBySnap.exists()) {
-          const reportData = reportedBySnap.data();
-          const reportedBy = reportData.reportedBy || [];
-          
-          // すでに報告している場合は報告しない
-          if (reportedBy.includes(user.uid)) {
-            alert("すでにこのレビューを報告しています");
-            return false;
-          }
-          
-          // 報告者リストに追加して報告数を更新
-          await updateDoc(reportedByRef, {
-            reportedBy: arrayUnion(user.uid),
-            count: (reportData.count || 0) + 1,
-            updatedAt: serverTimestamp()
-          });
-        } else {
-          // 新規報告を作成
-          await setDoc(reportedByRef, {
-            reviewId: reviewId,
-            kitchenId: id,
-            reportedBy: [user.uid],
-            count: 1,
-            content: reviewData.comment,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
+        // すでに報告している場合は報告しない
+        if (reportedBy.includes(user.uid)) {
+          alert("すでにこのレビューを報告しています");
+          return false;
         }
         
-        // レビューに報告回数を記録
+        // 投稿者本人は報告できない
+        if (reviewData.userId === user.uid) {
+          alert("自分の投稿は報告できません");
+          return false;
+        }
+        
+        // 報告者リストに追加
+        const newReportedBy = [...reportedBy, user.uid];
+        const newReportCount = newReportedBy.length;
+        
+        // レビューに報告情報を更新
         await updateDoc(reviewRef, {
-          reports: newReportCount
+          reportedBy: newReportedBy,
+          reports: newReportCount,
+          lastReportedAt: serverTimestamp()
         });
         
-        // ここで報告数をチェックし、5を超えたら自動的に削除
+        // 報告数が5を超えたら自動削除
         const reportThreshold = 5;
-        if (newReportCount > reportThreshold) {
+        if (newReportCount >= reportThreshold) {
           try {
             // レビューを削除
             await deleteDoc(reviewRef);
             
-            // 報告ドキュメントにステータスを追加
-            await updateDoc(reportedByRef, {
-              status: 'deleted',
-              deletedAt: serverTimestamp()
-            });
-            
             // ユーザーアラート
             alert(`複数のユーザーから報告があったため、レビューは自動的に削除されました。`);
-            
-            // レビューを再取得
-            await fetchReviews();
-            return true;
           } catch (deleteError) {
             console.error("レビュー削除エラー:", deleteError);
           }
         }
         
-        // レビュー一覧を更新（報告数も表示するため）
+        // レビュー一覧を更新
         await fetchReviews();
         return true;
       }
