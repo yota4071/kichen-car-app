@@ -13,6 +13,18 @@
       "createdAt": "2025-06-21T10:00:00Z"
     },
     {
+      "id": "8",
+      "title": "NOMNOMに広告を出しませんか？",
+      "link": "/NoticePages/nomnom-advertise",
+      "isExternal": false,
+      "color": "green",
+      "isActive": true,
+      "startDate": "2025-08-06T00:00:00Z",
+      "endDate": "2025-12-31T23:59:59Z",
+      "priority": 2,
+      "createdAt": "2025-08-06T10:00:00Z"
+    },
+    {
       "id": "2",
       "title": "📅 来週の出店スケジュールを更新しました",
       "link": "/calendar",

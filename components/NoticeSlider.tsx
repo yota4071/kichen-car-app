@@ -78,7 +78,7 @@ const NoticeSlider = () => {
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % notices.length);
-    }, 5000); // 5秒ごとに切り替え
+    }, 4500); // 4.5秒ごとに切り替え
 
     return () => clearInterval(interval);
   }, [notices.length]);
@@ -282,6 +282,10 @@ const NoticeSlider = () => {
         .nav-button {
           width: 24px;
           height: 24px;
+          min-width: 24px;
+          min-height: 24px;
+          max-width: 24px;
+          max-height: 24px;
           background: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: 50%;
@@ -292,6 +296,9 @@ const NoticeSlider = () => {
           color: white;
           transition: all 0.2s ease;
           flex-shrink: 0;
+          flex-grow: 0;
+          box-sizing: border-box;
+          aspect-ratio: 1;
         }
 
         .nav-button:hover {
@@ -307,11 +314,14 @@ const NoticeSlider = () => {
         .indicator {
           width: 6px;
           height: 6px;
+          min-width: 6px;
+          min-height: 6px;
           border-radius: 50%;
           background-color: rgba(255, 255, 255, 0.4);
           border: none;
           cursor: pointer;
           transition: all 0.2s ease;
+          box-sizing: border-box;
         }
 
         .indicator.active {
@@ -336,16 +346,24 @@ const NoticeSlider = () => {
           .nav-button {
             width: 20px;
             height: 20px;
+            min-width: 20px;
+            min-height: 20px;
+            max-width: 20px;
+            max-height: 20px;
+            aspect-ratio: 1;
           }
 
           .nav-button svg {
             width: 10px;
             height: 10px;
+            flex-shrink: 0;
           }
 
           .indicator {
             width: 5px;
             height: 5px;
+            min-width: 5px;
+            min-height: 5px;
           }
         }
 
@@ -371,16 +389,24 @@ const NoticeSlider = () => {
           .nav-button {
             width: 18px;
             height: 18px;
+            min-width: 18px;
+            min-height: 18px;
+            max-width: 18px;
+            max-height: 18px;
+            aspect-ratio: 1;
           }
 
           .nav-button svg {
             width: 8px;
             height: 8px;
+            flex-shrink: 0;
           }
 
           .indicator {
             width: 4px;
             height: 4px;
+            min-width: 4px;
+            min-height: 4px;
           }
 
           .notice-indicators {
