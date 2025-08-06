@@ -78,7 +78,7 @@ export default function Home() {
           });
           
           // 優先度でソート（低い値が高優先度）
-          activePRCards.sort((a, b) => {
+          activePRCards.sort((a: PRCard, b: PRCard) => {
             if (a.priority !== undefined && b.priority !== undefined) {
               return a.priority - b.priority;
             }
