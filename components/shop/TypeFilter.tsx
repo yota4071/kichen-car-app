@@ -16,6 +16,7 @@ export default function TypeFilter({
 }: TypeFilterProps) {
   const [types, setTypes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // デフォルトで縮小状態
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -60,8 +61,23 @@ export default function TypeFilter({
 
   return (
     <div className="type-filter">
-      <h3 className="filter-title">料理タイプ</h3>
-      <div className="filter-options">
+      <div 
+        className="filter-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <h3 className="filter-title">
+          <span className="filter-icon"></span>
+          料理タイプ
+          {types.length > 0 && (
+            <span className="filter-count">({types.length + 1}件)</span>
+          )}
+        </h3>
+        <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
+          ▼
+        </span>
+      </div>
+      
+      <div className={`filter-options ${isExpanded ? 'expanded' : 'collapsed'}`}>
         <button
           className={`filter-option ${selectedType === "" ? "active" : ""}`}
           onClick={() => onTypeChange("")}
@@ -81,41 +97,123 @@ export default function TypeFilter({
       
       <style jsx>{`
         .type-filter {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
+          background-color: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.75rem;
+          overflow: hidden;
+          transition: all 0.3s ease;
+        }
+        
+        .filter-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 1rem;
+          cursor: pointer;
+          background-color: white;
+          transition: background-color 0.2s;
+          user-select: none;
+        }
+        
+        .filter-header:hover {
+          background-color: #f8fafc;
         }
         
         .filter-title {
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 600;
-          margin-bottom: 0.75rem;
-          color: #4b5563;
+          margin: 0;
+          color: #374151;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        
+        .filter-icon {
+          font-size: 0.875rem;
+        }
+        
+        .filter-count {
+          font-size: 0.75rem;
+          font-weight: 400;
+          color: #6b7280;
+          margin-left: 0.25rem;
+        }
+        
+        .expand-icon {
+          font-size: 0.75rem;
+          color: #6b7280;
+          transition: transform 0.3s ease;
+        }
+        
+        .expand-icon.expanded {
+          transform: rotate(180deg);
         }
         
         .filter-options {
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+        
+        .filter-options.collapsed {
+          max-height: 0;
+          opacity: 0;
+        }
+        
+        .filter-options.expanded {
+          max-height: 500px;
+          opacity: 1;
+          padding: 0 1rem 1rem 1rem;
+        }
+        
+        .filter-options.expanded {
           display: flex;
           flex-wrap: wrap;
           gap: 0.5rem;
         }
         
         .filter-option {
-          padding: 0.5rem 1rem;
+          padding: 0.5rem 0.875rem;
           background-color: white;
           border: 1px solid #e5e7eb;
-          border-radius: 9999px;
-          font-size: 0.875rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
           color: #4b5563;
           cursor: pointer;
           transition: all 0.2s;
+          white-space: nowrap;
         }
         
         .filter-option:hover {
           background-color: #f3f4f6;
+          transform: translateY(-1px);
         }
         
         .filter-option.active {
-          background-color: #3b82f6;
+          background-color: var(--primary-color);
           color: white;
-          border-color: #3b82f6;
+          border-color: var(--primary-color);
+        }
+        
+        @media (max-width: 768px) {
+          .filter-options.expanded {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          
+          .filter-options.expanded::-webkit-scrollbar {
+            display: none;
+          }
+          
+          .filter-option {
+            flex-shrink: 0;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.75rem;
+          }
         }
       `}</style>
     </div>

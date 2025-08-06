@@ -96,12 +96,26 @@
   border-color: var(--primary-color);
 }
 
-/* トップカテゴリーグリッド */
-.top-categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
+/* 横スクロール可能なトップカテゴリー */
+.top-categories-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
   margin-bottom: 3rem;
+  padding: 8px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.top-categories-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.top-categories-container {
+  display: flex;
+  gap: 12px;
+  padding: 0 8px;
+  min-width: max-content;
 }
 
 /* スタイリッシュなカテゴリーカード */
@@ -317,5 +331,16 @@
     -webkit-overflow-scrolling: touch;
     padding-bottom: 10px;
     flex-wrap: nowrap;
+  }
+
+  /* モバイルでのスクロール体験を向上 */
+  .top-categories-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+  
+  .top-categories-container {
+    gap: 8px;
+    padding: 0 4px;
   }
 }

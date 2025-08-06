@@ -294,14 +294,16 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="top-categories-grid">
-              {categories.filter(cat => cat !== "すべて").map((category) => (
-                <CategoryCard 
-                  key={category}
-                  name={category}
-                  count={categoryCount[category] || 0}
-                />
-              ))}
+            <div className="top-categories-scroll">
+              <div className="top-categories-container">
+                {categories.filter(cat => cat !== "すべて").map((category) => (
+                  <CategoryCard 
+                    key={category}
+                    name={category}
+                    count={categoryCount[category] || 0}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </section>

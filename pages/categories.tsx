@@ -340,14 +340,16 @@ export default function CategoriesPage() {
           {showTopCategories && (
             <>
               <h2 className="text-2xl font-bold mb-6">人気のカテゴリー</h2>
-              <div className="top-categories-grid">
-                {mainCategories.filter(cat => cat !== "すべて").map((category) => (
-                  <CategoryCard 
-                    key={category}
-                    name={category}
-                    count={categoryCount[category] || 0}
-                  />
-                ))}
+              <div className="top-categories-scroll">
+                <div className="top-categories-container">
+                  {mainCategories.filter(cat => cat !== "すべて").map((category) => (
+                    <CategoryCard 
+                      key={category}
+                      name={category}
+                      count={categoryCount[category] || 0}
+                    />
+                  ))}
+                </div>
               </div>
             </>
           )}
@@ -422,7 +424,7 @@ export default function CategoriesPage() {
         {isLoading ? (
           <LoadingIndicator message="キッチンカー情報を読み込み中..." />
         ) : filteredShops.length > 0 ? (
-          <div className="shop-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="shop-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {/* PRカード表示 */}
             {prCards.map((prCard) => (
               <PRCard
