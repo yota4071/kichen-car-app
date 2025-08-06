@@ -263,7 +263,7 @@ const AdminShopsPage = () => {
 
   return (
     <Layout title="店舗管理 | 管理者ページ">
-      <div className="container py-8">
+      <div className="admin-page-container py-8">
         <div className="admin-header">
           <h1 className="admin-title">キッチンカー店舗管理</h1>
           <div className="admin-actions">
@@ -337,8 +337,11 @@ const AdminShopsPage = () => {
             )}
           </div>
 
-          {/* 編集フォーム */}
-          {(isEditing || isAdding) && (
+        </div>
+
+        {/* 編集フォーム - 独立したセクションとして配置 */}
+        {(isEditing || isAdding) && (
+          <div className="edit-form-section">
             <div className="edit-form">
               <h2 className="form-title">
                 {isAdding ? '新規店舗を追加' : '店舗情報を編集'}
@@ -448,8 +451,8 @@ const AdminShopsPage = () => {
                 </Button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       
       <style jsx>{`
@@ -466,6 +469,13 @@ const AdminShopsPage = () => {
           color: #1f2937;
         }
         
+        .admin-page-container {
+          width: 100%;
+          max-width: none;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        
         .admin-content {
           display: grid;
           grid-template-columns: 1fr;
@@ -474,8 +484,19 @@ const AdminShopsPage = () => {
         
         @media (min-width: 1024px) {
           .admin-content {
-            grid-template-columns: 3fr 2fr;
-            align-items: start;
+            grid-template-columns: 1fr;
+          }
+          
+          .admin-page-container {
+            padding-left: 2rem;
+            padding-right: 2rem;
+          }
+        }
+        
+        @media (min-width: 1280px) {
+          .admin-page-container {
+            padding-left: 3rem;
+            padding-right: 3rem;
           }
         }
         
@@ -497,11 +518,14 @@ const AdminShopsPage = () => {
         
         .shops-table-container {
           overflow-x: auto;
+          border-radius: 0.5rem;
+          border: 1px solid #e5e7eb;
         }
         
         .shops-table {
           width: 100%;
           border-collapse: collapse;
+          min-width: 700px;
         }
         
         .shops-table th {
@@ -571,11 +595,19 @@ const AdminShopsPage = () => {
           border-radius: 0.5rem;
         }
         
+        .edit-form-section {
+          margin-top: 2rem;
+          max-width: 800px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
         .edit-form {
           background-color: white;
           border-radius: 0.75rem;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-          padding: 1.5rem;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          padding: 2rem;
+          border: 1px solid #e5e7eb;
         }
         
         .form-title {
