@@ -247,23 +247,7 @@ export default function Home() {
       <section className="hero">
         <div className="container">
           <div className="hero-content">
-            {isMessageLoading ? (
-              // メッセージ読み込み中の表示
-              <>
-                <div className="hero-title-skeleton">
-                  <div className="skeleton-line skeleton-title" />
-                </div>
-                <div className="hero-description-skeleton">
-                  <div className="skeleton-line skeleton-description" />
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 className="hero-title">{heroMessage.title}</h1>
-                <p className="hero-description">{heroMessage.subtitle}</p>
-              </>
-            )}
-            
+            <h1 className="hero-title">{heroMessage.title}</h1>
             <form onSubmit={handleSearch} className="hero-search">
               <input
                 ref={searchInputRef}
