@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Header from './Header';
 import Footer from './Footer';
+import NoticeSlider from './NoticeSlider';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export default function Layout({
   description = 'お近くの美味しいキッチンカーをすぐに見つけられるアプリ。ユーザーのレビューやお気に入り機能も充実。'
 }: LayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(80);
 
   // ダークモード初期設定（オプション）
   useEffect(() => {
@@ -24,6 +26,26 @@ export default function Layout({
                     window.matchMedia('(prefers-color-scheme: dark)').matches;
       setIsDarkMode(isDark);
       document.documentElement.classList.toggle('dark', isDark);
+    }
+  }, []);
+
+  // ヘッダーの高さを取得
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const updateHeaderHeight = () => {
+        const header = document.querySelector('.header') as HTMLElement;
+        if (header) {
+          setHeaderHeight(header.offsetHeight);
+        }
+      };
+
+      // 初期設定
+      updateHeaderHeight();
+
+      // ウィンドウリサイズ時に再計算
+      window.addEventListener('resize', updateHeaderHeight);
+      
+      return () => window.removeEventListener('resize', updateHeaderHeight);
     }
   }, []);
 
@@ -48,11 +70,25 @@ export default function Layout({
 
       <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
       
+      {/* Sticky Notice Slider */}
+      <div className="sticky-notice-wrapper" style={{ top: `${headerHeight}px` }}>
+        <NoticeSlider />
+      </div>
+      
       <main className="flex-grow">
         {children}
       </main>
       
       <Footer />
+      
+      <style jsx>{`
+        .sticky-notice-wrapper {
+          position: sticky;
+          z-index: 50;
+          background-color: var(--primary-color);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
     </div>
   );
 }

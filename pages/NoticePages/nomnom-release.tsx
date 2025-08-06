@@ -1,5 +1,5 @@
 // pages/NoticePages/nomnom-release.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Layout from '@/components/Layout';
@@ -7,6 +7,9 @@ import Button from '@/components/ui/Button';
 
 export default function NomNomReleasePage() {
   const [activeFeature, setActiveFeature] = useState(0);
+  const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const features = [
     {
@@ -60,60 +63,134 @@ export default function NomNomReleasePage() {
   ];
 
   const stats = [
-    { number: '50+', label: 'キッチンカー登録数', icon: '🚚' },
-    { number: '1000+', label: '学生ユーザー', icon: '👥' },
-    { number: '15', label: '出店スポット', icon: '📍' },
-    { number: '4.8', label: '平均評価', icon: '⭐' }
+    { number: '20+', label: 'キッチンカー登録数', icon: '🚚' },
+    { number: '---', label: 'ユーザー数（集計中）', icon: '👥' },
+    { number: '2', label: '出店スポット', icon: '📍' },
+    { number: '4.6', label: '平均評価', icon: '⭐' }
   ];
+
+  const testimonials = [
+    {
+      name: 'りっちゃん',
+      department: '情報理工学部 3年',
+      rating: 5,
+      comment: 'キッチンカーを探すのがこんなに簡単になるなんて！マップ機能が特に便利で、授業の合間にサクッと美味しいランチを見つけられます。',
+      avatar: '👩‍💻'
+    },
+    {
+      name: 'たけ',
+      department: '経営学部 2年',
+      rating: 5,
+      comment: 'レビュー機能がすごく参考になる。他の学生のリアルな声が聞けるから、失敗しないキッチンカー選びができています。',
+      avatar: '👨‍🎓'
+    },
+    {
+      name: 'あーちゃん',
+      department: '国際関係学部 4年',
+      rating: 4,
+      comment: 'スケジュール機能で来週の出店予定まで分かるのが嬉しい！お気に入りのキッチンカーをフォローして通知も受けられるので便利です。',
+      avatar: '👩‍📚'
+    }
+  ];
+
+  const screenshots = [
+    {
+      title: 'ホーム画面',
+      description: '今日のキッチンカーと人気カテゴリーを一目で確認',
+      image: '/images/app-home.jpg'
+    },
+    {
+      title: 'マップ機能',
+      description: 'リアルタイムでキッチンカーの位置を確認',
+      image: '/images/app-map.jpg'
+    },
+    {
+      title: 'レビュー画面',
+      description: '写真付きレビューで詳細な情報をチェック',
+      image: '/images/app-reviews.jpg'
+    }
+  ];
+
+  const faqs = [
+    {
+      question: 'NomNom!は無料で使えますか？',
+      answer: 'はい、NomNom!は完全無料でご利用いただけます。アプリのダウンロード、利用、すべての機能に料金はかかりません。'
+    },
+    {
+      question: 'キッチンカーの情報はリアルタイムで更新されますか？',
+      answer: '営業時間や出店状況は定期的に更新されますが、天候やその他の事情により急遽変更になる場合があります。最新情報はキッチンカーに直接確認していただくことをお勧めします。'
+    },
+    {
+      question: 'レビューの投稿にはアカウント登録が必要ですか？',
+      answer: 'はい、レビューの投稿やお気に入り機能の利用には無料のアカウント登録が必要です。Googleアカウントで簡単に登録できます。'
+    },
+    {
+      question: '他のキャンパスでも利用できますか？',
+      answer: '現在は立命館大学のキャンパス内のキッチンカー情報のみ提供していますが、今後他大学への展開も検討しています。'
+    },
+    {
+      question: '新しいキッチンカーの情報を追加してもらえますか？',
+      answer: 'はい！お問い合わせフォームから新しいキッチンカーの情報をお送りください。運営チームで確認後、データベースに追加いたします。'
+    }
+  ];
+
+  // 動的サイズ調整のためのEffect
+  useEffect(() => {
+    const updateViewport = () => {
+      if (typeof window !== 'undefined') {
+        setViewportHeight(window.innerHeight);
+        setIsMobile(window.innerWidth <= 768);
+      }
+    };
+
+    // 初回実行
+    updateViewport();
+
+    // リサイズ時の更新
+    window.addEventListener('resize', updateViewport);
+    
+    // オリエンテーション変更時の更新（モバイル対応）
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateViewport, 100);
+    });
+
+    return () => {
+      window.removeEventListener('resize', updateViewport);
+      window.removeEventListener('orientationchange', updateViewport);
+    };
+  }, []);
+
+  // 動的スタイルの計算
+  const dynamicHeroStyle = {
+    minHeight: isMobile ? `${Math.min(viewportHeight * 0.85, 600)}px` : '600px',
+    maxHeight: isMobile ? `${viewportHeight}px` : 'none'
+  };
 
   return (
     <Layout title="Nom!Nom! リリースのお知らせ | キッチンカー探し">
       {/* ヒーローセクション */}
       <section className="hero-section">
-        <div className="container">
-          <div className="hero-content">
-            <div className="announcement-badge">
-              <span className="badge-text">🎉 ついにリリース！</span>
-            </div>
-            
-            <h1 className="hero-title">
-              <span className="brand-name">NomNom!</span>
-              <br />
-              キャンパスキッチンカー検索サービス
-            </h1>
-            
-            <p className="hero-description">
-              立命館大学の学生のために作られた、キッチンカー専用の検索・情報サービスがついにリリース！
-              <br />
-              美味しい食事をもっと身近に、もっと簡単に見つけられます。
-            </p>
-            
-            <div className="hero-actions">
-              <Button href="/categories" variant="primary" className="cta-button">
-                さっそく使ってみる
-              </Button>
-              <Button href="/about" variant="secondary" className="about-button">
-                サービスについて
-              </Button>
-            </div>
+        <div className="hero-container">
+          <div className="hero-badge">
+            🎉 ついにリリース！
           </div>
           
-          <div className="hero-visual">
-            <div className="phone-mockup">
-              <div className="phone-screen">
-                <div className="app-interface">
-                  <div className="app-header">
-                    <div className="app-logo">NomNom!</div>
-                    <div className="search-bar">🔍 キッチンカーを探す</div>
-                  </div>
-                  <div className="app-content">
-                    <div className="food-card">🍕 イタリアンキッチン</div>
-                    <div className="food-card">🍔 ハンバーガー専門店</div>
-                    <div className="food-card">🌮 タコス・メキシカン</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h1 className="hero-title">
+            <span className="brand-name">NomNom!</span>
+            <span className="service-name">キッチンカー検索サービス</span>
+          </h1>
+          
+          <p className="hero-description">
+            立命館大学のキッチンカーを簡単に検索・発見
+          </p>
+          
+          <div className="hero-buttons">
+            <Button href="/categories" variant="primary" className="primary-btn">
+              今すぐ使ってみる
+            </Button>
+            <Button href="/about" variant="secondary" className="secondary-btn">
+              詳細を見る
+            </Button>
           </div>
         </div>
       </section>
@@ -180,6 +257,83 @@ export default function NomNomReleasePage() {
         </div>
       </section>
 
+      {/* スクリーンショットセクション */}
+      <section className="screenshots-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">アプリスクリーンショット</h2>
+            <p className="section-subtitle">
+              実際の画面でNomNom!の使いやすさを確認してみてください
+            </p>
+          </div>
+          
+          <div className="screenshots-grid">
+            {screenshots.map((screenshot, index) => (
+              <div key={index} className="screenshot-card">
+                <div className="screenshot-image">
+                  <div className="placeholder-image">
+                    📱 {screenshot.title}
+                  </div>
+                </div>
+                <div className="screenshot-info">
+                  <h3 className="screenshot-title">{screenshot.title}</h3>
+                  <p className="screenshot-description">{screenshot.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ユーザーレビューセクション */}
+      <section className="testimonials-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">学生からの評価</h2>
+            <p className="section-subtitle">
+              実際に使っている学生の皆さんからの声をお聞きください
+            </p>
+          </div>
+          
+          <div className="testimonials-grid">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="testimonial-card">
+                <div className="testimonial-header">
+                  <div className="testimonial-avatar">{testimonial.avatar}</div>
+                  <div className="testimonial-info">
+                    <h4 className="testimonial-name">{testimonial.name}</h4>
+                    <p className="testimonial-department">{testimonial.department}</p>
+                  </div>
+                  <div className="testimonial-rating">
+                    {[...Array(5)].map((_, i) => (
+                      <span 
+                        key={i} 
+                        className={`star ${i < testimonial.rating ? 'filled' : 'empty'}`}
+                      >
+                        ⭐
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <p className="testimonial-comment">"{testimonial.comment}"</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="rating-summary">
+            <div className="overall-rating">
+              <div className="rating-number">4.6</div>
+              <div className="rating-stars">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="star filled">⭐</span>
+                ))}
+              </div>
+              <div className="rating-count">15件のレビュー</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 使い方セクション */}
       <section className="how-to-section">
         <div className="container">
@@ -220,6 +374,43 @@ export default function NomNomReleasePage() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQセクション */}
+      <section className="faq-section">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">よくある質問</h2>
+            <p className="section-subtitle">
+              NomNom!についてよくお寄せいただく質問にお答えします
+            </p>
+          </div>
+          
+          <div className="faq-list">
+            {faqs.map((faq, index) => (
+              <div key={index} className="faq-item">
+                <button
+                  className={`faq-question ${activeFAQ === index ? 'active' : ''}`}
+                  onClick={() => setActiveFAQ(activeFAQ === index ? null : index)}
+                >
+                  <span className="faq-q-text">{faq.question}</span>
+                  <span className="faq-icon">
+                    {activeFAQ === index ? '−' : '+'}
+                  </span>
+                </button>
+                {activeFAQ === index && (
+                  <div className="faq-answer">
+                    <p>{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <div className="faq-contact">
+            <p>他にご質問がございましたら、<Link href="/contact" className="contact-link">お問い合わせフォーム</Link>からお気軽にご連絡ください。</p>
           </div>
         </div>
       </section>
@@ -268,10 +459,16 @@ export default function NomNomReleasePage() {
       </section>
 
       <style jsx>{`
+        /* ヒーローセクション - 完全リニューアル */
         .hero-section {
           background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
           color: white;
-          padding: 4rem 0;
+          padding: 4rem 1rem;
+          text-align: center;
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           position: relative;
           overflow: hidden;
         }
@@ -279,138 +476,82 @@ export default function NomNomReleasePage() {
         .hero-section::before {
           content: '';
           position: absolute;
-          top: -50%;
+          top: -20%;
           right: -20%;
-          width: 400px;
-          height: 400px;
+          width: 300px;
+          height: 300px;
           background: rgba(255, 255, 255, 0.1);
           border-radius: 50%;
           z-index: 0;
         }
 
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1rem;
+        .hero-container {
+          max-width: 800px;
+          width: 100%;
           position: relative;
           z-index: 1;
         }
 
-        .hero-content {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
-          align-items: center;
-        }
-
-        .announcement-badge {
-          display: inline-block;
-          margin-bottom: 1.5rem;
-        }
-
-        .badge-text {
+        .hero-badge {
           background: rgba(255, 255, 255, 0.2);
-          padding: 0.5rem 1rem;
-          border-radius: 9999px;
-          font-size: 0.875rem;
+          color: white;
+          padding: 0.75rem 1.5rem;
+          border-radius: 50px;
+          font-size: 0.9rem;
           font-weight: 600;
+          display: inline-block;
+          margin-bottom: 2rem;
           backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .hero-title {
-          font-size: 3rem;
-          font-weight: 800;
-          line-height: 1.2;
           margin-bottom: 1.5rem;
         }
 
         .brand-name {
-          color: #FFE4B5;
+          display: block;
           font-family: 'Bangers', cursive;
+          font-size: 4rem;
+          color: #FFE4B5;
+          margin-bottom: 0.5rem;
+          line-height: 1;
+        }
+
+        .service-name {
+          display: block;
+          font-size: 1.8rem;
+          font-weight: 600;
+          line-height: 1.3;
         }
 
         .hero-description {
-          font-size: 1.1rem;
-          line-height: 1.6;
-          margin-bottom: 2rem;
+          font-size: 1.25rem;
+          margin-bottom: 2.5rem;
           opacity: 0.9;
+          line-height: 1.6;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        .hero-actions {
+        .hero-buttons {
           display: flex;
           gap: 1rem;
-        }
-
-        .cta-button, .about-button {
-          padding: 0.75rem 2rem;
-          font-weight: 600;
-        }
-
-        .hero-visual {
-          display: flex;
           justify-content: center;
           align-items: center;
+          flex-wrap: wrap;
         }
 
-        .phone-mockup {
-          width: 200px;
-          height: 400px;
-          background: #000;
-          border-radius: 25px;
-          padding: 20px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-          position: relative;
-        }
-
-        .phone-screen {
-          width: 100%;
-          height: 100%;
-          background: white;
-          border-radius: 15px;
-          overflow: hidden;
-          position: relative;
-        }
-
-        .app-interface {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-        }
-
-        .app-header {
-          background: var(--primary-color);
-          color: white;
-          padding: 1rem;
+        .primary-btn, .secondary-btn {
+          padding: 1rem 2rem;
+          font-size: 1rem;
+          font-weight: 600;
+          border-radius: 50px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          min-width: 160px;
           text-align: center;
-        }
-
-        .app-logo {
-          font-family: 'Bangers', cursive;
-          font-size: 1.2rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .search-bar {
-          background: rgba(255, 255, 255, 0.2);
-          padding: 0.5rem;
-          border-radius: 20px;
-          font-size: 0.8rem;
-        }
-
-        .app-content {
-          flex: 1;
-          padding: 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .food-card {
-          background: var(--bg-color);
-          padding: 0.75rem;
-          border-radius: 8px;
-          font-size: 0.8rem;
-          border: 1px solid var(--border-color);
         }
 
         .features-section, .how-to-section {
@@ -676,44 +817,347 @@ export default function NomNomReleasePage() {
           text-decoration: underline;
         }
 
-        /* レスポンシブ対応 */
+        /* スクリーンショットセクション */
+        .screenshots-section {
+          padding: 4rem 0;
+          background: white;
+        }
+
+        .screenshots-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+        }
+
+        .screenshot-card {
+          background: var(--bg-color);
+          border-radius: 1rem;
+          overflow: hidden;
+          border: 1px solid var(--border-color);
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .screenshot-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .screenshot-image {
+          height: 200px;
+          background: var(--primary-light);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .placeholder-image {
+          font-size: 2rem;
+          color: var(--primary-color);
+          font-weight: 600;
+        }
+
+        .screenshot-info {
+          padding: 1.5rem;
+        }
+
+        .screenshot-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--text-color);
+          margin-bottom: 0.5rem;
+        }
+
+        .screenshot-description {
+          color: var(--text-light);
+          line-height: 1.5;
+        }
+
+        /* レビューセクション */
+        .testimonials-section {
+          padding: 4rem 0;
+          background: var(--bg-color);
+        }
+
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          gap: 2rem;
+          margin-bottom: 3rem;
+        }
+
+        .testimonial-card {
+          background: white;
+          padding: 2rem;
+          border-radius: 1rem;
+          border: 1px solid var(--border-color);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          transition: transform 0.3s;
+        }
+
+        .testimonial-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-header {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .testimonial-avatar {
+          width: 3rem;
+          height: 3rem;
+          background: var(--primary-light);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+        }
+
+        .testimonial-info {
+          flex: 1;
+        }
+
+        .testimonial-name {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: var(--text-color);
+          margin: 0 0 0.25rem 0;
+        }
+
+        .testimonial-department {
+          font-size: 0.875rem;
+          color: var(--text-light);
+          margin: 0;
+        }
+
+        .testimonial-rating {
+          display: flex;
+          gap: 0.125rem;
+        }
+
+        .star {
+          font-size: 1rem;
+        }
+
+        .star.filled {
+          color: #ffc107;
+        }
+
+        .star.empty {
+          color: #e9ecef;
+        }
+
+        .testimonial-comment {
+          color: var(--text-color);
+          line-height: 1.6;
+          font-style: italic;
+          margin: 0;
+        }
+
+        .rating-summary {
+          text-align: center;
+          padding: 2rem;
+          background: white;
+          border-radius: 1rem;
+          border: 2px solid var(--primary-color);
+          max-width: 400px;
+          margin: 0 auto;
+        }
+
+        .overall-rating {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .rating-number {
+          font-size: 3rem;
+          font-weight: 800;
+          color: var(--primary-color);
+        }
+
+        .rating-stars {
+          display: flex;
+          gap: 0.25rem;
+        }
+
+        .rating-count {
+          color: var(--text-light);
+          font-size: 0.875rem;
+        }
+
+        /* FAQセクション */
+        .faq-section {
+          padding: 4rem 0;
+          background: white;
+        }
+
+        .faq-list {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .faq-item {
+          border: 1px solid var(--border-color);
+          border-radius: 0.75rem;
+          margin-bottom: 1rem;
+          overflow: hidden;
+        }
+
+        .faq-question {
+          width: 100%;
+          padding: 1.5rem;
+          background: white;
+          border: none;
+          text-align: left;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .faq-question:hover {
+          background: var(--bg-color);
+        }
+
+        .faq-question.active {
+          background: var(--primary-light);
+        }
+
+        .faq-q-text {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: var(--text-color);
+        }
+
+        .faq-icon {
+          font-size: 1.5rem;
+          color: var(--primary-color);
+          font-weight: 600;
+        }
+
+        .faq-answer {
+          padding: 0 1.5rem 1.5rem;
+          background: var(--bg-color);
+          animation: fadeIn 0.3s ease-in;
+        }
+
+        .faq-answer p {
+          color: var(--text-color);
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        .faq-contact {
+          text-align: center;
+          margin-top: 3rem;
+          padding: 2rem;
+          background: var(--primary-light);
+          border-radius: 1rem;
+        }
+
+        .contact-link {
+          color: var(--primary-color);
+          text-decoration: none;
+          font-weight: 600;
+        }
+
+        .contact-link:hover {
+          text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* レスポンシブ対応 - 新デザイン */
         @media (max-width: 768px) {
-          .hero-content {
-            grid-template-columns: 1fr;
-            text-align: center;
+          .hero-section {
+            padding: 3rem 1rem;
+            min-height: 50vh;
           }
 
-          .hero-title {
+          .brand-name {
+            font-size: 3rem;
+          }
+
+          .service-name {
+            font-size: 1.4rem;
+          }
+
+          .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+          }
+
+          .hero-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .primary-btn, .secondary-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.875rem 1.5rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-section {
+            padding: 2rem 0.75rem;
+            min-height: 45vh;
+          }
+
+          .hero-badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .brand-name {
+            font-size: 2.5rem;
+          }
+
+          .service-name {
+            font-size: 1.2rem;
+          }
+
+          .hero-description {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .primary-btn, .secondary-btn {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (max-width: 320px) {
+          .brand-name {
             font-size: 2rem;
           }
 
-          .features-container {
-            grid-template-columns: 1fr;
+          .service-name {
+            font-size: 1rem;
           }
 
-          .features-tabs {
-            flex-direction: row;
-            overflow-x: auto;
-            gap: 1rem;
-            padding-bottom: 1rem;
-          }
-
-          .feature-tab {
-            min-width: 200px;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 1rem 0.75rem;
-          }
-
-          .cta-actions {
-            flex-direction: column;
-            align-items: center;
-          }
-
-          .phone-mockup {
-            width: 150px;
-            height: 300px;
-            padding: 15px;
+          .hero-description {
+            font-size: 0.9rem;
           }
         }
       `}</style>

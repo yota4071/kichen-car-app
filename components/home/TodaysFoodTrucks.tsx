@@ -4,6 +4,7 @@ import Link from "next/link";
 import { collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ShopCard from "@/components/shop/ShopCard";
+import PRCard from "@/components/shop/PRCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
 
@@ -17,9 +18,67 @@ type Shop = {
   reviewCount?: number;
 };
 
+type PRCard = {
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+  prMessage: string;
+  url: string;
+  isActive: boolean;
+  displayLocation: string[];
+  startDate?: string;
+  endDate?: string;
+  priority?: number;
+  createdAt?: string;
+};
+
 export default function TodaysFoodTrucks() {
   const [todaysShops, setTodaysShops] = useState<Shop[]>([]);
+  const [prCards, setPrCards] = useState<PRCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // PRカードデータの取得
+  useEffect(() => {
+    const fetchPRCards = async () => {
+      try {
+        const response = await fetch('/data/pr-cards.json');
+        if (response.ok) {
+          const data = await response.json();
+          const now = new Date();
+          
+          const activePRCards = data.filter((card: PRCard) => {
+            if (!card.isActive || !card.displayLocation.includes('today')) return false;
+            
+            const startDate = card.startDate ? new Date(card.startDate) : null;
+            const endDate = card.endDate ? new Date(card.endDate) : null;
+            
+            const isInDisplayPeriod = 
+              (!startDate || startDate <= now) && 
+              (!endDate || endDate >= now);
+            
+            return isInDisplayPeriod;
+          });
+          
+          // 優先度でソート（低い値が高優先度）
+          activePRCards.sort((a, b) => {
+            if (a.priority !== undefined && b.priority !== undefined) {
+              return a.priority - b.priority;
+            }
+            if (a.priority !== undefined) return -1;
+            if (b.priority !== undefined) return 1;
+            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
+          });
+          
+          setPrCards(activePRCards);
+        }
+      } catch (error) {
+        console.error("Error fetching PR cards:", error);
+      }
+    };
+
+    fetchPRCards();
+  }, []);
 
   useEffect(() => {
     const fetchTodaysShops = async () => {
@@ -118,8 +177,22 @@ export default function TodaysFoodTrucks() {
           </Link>
         </div>
 
-        {todaysShops.length > 0 ? (
+        {todaysShops.length > 0 || prCards.length > 0 ? (
           <div className="shop-grid">
+            {/* PRカード表示 */}
+            {prCards.map((prCard) => (
+              <PRCard
+                key={prCard.id}
+                id={prCard.id}
+                name={prCard.name}
+                location={prCard.location}
+                image={prCard.image}
+                prMessage={prCard.prMessage}
+                url={prCard.url}
+              />
+            ))}
+            
+            {/* キッチンカー表示 */}
             {todaysShops.map((shop) => (
               <ShopCard
                 key={shop.id}

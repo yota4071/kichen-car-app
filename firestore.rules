@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // レビュー報告用の更新チェック（reportedBy, reports, lastReportedAtフィールドのみ）
+    function isReportUpdate() {
+      return request.writeFields.hasOnly(['reportedBy', 'reports', 'lastReportedAt']) &&
+             isAuthenticated() &&
+             // 既存のreportedBy配列に自分のUIDが含まれていない場合のみ許可
+             !(request.auth.uid in resource.data.get('reportedBy', []));
+    }
+
+    // 管理者リスト
+    match /admins/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // 初期設定後は基本書き込み禁止
+    }
+
+    // キッチンカー情報
+    match /kitchens/{kitchenId} {
+      allow read: if true;
+      allow write: if isAdmin();
+      
+      match /menu/{menuId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+      
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isAuthenticated();
+        // レビューの更新: 管理者、レビュー作成者、または報告機能での更新
+        allow update: if isAdmin() || 
+                      (isAuthenticated() && request.auth.uid == resource.data.userId) ||
+                      isReportUpdate();
+        allow delete: if isAdmin() || 
+                      (isAuthenticated() && request.auth.uid == resource.data.userId);
+      }
+    }
+
+    // ユーザー情報
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+      
+      match /reviews/{reviewId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // スケジュール
+    match /schedules/{scheduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 問い合わせ
+    match /inquiries/{inquiryId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // レポート（不適切コンテンツの報告）
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      // 一般ユーザーは create のみ可能
+      allow create: if isAuthenticated();
+      // 更新・削除は管理者のみ
+      allow update, delete: if isAdmin();
+    }
+  }
+}

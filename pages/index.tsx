@@ -13,7 +13,6 @@ import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import Button from "@/components/ui/Button";
 import CategoryCard from "@/components/category/CategoryCard";
 import TodaysFoodTrucks from "@/components/home/TodaysFoodTrucks";
-import NoticeSlider from "@/components/NoticeSlider";
 import { useHeroMessage } from "@/hooks/useHeroMessage";
 
 type Shop = {
@@ -35,6 +34,11 @@ type PRCard = {
   prMessage: string;
   url: string;
   isActive: boolean;
+  displayLocation: string[];
+  startDate?: string;
+  endDate?: string;
+  priority?: number;
+  createdAt?: string;
 };
 
 export default function Home() {
@@ -58,7 +62,32 @@ export default function Home() {
         const response = await fetch('/data/pr-cards.json');
         if (response.ok) {
           const data = await response.json();
-          setPrCards(data.filter((card: PRCard) => card.isActive));
+          const now = new Date();
+          
+          const activePRCards = data.filter((card: PRCard) => {
+            if (!card.isActive || !card.displayLocation.includes('main')) return false;
+            
+            const startDate = card.startDate ? new Date(card.startDate) : null;
+            const endDate = card.endDate ? new Date(card.endDate) : null;
+            
+            const isInDisplayPeriod = 
+              (!startDate || startDate <= now) && 
+              (!endDate || endDate >= now);
+            
+            return isInDisplayPeriod;
+          });
+          
+          // 優先度でソート（低い値が高優先度）
+          activePRCards.sort((a, b) => {
+            if (a.priority !== undefined && b.priority !== undefined) {
+              return a.priority - b.priority;
+            }
+            if (a.priority !== undefined) return -1;
+            if (b.priority !== undefined) return 1;
+            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
+          });
+          
+          setPrCards(activePRCards);
         }
       } catch (error) {
         console.error("Error fetching PR cards:", error);
@@ -214,9 +243,6 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* お知らせスライダー - ヘッダーとヒーローセクションの間 */}
-      <NoticeSlider />
-
       {/* ヒーローセクション */}
       <section className="hero">
         <div className="container">

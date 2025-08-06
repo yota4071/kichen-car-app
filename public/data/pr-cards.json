@@ -6,6 +6,53 @@
     "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
     "prMessage": "サンプルPRセクションです",
     "url": "https://example.com/special-offer",
-    "isActive": true
+    "isActive": true,
+    "displayLocation": ["today", "main", "categories"],
+    "startDate": "2025-06-01T00:00:00Z",
+    "endDate": "2025-12-31T23:59:59Z",
+    "priority": 1,
+    "createdAt": "2025-06-01T10:00:00Z"
+  },
+  {
+    "id": "pr-card-2",
+    "name": "今日限定PR",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "今日のキッチンカー限定オファー",
+    "url": "https://example.com/today-special",
+    "isActive": true,
+    "displayLocation": ["today"],
+    "startDate": "2025-08-06T00:00:00Z",
+    "endDate": "2025-08-06T23:59:59Z",
+    "priority": 2,
+    "createdAt": "2025-08-05T12:00:00Z"
+  },
+  {
+    "id": "pr-card-3",
+    "name": "カテゴリーPR",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "カテゴリー別のおすすめ情報",
+    "url": "https://example.com/category-special",
+    "isActive": true,
+    "displayLocation": ["categories"],
+    "startDate": "2025-07-01T00:00:00Z",
+    "endDate": "2025-09-30T23:59:59Z",
+    "priority": 3,
+    "createdAt": "2025-06-30T15:00:00Z"
+  },
+  {
+    "id": "pr-card-4",
+    "name": "期限切れPR",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "このPRは期限切れです",
+    "url": "https://example.com/expired",
+    "isActive": true,
+    "displayLocation": ["main"],
+    "startDate": "2025-01-01T00:00:00Z",
+    "endDate": "2025-01-31T23:59:59Z",
+    "priority": 4,
+    "createdAt": "2025-01-01T00:00:00Z"
   }
 ]

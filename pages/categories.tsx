@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 // コンポーネントのインポート
 import Layout from "@/components/Layout";
 import ShopCard from "@/components/shop/ShopCard";
+import PRCard from "@/components/shop/PRCard";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 import NoticeBanner from "@/components/NoticeBanner";
 import CategoryCard from "@/components/category/CategoryCard";
@@ -25,8 +26,24 @@ type Shop = {
   reviewCount?: number;
 };
 
+type PRCardType = {
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+  prMessage: string;
+  url: string;
+  isActive: boolean;
+  displayLocation: string[];
+  startDate?: string;
+  endDate?: string;
+  priority?: number;
+  createdAt?: string;
+};
+
 export default function CategoriesPage() {
   const [shops, setShops] = useState<Shop[]>([]);
+  const [prCards, setPrCards] = useState<PRCardType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [activeSubCategory, setActiveSubCategory] = useState("");
@@ -35,6 +52,48 @@ export default function CategoriesPage() {
   const [mainCategories, setMainCategories] = useState<string[]>(["すべて"]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  // PRカードデータの取得
+  useEffect(() => {
+    const fetchPRCards = async () => {
+      try {
+        const response = await fetch('/data/pr-cards.json');
+        if (response.ok) {
+          const data = await response.json();
+          const now = new Date();
+          
+          const activePRCards = data.filter((card: PRCardType) => {
+            if (!card.isActive || !card.displayLocation.includes('categories')) return false;
+            
+            const startDate = card.startDate ? new Date(card.startDate) : null;
+            const endDate = card.endDate ? new Date(card.endDate) : null;
+            
+            const isInDisplayPeriod = 
+              (!startDate || startDate <= now) && 
+              (!endDate || endDate >= now);
+            
+            return isInDisplayPeriod;
+          });
+          
+          // 優先度でソート（低い値が高優先度）
+          activePRCards.sort((a, b) => {
+            if (a.priority !== undefined && b.priority !== undefined) {
+              return a.priority - b.priority;
+            }
+            if (a.priority !== undefined) return -1;
+            if (b.priority !== undefined) return 1;
+            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
+          });
+          
+          setPrCards(activePRCards);
+        }
+      } catch (error) {
+        console.error("Error fetching PR cards:", error);
+      }
+    };
+
+    fetchPRCards();
+  }, []);
 
   // URLからパラメータを取得
   useEffect(() => {
@@ -364,6 +423,20 @@ export default function CategoriesPage() {
           <LoadingIndicator message="キッチンカー情報を読み込み中..." />
         ) : filteredShops.length > 0 ? (
           <div className="shop-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* PRカード表示 */}
+            {prCards.map((prCard) => (
+              <PRCard
+                key={prCard.id}
+                id={prCard.id}
+                name={prCard.name}
+                location={prCard.location}
+                image={prCard.image}
+                prMessage={prCard.prMessage}
+                url={prCard.url}
+              />
+            ))}
+            
+            {/* キッチンカー表示 */}
             {filteredShops.map((shop) => (
               <ShopCard
                 key={shop.id}
