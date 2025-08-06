@@ -66,29 +66,6 @@ export default function NomNomAdvertisePage() {
     { number: '立命館大学', label: '対象キャンパス', icon: '🏫' }
   ];
 
-  const testimonials = [
-    {
-      name: '軽音楽サークル「Harmony」',
-      category: 'バンドサークル',
-      comment: 'NomNom!での定期ライブ告知のおかげで、普段来ない学生さんにもライブを知ってもらえました。当日は満席で大成功でした！',
-      result: '集客200%UP',
-      avatar: '🎸'
-    },
-    {
-      name: 'ダンスサークル「MOVE」',
-      category: 'ダンスサークル',
-      comment: 'お知らせスライダーでの告知効果で、新入生の見学者が大幅に増加。サークル活動の認知度向上に大きく貢献してくれました。',
-      result: '見学者3倍増',
-      avatar: '💃'
-    },
-    {
-      name: '演劇部「Stage」',
-      category: '文化系サークル',
-      comment: '専用ページを作成していただき、公演の詳細情報を分かりやすく伝えることができました。チケットの売上も過去最高を記録しました。',
-      result: 'チケット完売',
-      avatar: '🎭'
-    }
-  ];
 
   const useCases = [
     {
@@ -136,7 +113,7 @@ export default function NomNomAdvertisePage() {
     },
     {
       question: '掲載内容に制限はありますか？',
-      answer: '公序良俗に反しない内容であれば基本的に制限はございません。ただし、商業的すぎる内容や他のサークル・団体を誹謗中傷する内容は掲載をお断りする場合があります。'
+      answer: '公序良俗に反しない内容であれば基本的に制限はございません。'
     },
     {
       question: 'キャンセルは可能ですか？',
@@ -265,33 +242,6 @@ export default function NomNomAdvertisePage() {
         </div>
       </section>
 
-      {/* 導入事例セクション */}
-      <section className="testimonials-section">
-        <div className="container">
-          <div className="section-header">
-            <h2 className="section-title">ご利用いただいたサークル様の声</h2>
-            <p className="section-subtitle">
-              実際にご利用いただいたサークル・団体様からの評価
-            </p>
-          </div>
-          
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
-                <div className="testimonial-header">
-                  <div className="testimonial-avatar">{testimonial.avatar}</div>
-                  <div className="testimonial-info">
-                    <h4 className="testimonial-name">{testimonial.name}</h4>
-                    <p className="testimonial-category">{testimonial.category}</p>
-                  </div>
-                  <div className="testimonial-result">{testimonial.result}</div>
-                </div>
-                <p className="testimonial-comment">"{testimonial.comment}"</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 掲載の流れセクション */}
       <section className="process-section">
@@ -718,83 +668,6 @@ export default function NomNomAdvertisePage() {
           font-size: 0.9rem;
         }
 
-        /* 導入事例セクション */
-        .testimonials-section {
-          padding: 4rem 0;
-          background: var(--bg-color);
-        }
-
-        .testimonials-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 2rem;
-        }
-
-        .testimonial-card {
-          background: white;
-          padding: 2rem;
-          border-radius: 1rem;
-          border: 1px solid var(--border-color);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-          transition: transform 0.3s;
-        }
-
-        .testimonial-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .testimonial-header {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1rem;
-        }
-
-        .testimonial-avatar {
-          width: 3rem;
-          height: 3rem;
-          background: rgba(0, 123, 255, 0.1);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-        }
-
-        .testimonial-info {
-          flex: 1;
-        }
-
-        .testimonial-name {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: var(--text-color);
-          margin: 0 0 0.25rem 0;
-        }
-
-        .testimonial-category {
-          font-size: 0.875rem;
-          color: var(--text-light);
-          margin: 0;
-        }
-
-        .testimonial-result {
-          background: #007bff;
-          color: white;
-          padding: 0.25rem 0.75rem;
-          border-radius: 15px;
-          font-size: 0.8rem;
-          font-weight: 600;
-          white-space: nowrap;
-        }
-
-        .testimonial-comment {
-          color: var(--text-color);
-          line-height: 1.6;
-          font-style: italic;
-          margin: 0;
-        }
 
         /* 掲載の流れセクション */
         .process-section {

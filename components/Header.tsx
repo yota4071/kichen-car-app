@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { auth, provider } from '@/lib/firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
-//import '@/styles/Header.module.css'; // 追加
+import styles from '@/styles/header.module.css';
 import { checkIsAdmin } from '@/lib/admin'; // 追加
 
 // 管理者ユーザーIDの配列
@@ -154,15 +154,15 @@ const handleSearch = (e: React.FormEvent) => {
     
     {/* 管理者向けメニューを追加 - ハードコードされたIDの配列を使わず、isAdmin状態を使用 */}
     {isAdmin && (
-      <div className="admin-menu-dropdown">
-        <button className="admin-dropdown-button">
+      <div className={styles['admin-menu-dropdown']}>
+        <button className={styles['admin-dropdown-button']}>
           管理メニュー ▼
         </button>
-        <div className="admin-dropdown-content">
-          <Link href="/admin/calendar" className="admin-link">
+        <div className={styles['admin-dropdown-content']}>
+          <Link href="/admin/calendar" className={styles['admin-link']}>
             カレンダー管理
           </Link>
-          <Link href="/admin/shops" className="admin-link">
+          <Link href="/admin/shops" className={styles['admin-link']}>
             店舗管理
           </Link>
         </div>
@@ -211,24 +211,24 @@ const handleSearch = (e: React.FormEvent) => {
         <>
           <li className="mobile-nav-item"><Link href="/mypage">マイページ</Link></li>
           {/* 管理者メニュー */}
-          {ADMIN_USER_IDS.includes(user.uid) && (
+          {isAdmin && (
             <>
-              <li className="mobile-nav-item mobile-admin-title">管理者メニュー</li>
-              <li className="mobile-nav-item mobile-admin-item">
+              <li className={`mobile-nav-item ${styles['mobile-admin-title']}`}>管理者メニュー</li>
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
                 <Link href="/admin/calendar">カレンダー管理</Link>
               </li>
-              <li className="mobile-nav-item mobile-admin-item">
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
                 <Link href="/admin/shops">店舗管理</Link>
               </li>
             </>
           )}
           <li className="mobile-nav-item">
-            <button onClick={handleLogout} className="mobile-logout-button">ログアウト</button>
+            <button onClick={handleLogout} className={styles['mobile-logout-button']}>ログアウト</button>
           </li>
         </>
       ) : (
         <li className="mobile-nav-item">
-          <button onClick={handleLogin} className="mobile-login-button">ログイン</button>
+          <button onClick={handleLogin} className={styles['mobile-login-button']}>ログイン</button>
         </li>
       )}
       
@@ -239,127 +239,6 @@ const handleSearch = (e: React.FormEvent) => {
     </header>
   );
 
-  <style jsx>{`
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .admin-menu-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .admin-dropdown-button {
-      background-color: #2563eb;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: background-color 0.2s;
-    }
-    
-    .admin-dropdown-button:hover {
-      background-color: #1d4ed8;
-    }
-    
-    .admin-dropdown-content {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      min-width: 160px;
-      background-color: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 0.375rem;
-      overflow: hidden;
-      z-index: 10;
-    }
-    
-    .admin-menu-dropdown:hover .admin-dropdown-content {
-      display: block;
-    }
-    
-    .admin-link {
-      display: block;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: #4b5563;
-      text-decoration: none;
-      transition: background-color 0.2s;
-    }
-    
-    .admin-link:hover {
-      background-color: #f3f4f6;
-      color: #1f2937;
-    }
-
-     /* モバイルメニューのログイン・ログアウトボタン */
-.mobile-login-button, .mobile-logout-button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  padding: 0.75rem 1rem;
-  margin: 0.5rem 0;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  border: none;
-  font-size: 1rem;
-}
-
-.mobile-login-button {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.mobile-login-button:hover {
-  background-color: #2563eb;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-}
-
-.mobile-logout-button {
-  background-color: #fee2e2;
-  color: #ef4444;
-}
-
-.mobile-logout-button:hover {
-  background-color: #fecaca;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
-}
-
-/* アイコンを追加 */
-.mobile-login-button::before {
-  content: "👤";
-  margin-right: 0.75rem;
-}
-
-.mobile-logout-button::before {
-  content: "🚪";
-  margin-right: 0.75rem;
-}
-
-/* mobile-nav-item のスタイル調整 */
-.mobile-nav-item {
-  margin-bottom: 0.5rem;
-  width: 100%;
-}
-
-/* 親要素のli内でボタンを正しく配置 */
-.mobile-nav-item .mobile-login-button,
-.mobile-nav-item .mobile-logout-button {
-  margin: 0;
-  width: 100%;
-}
-
-  `}</style>
 
 }
 
