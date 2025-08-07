@@ -269,7 +269,7 @@ export default function Home() {
 
       {/* 人気のカテゴリー */}
       {!isLoading && (
-        <section className="section" style={{ backgroundColor: "#f0f9ff" }}>
+        <section className="section">
           <div className="container">
             <div className="section-title">
               <h2>人気のカテゴリー</h2>
