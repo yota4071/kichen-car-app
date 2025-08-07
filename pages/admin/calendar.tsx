@@ -78,6 +78,11 @@ const AdminCalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeMonth, setActiveMonth] = useState<string>('');
+  const [shopSearchTerm, setShopSearchTerm] = useState<string>('');
+  const [spotSearchTerm, setSpotSearchTerm] = useState<string>('');
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
+  const [showSpotDropdown, setShowSpotDropdown] = useState(false);
+  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
   
   const router = useRouter();
   
@@ -87,6 +92,37 @@ const AdminCalendarPage = () => {
   ];
   
   const weekDayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+  // フィルタリング用の関数
+  const filteredShops = shops.filter(shop => 
+    shop.name.toLowerCase().includes(shopSearchTerm.toLowerCase()) ||
+    shop.type.toLowerCase().includes(shopSearchTerm.toLowerCase())
+  );
+
+  const filteredSpots = spots.filter(spot => 
+    spot.name.toLowerCase().includes(spotSearchTerm.toLowerCase()) ||
+    spot.campusId.toLowerCase().includes(spotSearchTerm.toLowerCase())
+  );
+
+  // 選択されたアイテムの名前を取得
+  const selectedShopName = shops.find(shop => shop.id === selectedShop)?.name || '';
+  const selectedSpotName = spots.find(spot => spot.id === selectedSpot)?.name || '';
+
+  // 外部クリック検知でドロップダウンを閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.searchable-select')) {
+        setShowShopDropdown(false);
+        setShowSpotDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 認証状態監視
   useEffect(() => {
@@ -345,6 +381,10 @@ const fetchCalendarData = async () => {
       setSelectedDate(null);
       setSelectedShop('');
       setSelectedSpot('');
+      setShopSearchTerm('');
+      setSpotSearchTerm('');
+      setShowShopDropdown(false);
+      setShowSpotDropdown(false);
       
       alert("出店情報が正常に登録されました。");
     } catch (error) {
@@ -411,7 +451,7 @@ const fetchCalendarData = async () => {
 
   return (
     <Layout title="管理者用カレンダー | キッチンカー管理">
-      <div className="container py-8">
+      <div className="container-fluid py-8">
         <div className="admin-header">
           <h1 className="admin-title">キッチンカー管理カレンダー</h1>
           <p className="admin-subtitle">出店予定を登録・管理できます</p>
@@ -444,38 +484,65 @@ const fetchCalendarData = async () => {
                 ))}
                 
                 {/* カレンダー日付 */}
-                {calendarDays.map((day, index) => (
-                  <div 
-                    key={`day-${index}`} 
-                    className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''} ${selectedDate && selectedDate.getTime() === day.date.getTime() ? 'selected' : ''}`}
-                    onClick={() => handleDateClick(day)}
-                  >
-                    <div className="day-number">{day.date.getDate()}</div>
-                    
-                    {day.events.length > 0 && (
-                      <div className="day-events">
-                        {day.events.map((event, eventIndex) => (
-                          <div key={`event-${eventIndex}`} className="event-item">
-                            <div className="event-dot" style={{ backgroundColor: getEventColor(eventIndex) }}></div>
-                            <div className="event-content">
-                              <div className="event-name">{event.kitchenName}</div>
-                              <div className="event-location">{event.spotName}</div>
-                            </div>
-                            <button 
-                              className="event-delete" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteEvent(event.id);
-                              }}
+                {calendarDays.map((day, index) => {
+                  const eventCount = day.events.length;
+                  const dynamicHeight = eventCount > 0 ? 
+                    `clamp(${100 + eventCount * 25}px, ${15 + eventCount * 3}vh, ${180 + eventCount * 20}px)` : 
+                    'clamp(100px, 15vh, 180px)';
+                  
+                  return (
+                    <div 
+                      key={`day-${index}`} 
+                      className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''} ${selectedDate && selectedDate.getTime() === day.date.getTime() ? 'selected' : ''}`}
+                      onClick={() => handleDateClick(day)}
+                      style={{ minHeight: dynamicHeight }}
+                    >
+                      <div className="day-number">{day.date.getDate()}</div>
+                      
+                      {day.events.length > 0 && (
+                        <div className="day-events">
+                          {day.events.map((event, eventIndex) => (
+                            <div 
+                              key={`event-${eventIndex}`} 
+                              className="event-item"
+                              onMouseEnter={() => setHoveredEvent(event.id)}
+                              onMouseLeave={() => setHoveredEvent(null)}
                             >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                              <div className="event-dot" style={{ backgroundColor: getEventColor(eventIndex) }}></div>
+                              <div className="event-content">
+                                <div className="event-name">{event.kitchenName}</div>
+                                <div className="event-location">{event.spotName}</div>
+                              </div>
+                              <button 
+                                className="event-delete" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteEvent(event.id);
+                                }}
+                                title="この出店予定を削除"
+                              >
+                                ×
+                              </button>
+                              
+                              {hoveredEvent === event.id && (
+                                <div className="event-tooltip">
+                                  <div className="tooltip-content">
+                                    <div className="tooltip-title">{event.kitchenName}</div>
+                                    <div className="tooltip-location">📍 {event.spotName}</div>
+                                    <div className="tooltip-time">⏰ 10:30 - 15:30</div>
+                                    <div className="tooltip-date">
+                                      📅 {event.date.getFullYear()}年{event.date.getMonth() + 1}月{event.date.getDate()}日
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             
@@ -495,36 +562,82 @@ const fetchCalendarData = async () => {
               <div className="control-form">
                 <div className="form-group">
                   <label htmlFor="shop-select">キッチンカー</label>
-                  <select 
-                    id="shop-select" 
-                    value={selectedShop}
-                    onChange={(e) => setSelectedShop(e.target.value)}
-                    disabled={!selectedDate}
-                  >
-                    <option value="">選択してください</option>
-                    {shops.map(shop => (
-                      <option key={shop.id} value={shop.id}>
-                        {shop.name} ({shop.type})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="searchable-select">
+                    <input
+                      type="text"
+                      placeholder="キッチンカーを検索..."
+                      value={selectedShop ? selectedShopName : shopSearchTerm}
+                      onChange={(e) => {
+                        setShopSearchTerm(e.target.value);
+                        setSelectedShop('');
+                        setShowShopDropdown(true);
+                      }}
+                      onFocus={() => setShowShopDropdown(true)}
+                      disabled={!selectedDate}
+                    />
+                    {showShopDropdown && (
+                      <div className="dropdown-list">
+                        {filteredShops.length === 0 ? (
+                          <div className="dropdown-item no-results">該当する店舗がありません</div>
+                        ) : (
+                          filteredShops.map(shop => (
+                            <div
+                              key={shop.id}
+                              className="dropdown-item"
+                              onClick={() => {
+                                setSelectedShop(shop.id);
+                                setShopSearchTerm('');
+                                setShowShopDropdown(false);
+                              }}
+                            >
+                              <strong>{shop.name}</strong> ({shop.type})
+                              {shop.location && <div className="item-location">{shop.location}</div>}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="form-group">
                   <label htmlFor="spot-select">出店場所</label>
-                  <select 
-                    id="spot-select" 
-                    value={selectedSpot}
-                    onChange={(e) => setSelectedSpot(e.target.value)}
-                    disabled={!selectedDate}
-                  >
-                    <option value="">選択してください</option>
-                    {spots.map(spot => (
-                      <option key={spot.id} value={spot.id}>
-                        {spot.name} ({spot.campusId.toUpperCase()})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="searchable-select">
+                    <input
+                      type="text"
+                      placeholder="出店場所を検索..."
+                      value={selectedSpot ? selectedSpotName : spotSearchTerm}
+                      onChange={(e) => {
+                        setSpotSearchTerm(e.target.value);
+                        setSelectedSpot('');
+                        setShowSpotDropdown(true);
+                      }}
+                      onFocus={() => setShowSpotDropdown(true)}
+                      disabled={!selectedDate}
+                    />
+                    {showSpotDropdown && (
+                      <div className="dropdown-list">
+                        {filteredSpots.length === 0 ? (
+                          <div className="dropdown-item no-results">該当する場所がありません</div>
+                        ) : (
+                          filteredSpots.map(spot => (
+                            <div
+                              key={spot.id}
+                              className="dropdown-item"
+                              onClick={() => {
+                                setSelectedSpot(spot.id);
+                                setSpotSearchTerm('');
+                                setShowSpotDropdown(false);
+                              }}
+                            >
+                              <strong>{spot.name}</strong>
+                              <div className="item-campus">キャンパス: {spot.campusId.toUpperCase()}</div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="form-actions">
@@ -555,6 +668,13 @@ const fetchCalendarData = async () => {
       </div>
       
       <style jsx>{`
+        .container-fluid {
+          max-width: 95vw;
+          margin: 0 auto;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        
         .admin-header {
           text-align: center;
           margin-bottom: 2rem;
@@ -600,17 +720,27 @@ const fetchCalendarData = async () => {
         .admin-content {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 1.5rem;
+          gap: 2rem;
+          max-width: none;
         }
         
-        @media (min-width: 1024px) {
+        @media (min-width: 1200px) {
           .admin-content {
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 3fr 1fr;
+            gap: 2.5rem;
+          }
+        }
+        
+        @media (min-width: 1024px) and (max-width: 1199px) {
+          .admin-content {
+            grid-template-columns: 2.5fr 1fr;
+            gap: 2rem;
           }
         }
         
         .calendar-section {
           overflow-x: auto;
+          padding: 0.5rem;
         }
         
         .calendar-grid {
@@ -621,26 +751,31 @@ const fetchCalendarData = async () => {
           border: 1px solid #e5e7eb;
           border-radius: 0.5rem;
           overflow: hidden;
-          min-width: 700px;
+          width: 100%;
+          max-width: 100%;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .calendar-header-cell {
-          background-color: #f3f4f6;
-          padding: 0.75rem;
+          background-color: #1f2937;
+          color: white;
+          padding: 0.75rem 0.25rem;
           text-align: center;
-          font-weight: 600;
-          color: #4b5563;
+          font-weight: 700;
+          font-size: clamp(0.7rem, 2vw, 0.9rem);
+          letter-spacing: 0.05em;
         }
         
         .calendar-day {
-          min-height: 100px;
+          min-height: clamp(100px, 15vh, 180px);
           background-color: white;
-          padding: 0.5rem;
+          padding: clamp(0.25rem, 1vw, 0.5rem);
           display: flex;
           flex-direction: column;
           cursor: pointer;
           transition: all 0.2s;
           position: relative;
+          overflow: hidden;
         }
         
         .calendar-day:hover {
@@ -663,15 +798,16 @@ const fetchCalendarData = async () => {
         
         .day-number {
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: clamp(0.25rem, 1vw, 0.5rem);
+          font-size: clamp(0.8rem, 2.5vw, 1rem);
         }
         
         .today .day-number {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: clamp(20px, 4vw, 28px);
+          height: clamp(20px, 4vw, 28px);
           background-color: #3b82f6;
           color: white;
           border-radius: 50%;
@@ -680,76 +816,172 @@ const fetchCalendarData = async () => {
         .day-events {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: clamp(0.125rem, 0.5vw, 0.25rem);
           overflow-y: auto;
-          max-height: 120px;
+          flex: 1;
+          min-height: 0;
         }
         
         .event-item {
           display: flex;
-          align-items: center;
-          padding: 0.25rem 0.5rem;
-          background-color: #f3f4f6;
-          border-radius: 0.25rem;
-          font-size: 0.75rem;
-          color: #4b5563;
+          align-items: flex-start;
+          padding: clamp(0.375rem, 1vw, 0.625rem);
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border: 1px solid #e2e8f0;
+          border-radius: 0.5rem;
+          font-size: clamp(0.7rem, 2vw, 0.8rem);
+          color: #1e293b;
           transition: all 0.2s;
+          margin-bottom: clamp(0.25rem, 0.8vw, 0.375rem);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+          position: relative;
+          min-height: clamp(45px, 8vw, 60px);
         }
         
         .event-item:hover {
-          background-color: #e5e7eb;
+          background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .event-dot {
-          width: 8px;
-          height: 8px;
+          width: clamp(6px, 1.2vw, 10px);
+          height: clamp(6px, 1.2vw, 10px);
           border-radius: 50%;
-          margin-right: 0.5rem;
+          margin-right: clamp(0.25rem, 0.8vw, 0.5rem);
           flex-shrink: 0;
         }
         
         .event-content {
           flex: 1;
           overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-height: 0;
         }
         
         .event-name {
-          font-weight: 600;
-          white-space: nowrap;
+          font-weight: 700;
+          line-height: 1.2;
+          margin-bottom: 0.125rem;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
           overflow: hidden;
-          text-overflow: ellipsis;
         }
         
         .event-location {
-          font-size: 0.7rem;
+          font-size: clamp(0.6rem, 1.5vw, 0.65rem);
           color: #6b7280;
+          font-weight: 500;
+          line-height: 1.1;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         
         .event-delete {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 20px;
-          height: 20px;
+          width: clamp(18px, 3.5vw, 24px);
+          height: clamp(18px, 3.5vw, 24px);
           background-color: #fee2e2;
           color: #ef4444;
           border-radius: 50%;
           border: none;
-          font-size: 0.875rem;
+          font-size: clamp(0.75rem, 1.8vw, 0.9rem);
           cursor: pointer;
           transition: all 0.2s;
-          margin-left: 0.5rem;
+          margin-left: clamp(0.25rem, 0.8vw, 0.5rem);
+          flex-shrink: 0;
+          align-self: flex-start;
+          margin-top: 2px;
         }
         
         .event-delete:hover {
           background-color: #fecaca;
           transform: scale(1.1);
         }
+
+        .event-tooltip {
+          position: absolute;
+          top: -10px;
+          left: 50%;
+          transform: translateX(-50%) translateY(-100%);
+          z-index: 1000;
+          opacity: 1;
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        .tooltip-content {
+          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+          color: white;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+          white-space: nowrap;
+          font-size: 0.8rem;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          position: relative;
+        }
+
+        .tooltip-content::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border: 6px solid transparent;
+          border-top-color: #1f2937;
+        }
+
+        .tooltip-title {
+          font-weight: 700;
+          font-size: 0.85rem;
+          margin-bottom: 0.25rem;
+          color: #f8fafc;
+        }
+
+        .tooltip-location,
+        .tooltip-time,
+        .tooltip-date {
+          font-size: 0.75rem;
+          color: #cbd5e1;
+          margin-bottom: 0.125rem;
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        .tooltip-date {
+          margin-bottom: 0;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-90%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-100%);
+          }
+        }
         
         .control-panel {
-          background-color: #f9fafb;
-          border-radius: 0.5rem;
-          padding: 1.5rem;
+          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          border: 1px solid #e2e8f0;
+          border-radius: 0.75rem;
+          padding: 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          position: sticky;
+          top: 2rem;
         }
         
         .control-title {
@@ -762,13 +994,15 @@ const fetchCalendarData = async () => {
         }
         
         .selected-date {
-          background-color: #dbeafe;
-          color: #1d4ed8;
-          padding: 0.5rem;
-          border-radius: 0.25rem;
-          margin-bottom: 1rem;
-          font-weight: 600;
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          margin-bottom: 1.5rem;
+          font-weight: 700;
           text-align: center;
+          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .panel-instruction {
@@ -809,6 +1043,72 @@ const fetchCalendarData = async () => {
           color: #9ca3af;
           cursor: not-allowed;
         }
+
+        .searchable-select {
+          position: relative;
+        }
+
+        .searchable-select input {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.25rem;
+          background-color: white;
+          color: #1f2937;
+        }
+
+        .searchable-select input:disabled {
+          background-color: #f3f4f6;
+          color: #9ca3af;
+          cursor: not-allowed;
+        }
+
+        .dropdown-list {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background-color: white;
+          border: 1px solid #d1d5db;
+          border-top: none;
+          border-radius: 0 0 0.25rem 0.25rem;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 1000;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+          padding: 0.75rem;
+          cursor: pointer;
+          border-bottom: 1px solid #f3f4f6;
+          transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f9fafb;
+        }
+
+        .dropdown-item:last-child {
+          border-bottom: none;
+        }
+
+        .dropdown-item.no-results {
+          color: #6b7280;
+          text-align: center;
+          cursor: default;
+        }
+
+        .dropdown-item.no-results:hover {
+          background-color: transparent;
+        }
+
+        .item-location,
+        .item-campus {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin-top: 0.25rem;
+        }
         
         .form-actions {
           display: flex;
@@ -821,6 +1121,111 @@ const fetchCalendarData = async () => {
           font-size: 0.75rem;
           color: #6b7280;
           margin-top: 1rem;
+        }
+
+        /* タブレット対応 */
+        @media (max-width: 1024px) {
+          .admin-content {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          
+          .control-panel {
+            position: static;
+            margin-top: 1rem;
+          }
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+          .container {
+            padding: 1rem 0.5rem;
+          }
+          
+          .admin-panel {
+            padding: 1rem;
+          }
+          
+          .calendar-navigation {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+          }
+          
+          .nav-buttons {
+            justify-content: center;
+            gap: 0.5rem;
+          }
+          
+          .calendar-section {
+            padding: 0;
+            margin: 0 -0.5rem;
+          }
+
+          .tooltip-content {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+          }
+
+          .tooltip-title {
+            font-size: 0.8rem;
+          }
+
+          .tooltip-location,
+          .tooltip-time,
+          .tooltip-date {
+            font-size: 0.7rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .admin-title {
+            font-size: 1.5rem;
+          }
+          
+          .admin-subtitle {
+            font-size: 0.9rem;
+          }
+          
+          .current-month {
+            font-size: 1.25rem;
+          }
+          
+          .control-panel {
+            padding: 1rem;
+          }
+          
+          .nav-buttons {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+        }
+
+        /* 極小画面対応 */
+        @media (max-width: 320px) {
+          .calendar-section {
+            margin: 0 -1rem;
+          }
+        }
+
+        /* アクセシビリティの改善 */
+        .calendar-day:focus {
+          outline: 2px solid #3b82f6;
+          outline-offset: -2px;
+        }
+        
+        .dropdown-item:focus {
+          background-color: #dbeafe;
+          outline: none;
+        }
+        
+        .searchable-select input:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          outline: none;
         }
       `}</style>
     </Layout>

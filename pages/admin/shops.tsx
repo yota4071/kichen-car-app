@@ -32,6 +32,7 @@ const AdminShopsPage = () => {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -43,6 +44,20 @@ const AdminShopsPage = () => {
   });
   
   const router = useRouter();
+
+  // ESCキーでモーダルを閉じる
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showModal) {
+        handleCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [showModal]);
 
   // 認証状態監視
   useEffect(() => {
@@ -138,6 +153,7 @@ const AdminShopsPage = () => {
       description: ''
     });
     setIsAdding(true);
+    setShowModal(true);
   };
 
   // キャンセル処理
@@ -145,6 +161,7 @@ const AdminShopsPage = () => {
     setSelectedShop(null);
     setIsEditing(false);
     setIsAdding(false);
+    setShowModal(false);
   };
 
   // 保存処理（新規追加 or 更新）
@@ -181,6 +198,7 @@ const AdminShopsPage = () => {
       setSelectedShop(null);
       setIsEditing(false);
       setIsAdding(false);
+      setShowModal(false);
       
       // 店舗一覧を再取得
       const shopRef = collection(db, "kitchens");
@@ -339,13 +357,11 @@ const AdminShopsPage = () => {
 
         </div>
 
-        {/* 編集フォーム - 独立したセクションとして配置 */}
-        {(isEditing || isAdding) && (
+        {/* 編集フォーム - インライン編集用 */}
+        {isEditing && (
           <div className="edit-form-section">
             <div className="edit-form">
-              <h2 className="form-title">
-                {isAdding ? '新規店舗を追加' : '店舗情報を編集'}
-              </h2>
+              <h2 className="form-title">店舗情報を編集</h2>
               
               <div className="form-group">
                 <label htmlFor="name">店舗名 <span className="required">*</span></label>
@@ -443,6 +459,126 @@ const AdminShopsPage = () => {
               </div>
               
               <div className="form-actions">
+                <Button onClick={handleCancel} variant="secondary">
+                  キャンセル
+                </Button>
+                <Button onClick={handleSave} variant="primary">
+                  保存する
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* モーダル - 新規店舗追加用 */}
+        {showModal && (
+          <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && handleCancel()}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2 className="modal-title">新規店舗を追加</h2>
+                <button className="modal-close" onClick={handleCancel}>
+                  ×
+                </button>
+              </div>
+              
+              <div className="modal-body">
+                <div className="form-group">
+                  <label htmlFor="modal-name">店舗名 <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    id="modal-name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-location">出店場所 <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    id="modal-location"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-type">料理タイプ <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    id="modal-type"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    required
+                    placeholder="例: アサイーボウル、ハンバーガー"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-dish">カテゴリー</label>
+                  <select
+                    id="modal-dish"
+                    name="dish"
+                    value={formData.dish}
+                    onChange={handleInputChange}
+                    className="form-select"
+                  >
+                    <option value="">選択してください</option>
+                    {DISH_CATEGORIES.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-subDish">サブカテゴリー</label>
+                  <input
+                    type="text"
+                    id="modal-subDish"
+                    name="subDish"
+                    value={formData.subDish}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="例: ラーメン、サンドイッチ"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-image">画像URL</label>
+                  <input
+                    type="text"
+                    id="modal-image"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="/images/shop1.jpg"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="modal-description">説明文</label>
+                  <textarea
+                    id="modal-description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="form-textarea"
+                    rows={4}
+                    placeholder="店舗の説明や特徴を入力してください"
+                  />
+                </div>
+              </div>
+              
+              <div className="modal-footer">
                 <Button onClick={handleCancel} variant="secondary">
                   キャンセル
                 </Button>
@@ -658,6 +794,108 @@ const AdminShopsPage = () => {
           justify-content: flex-end;
           gap: 0.75rem;
           margin-top: 1.5rem;
+        }
+
+        /* モーダルスタイル */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1rem;
+        }
+
+        .modal-content {
+          background-color: white;
+          border-radius: 1rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          max-width: 600px;
+          width: 100%;
+          max-height: 90vh;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem 2rem 1rem 2rem;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin: 0;
+        }
+
+        .modal-close {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: none;
+          background-color: #f3f4f6;
+          color: #6b7280;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-size: 1.5rem;
+          line-height: 1;
+        }
+
+        .modal-close:hover {
+          background-color: #e5e7eb;
+          color: #374151;
+          transform: scale(1.05);
+        }
+
+        .modal-body {
+          flex: 1;
+          overflow-y: auto;
+          padding: 1.5rem 2rem;
+        }
+
+        .modal-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+          padding: 1rem 2rem 1.5rem 2rem;
+          border-top: 1px solid #e5e7eb;
+          background-color: #f9fafb;
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+          .modal-overlay {
+            padding: 0.5rem;
+          }
+
+          .modal-content {
+            max-width: 100%;
+            max-height: 95vh;
+          }
+
+          .modal-header,
+          .modal-body,
+          .modal-footer {
+            padding-left: 1rem;
+            padding-right: 1rem;
+          }
+
+          .modal-title {
+            font-size: 1.25rem;
+          }
         }
       `}</style>
     </Layout>
