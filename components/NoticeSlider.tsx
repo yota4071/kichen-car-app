@@ -1,6 +1,8 @@
-// components/NoticeSlider.tsx - シンプル版
+// components/NoticeSlider.tsx - Firebase対応版
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 type Notice = {
   id: string;
@@ -14,32 +16,37 @@ type Notice = {
   createdAt: string;
 };
 
-type NoticeData = {
-  notices: Notice[];
-};
 
 const NoticeSlider = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // JSONファイルからお知らせを取得
+  // Firebaseからお知らせを取得
   useEffect(() => {
     const fetchNotices = async () => {
       try {
         setIsLoading(true);
         
-        const response = await fetch('/data/Notice.json');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data: NoticeData = await response.json();
+        // Firebaseからお知らせを取得（シンプルクエリでインデックス不要）
+        const noticesRef = collection(db, "notices");
+        const querySnapshot = await getDocs(noticesRef);
         const now = new Date();
         
-        const activeNotices = data.notices
+        const fetchedNotices: Notice[] = querySnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            title: doc.data().title || "",
+            link: doc.data().link || null,
+            isExternal: doc.data().isExternal ?? false,
+            isActive: doc.data().isActive ?? true,
+            startDate: doc.data().startDate || "",
+            endDate: doc.data().endDate || "",
+            priority: doc.data().priority || 1,
+            createdAt: doc.data().createdAt ? doc.data().createdAt.toDate().toISOString() : new Date().toISOString()
+          }))
           .filter(notice => {
+            // アクティブかつ表示期間内のお知らせのみ表示
             if (!notice.isActive) return false;
             
             const startDate = notice.startDate ? new Date(notice.startDate) : null;
@@ -52,16 +59,17 @@ const NoticeSlider = () => {
             return isInDisplayPeriod;
           })
           .sort((a, b) => {
+            // 優先度でソート、同じ優先度なら作成日でソート
             if (a.priority !== b.priority) {
               return a.priority - b.priority;
             }
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           });
         
-        setNotices(activeNotices);
+        setNotices(fetchedNotices);
         
       } catch (error) {
-        console.error('Error fetching notices:', error);
+        console.error('Error fetching notices from Firebase:', error);
         // エラー時は何も表示しない
         setNotices([]);
       } finally {
@@ -149,14 +157,6 @@ const NoticeSlider = () => {
 
   const currentNotice = notices[currentIndex];
 
-  const NoticeContent = () => (
-    <div className="notice-content">
-      <span className="notice-text">
-        {currentNotice.title}
-      </span>
-    </div>
-  );
-
   return (
     <div className="notice-slider">
       <div className="notice-container">
@@ -173,25 +173,31 @@ const NoticeSlider = () => {
           </button>
         )}
 
-        {/* お知らせ内容 */}
-        <div className="notice-wrapper">
+        {/* お知らせ内容 - 完全中央揃え */}
+        <div className="notice-main-content">
           {currentNotice.link ? (
             currentNotice.isExternal ? (
               <a 
                 href={currentNotice.link} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="notice-link"
+                className="notice-link-element"
               >
-                <NoticeContent />
+                <span className="notice-text-element">
+                  {currentNotice.title}
+                </span>
               </a>
             ) : (
-              <Link href={currentNotice.link} className="notice-link">
-                <NoticeContent />
+              <Link href={currentNotice.link} className="notice-link-element">
+                <span className="notice-text-element">
+                  {currentNotice.title}
+                </span>
               </Link>
             )
           ) : (
-            <NoticeContent />
+            <span className="notice-text-element">
+              {currentNotice.title}
+            </span>
           )}
         </div>
 
@@ -240,43 +246,42 @@ const NoticeSlider = () => {
           width: 100%;
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 1rem;
         }
 
-        .notice-wrapper {
+        .notice-main-content {
           flex: 1;
           display: flex;
           justify-content: center;
+          align-items: center;
+          text-align: center;
+          width: 100%;
         }
 
-        .notice-link {
+        .notice-link-element {
           text-decoration: none;
           color: inherit;
-          display: block;
-        }
-
-        .notice-content {
-          display: flex;
-          align-items: center;
-          padding: 8px 0;
+          display: inline-block;
+          text-align: center;
           transition: opacity 0.3s ease;
-          width: 100%;
-          justify-content: center;
         }
 
-        .notice-link:hover .notice-content {
+        .notice-link-element:hover {
           opacity: 0.8;
         }
 
-        .notice-text {
+        .notice-text-element {
           font-size: 14px;
           font-weight: 500;
           line-height: 1.4;
+          text-align: center;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          max-width: 100%;
-          text-align: center;
+          max-width: 90vw;
+          display: inline-block;
+          padding: 8px 0;
         }
 
         .nav-button {
