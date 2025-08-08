@@ -138,6 +138,7 @@ const AdminShopsPage = () => {
       description: shop.description || ''
     });
     setIsEditing(true);
+    setShowModal(true); // モーダルを表示
   };
 
   // 新規追加モード
@@ -360,125 +361,13 @@ const AdminShopsPage = () => {
 
         </div>
 
-        {/* 編集フォーム - インライン編集用 */}
-        {isEditing && (
-          <div className="edit-form-section">
-            <div className="edit-form">
-              <h2 className="form-title">店舗情報を編集</h2>
-              
-              <div className="form-group">
-                <label htmlFor="name">店舗名 <span className="required">*</span></label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="location">出店場所 <span className="required">*</span></label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="type">料理タイプ <span className="required">*</span></label>
-                <input
-                  type="text"
-                  id="type"
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  required
-                  placeholder="例: アサイーボウル、ハンバーガー"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="dish">カテゴリー</label>
-                <select
-                  id="dish"
-                  name="dish"
-                  value={formData.dish}
-                  onChange={handleInputChange}
-                  className="form-select"
-                >
-                  <option value="">選択してください</option>
-                  {DISH_CATEGORIES.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="subDish">サブカテゴリー</label>
-                <input
-                  type="text"
-                  id="subDish"
-                  name="subDish"
-                  value={formData.subDish}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="例: ラーメン、サンドイッチ"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="image">画像URL</label>
-                <input
-                  type="text"
-                  id="image"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="/images/shop1.jpg"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="description">説明文</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  rows={4}
-                  placeholder="店舗の説明や特徴を入力してください"
-                />
-              </div>
-              
-              <div className="form-actions">
-                <Button onClick={handleCancel} variant="secondary">
-                  キャンセル
-                </Button>
-                <Button onClick={handleSave} variant="primary">
-                  保存する
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* モーダル - 新規店舗追加用 */}
+        {/* モーダル - 店舗追加・編集用 */}
         {showModal && (
           <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && handleCancel()}>
             <div className="modal-content">
               <div className="modal-header">
-                <h2 className="modal-title">新規店舗を追加</h2>
+                <h2 className="modal-title">{isEditing ? '店舗情報を編集' : '新規店舗を追加'}</h2>
                 <button className="modal-close" onClick={handleCancel}>
                   ×
                 </button>
@@ -734,29 +623,6 @@ const AdminShopsPage = () => {
           border-radius: 0.5rem;
         }
         
-        .edit-form-section {
-          margin-top: 2rem;
-          max-width: 800px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-        
-        .edit-form {
-          background-color: white;
-          border-radius: 0.75rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          padding: 2rem;
-          border: 1px solid #e5e7eb;
-        }
-        
-        .form-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-bottom: 1.5rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid #e5e7eb;
-          color: #1f2937;
-        }
         
         .form-group {
           margin-bottom: 1rem;
