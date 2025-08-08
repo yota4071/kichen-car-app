@@ -54,5 +54,47 @@
     "endDate": "2025-01-31T23:59:59Z",
     "priority": 4,
     "createdAt": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "pr-card-5",
+    "name": "新キャンペーンPR",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "期間限定の特別キャンペーン開催中！",
+    "url": "https://example.com/campaign",
+    "isActive": true,
+    "displayLocation": ["main", "categories"],
+    "startDate": "2025-08-01T00:00:00Z",
+    "endDate": "2025-09-30T23:59:59Z",
+    "priority": 1,
+    "createdAt": "2025-07-31T12:00:00Z"
+  },
+  {
+    "id": "pr-card-6",
+    "name": "週末限定オファー",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "土日限定の特別メニューをお見逃しなく！",
+    "url": "https://example.com/weekend",
+    "isActive": true,
+    "displayLocation": ["today", "main"],
+    "startDate": "2025-08-01T00:00:00Z",
+    "endDate": "2025-08-31T23:59:59Z",
+    "priority": 2,
+    "createdAt": "2025-07-30T15:00:00Z"
+  },
+  {
+    "id": "pr-card-7",
+    "name": "学生割引PR",
+    "location": "",
+    "image": "https://www.exotic-world.jp/wp/wp-content/uploads/2016/04/PR%E6%84%8F%E5%91%B3.jpg",
+    "prMessage": "学生証提示で10%割引！お得に楽しもう",
+    "url": "https://example.com/student-discount",
+    "isActive": true,
+    "displayLocation": ["categories"],
+    "startDate": "2025-04-01T00:00:00Z",
+    "endDate": "2025-12-31T23:59:59Z",
+    "priority": 3,
+    "createdAt": "2025-03-31T10:00:00Z"
   }
 ]

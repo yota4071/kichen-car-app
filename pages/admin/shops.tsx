@@ -285,6 +285,9 @@ const AdminShopsPage = () => {
         <div className="admin-header">
           <h1 className="admin-title">キッチンカー店舗管理</h1>
           <div className="admin-actions">
+            <Button href="/admin/pr-cards" variant="secondary" className="mr-2">
+              PRカード管理へ
+            </Button>
             <Button href="/admin/calendar" variant="secondary" className="mr-2">
               カレンダー管理へ
             </Button>

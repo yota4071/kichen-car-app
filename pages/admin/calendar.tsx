@@ -453,8 +453,20 @@ const fetchCalendarData = async () => {
     <Layout title="管理者用カレンダー | キッチンカー管理">
       <div className="container-fluid py-8">
         <div className="admin-header">
-          <h1 className="admin-title">キッチンカー管理カレンダー</h1>
-          <p className="admin-subtitle">出店予定を登録・管理できます</p>
+          <div className="admin-header-content">
+            <div>
+              <h1 className="admin-title">キッチンカー管理カレンダー</h1>
+              <p className="admin-subtitle">出店予定を登録・管理できます</p>
+            </div>
+            <div className="admin-actions">
+              <Button href="/admin/pr-cards" variant="secondary" className="mr-2">
+                PRカード管理へ
+              </Button>
+              <Button href="/admin/shops" variant="secondary">
+                店舗管理へ
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div className="admin-panel">
@@ -676,8 +688,28 @@ const fetchCalendarData = async () => {
         }
         
         .admin-header {
-          text-align: center;
           margin-bottom: 2rem;
+        }
+
+        .admin-header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          .admin-header-content {
+            flex-direction: column;
+            align-items: center;
+          }
+        }
+
+        .admin-actions {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
         }
         
         .admin-title {

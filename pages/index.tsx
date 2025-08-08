@@ -1,6 +1,6 @@
 // pages/index.tsx（改良版：NoticeSlider追加・折りたたみ機能・詳細検索リンク・ダイナミックメッセージ追加）
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -59,36 +59,54 @@ export default function Home() {
   useEffect(() => {
     const fetchPRCards = async () => {
       try {
-        const response = await fetch('/data/pr-cards.json');
-        if (response.ok) {
-          const data = await response.json();
-          const now = new Date();
+        const prCardsRef = collection(db, "pr-cards");
+        const querySnapshot = await getDocs(prCardsRef);
+        
+        const now = new Date();
+        const activePRCards: PRCard[] = [];
+        
+        querySnapshot.docs.forEach(doc => {
+          const data = doc.data();
           
-          const activePRCards = data.filter((card: PRCard) => {
-            if (!card.isActive || !card.displayLocation.includes('main')) return false;
-            
-            const startDate = card.startDate ? new Date(card.startDate) : null;
-            const endDate = card.endDate ? new Date(card.endDate) : null;
-            
-            const isInDisplayPeriod = 
-              (!startDate || startDate <= now) && 
-              (!endDate || endDate >= now);
-            
-            return isInDisplayPeriod;
-          });
+          // クライアントサイドでフィルタリング
+          if (!data.isActive || !data.displayLocation?.includes('main')) return;
           
-          // 優先度でソート（低い値が高優先度）
-          activePRCards.sort((a: PRCard, b: PRCard) => {
-            if (a.priority !== undefined && b.priority !== undefined) {
-              return a.priority - b.priority;
-            }
-            if (a.priority !== undefined) return -1;
-            if (b.priority !== undefined) return 1;
-            return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime();
-          });
+          const startDate = data.startDate ? new Date(data.startDate) : null;
+          const endDate = data.endDate ? new Date(data.endDate) : null;
           
-          setPrCards(activePRCards);
-        }
+          const isInDisplayPeriod = 
+            (!startDate || startDate <= now) && 
+            (!endDate || endDate >= now);
+          
+          if (isInDisplayPeriod) {
+            activePRCards.push({
+              id: doc.id,
+              name: data.name || "",
+              location: data.location || "",
+              image: data.image || "",
+              prMessage: data.prMessage || "",
+              url: data.url || "",
+              isActive: data.isActive ?? true,
+              displayLocation: data.displayLocation || [],
+              startDate: data.startDate || "",
+              endDate: data.endDate || "",
+              priority: data.priority || 1,
+              createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : new Date().toISOString()
+            });
+          }
+        });
+        
+        // クライアントサイドでソート
+        activePRCards.sort((a, b) => {
+          const priorityA = a.priority ?? 999;
+          const priorityB = b.priority ?? 999;
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB; // 優先度昇順
+          }
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(); // 作成日降順
+        });
+        
+        setPrCards(activePRCards);
       } catch (error) {
         console.error("Error fetching PR cards:", error);
       }
