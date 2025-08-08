@@ -165,6 +165,12 @@ const handleSearch = (e: React.FormEvent) => {
           <Link href="/admin/shops" className={styles['admin-link']}>
             店舗管理
           </Link>
+          <Link href="/admin/pr-cards" className={styles['admin-link']}>
+            PRカード管理
+          </Link>
+          <Link href="/admin/notices" className={styles['admin-link']}>
+            お知らせ管理
+          </Link>
         </div>
       </div>
     )}
@@ -219,6 +225,12 @@ const handleSearch = (e: React.FormEvent) => {
               </li>
               <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
                 <Link href="/admin/shops">店舗管理</Link>
+              </li>
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
+                <Link href="/admin/pr-cards">PRカード管理</Link>
+              </li>
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
+                <Link href="/admin/notices">お知らせ管理</Link>
               </li>
             </>
           )}
