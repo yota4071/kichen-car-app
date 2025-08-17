@@ -171,8 +171,8 @@ const AdminShopsPage = () => {
     
     try {
       // 入力チェック
-      if (!formData.name || !formData.location || !formData.type) {
-        alert("店舗名、出店場所、料理タイプは必須項目です。");
+      if (!formData.name || !formData.type) {
+        alert("店舗名、料理タイプは必須項目です。");
         return;
       }
       
@@ -388,7 +388,7 @@ const AdminShopsPage = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label htmlFor="modal-location">出店場所 <span className="required">*</span></label>
+                  <label htmlFor="modal-location">出店場所</label>
                   <input
                     type="text"
                     id="modal-location"
@@ -396,7 +396,6 @@ const AdminShopsPage = () => {
                     value={formData.location}
                     onChange={handleInputChange}
                     className="form-input"
-                    required
                   />
                 </div>
                 

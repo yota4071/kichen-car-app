@@ -184,7 +184,7 @@ export default function ShopDetail() {
   };
 
   const isValidInput = (input: string): boolean => {
-    const pattern = /^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F\w\s\-\$\¥\~]*$/;
+    const pattern = /^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F\w\s\-\$\¥\~\。\、\！\？\「\」\（\）\．\，]*$/;
     return pattern.test(input);
   };
   
@@ -193,7 +193,7 @@ export default function ShopDetail() {
   
     // 🔒 入力チェック（コメントに使える文字だけ許可）
     if (!isValidInput(comment)) {
-      alert("コメントには日本語・英数字・-・$・¥・~ のみ使用できます。");
+      alert("コメントには日本語・英数字・基本的な記号のみ使用できます。");
       return;
     }
   

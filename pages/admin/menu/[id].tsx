@@ -183,14 +183,14 @@ const AdminMenuPage = () => {
     
     try {
       // 入力チェック
-      if (!formData.name || !formData.price) {
-        alert("メニュー名と価格は必須項目です。");
+      if (!formData.name) {
+        alert("メニュー名は必須項目です。");
         return;
       }
       
-      const price = Number(formData.price);
-      if (isNaN(price) || price <= 0) {
-        alert("価格は1以上の数値で入力してください。");
+      const price = formData.price ? Number(formData.price) : 0;
+      if (formData.price && (isNaN(price) || price < 0)) {
+        alert("価格は0以上の数値で入力してください。");
         return;
       }
       
@@ -420,7 +420,7 @@ const AdminMenuPage = () => {
               </div>
               
               <div className="form-group">
-                <label htmlFor="price">価格 (円) <span className="required">*</span></label>
+                <label htmlFor="price">価格 (円)</label>
                 <input
                   type="number"
                   id="price"
@@ -428,8 +428,7 @@ const AdminMenuPage = () => {
                   value={formData.price}
                   onChange={handleInputChange}
                   className="form-input"
-                  min="1"
-                  required
+                  min="0"
                 />
               </div>
               
