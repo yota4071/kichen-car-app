@@ -344,7 +344,7 @@ export default function NomNomAdvertisePage() {
                 <span className="contact-icon">📧</span>
                 <div>
                   <div className="contact-label">メールでのお問い合わせ</div>
-                  <div className="contact-value">example@mail.com</div>
+                  <div className="contact-value">sales@qurest.tech</div>
                   <div className="contact-note">料金や詳細についてはこちらまで</div>
                 </div>
               </div>
