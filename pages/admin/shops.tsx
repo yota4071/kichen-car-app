@@ -286,6 +286,12 @@ const AdminShopsPage = () => {
         <div className="admin-header">
           <h1 className="admin-title">キッチンカー店舗管理</h1>
           <div className="admin-actions">
+            <Button href="/admin" variant="secondary" className="mr-2">
+              🏠 ダッシュボード
+            </Button>
+            <Button href="/admin/reported-reviews" variant="secondary" className="mr-2">
+              報告レビュー管理へ
+            </Button>
             <Button href="/admin/pr-cards" variant="secondary" className="mr-2">
               PRカード管理へ
             </Button>

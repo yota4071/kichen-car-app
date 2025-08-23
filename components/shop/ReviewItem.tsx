@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { RatingStars } from './RatingStars';
+import styles from '../../styles/ReviewItem.module.css';
 
 type ReviewItemProps = {
   reviewId: string;
@@ -123,22 +124,22 @@ export function ReviewItem({
   };
 
   return (
-    <div className="review-item">
-      <div className="review-item-header">
-        <div className="rating-stars">
+    <div className={styles.reviewItem}>
+      <div className={styles.reviewItemHeader}>
+        <div className={styles.ratingStars}>
           <RatingStars rating={rating} />
         </div>
-        <div className="review-actions">
+        <div className={styles.reviewActions}>
           <button 
-            className={`like-button ${isLiked ? 'liked' : ''} ${isLikeAnimating ? 'animating' : ''}`}
+            className={`${styles.likeButton} ${isLiked ? styles.liked : ''} ${isLikeAnimating ? styles.animating : ''}`}
             onClick={handleLikeClick}
           >
-            {isLiked ? '❤️' : '🤍'} <span className="like-count">{likeCount}</span>
+            {isLiked ? '❤️' : '🤍'} <span className={styles.likeCount}>{likeCount}</span>
           </button>
           
           {!canDelete && (
             <button
-              className="report-button"
+              className={styles.reportButton}
               onClick={handleReportClick}
               aria-label="このレビューを報告"
             >
@@ -148,7 +149,7 @@ export function ReviewItem({
 
           {canDelete && (
             <button
-              className="delete-button"
+              className={styles.deleteButton}
               onClick={handleDeleteClick}
               aria-label="このレビューを削除"
             >
@@ -157,33 +158,41 @@ export function ReviewItem({
           )}
         </div>
       </div>
-      <p className="review-comment">{comment}</p>
-      <div className="review-footer">
-        <div className="review-author">
+      <p className={styles.reviewComment}>{comment}</p>
+      <div className={styles.reviewFooter}>
+        <div className={styles.reviewAuthor}>
           <span>👤</span> {authorName || '匿名ユーザー'}
         </div>
         {formattedDate && (
-          <div className="review-date">{formattedDate}</div>
+          <div className={styles.reviewDate}>{formattedDate}</div>
         )}
       </div>
 
+      {/* 報告成功メッセージ（インライン表示） */}
+      {reportSuccess && (
+        <div className={styles.reportSuccessMessage}>
+          <div className={styles.successIcon}>✓</div>
+          <span className={styles.successText}>報告を受け付けました</span>
+        </div>
+      )}
+
       {/* 報告確認ダイアログ */}
       {showReportConfirm && (
-        <div className="report-confirm-overlay">
-          <div className="report-confirm-dialog">
+        <div className={styles.reportConfirmOverlay}>
+          <div className={styles.reportConfirmDialog}>
             <h4>このレビューを報告しますか？</h4>
             <p>不適切な内容や誹謗中傷が含まれる場合に報告してください。</p>
             
-            <div className="report-buttons">
+            <div className={styles.reportButtons}>
               <button 
-                className="report-cancel-button"
+                className={styles.reportCancelButton}
                 onClick={() => setShowReportConfirm(false)}
                 disabled={isReporting}
               >
                 キャンセル
               </button>
               <button 
-                className="report-confirm-button"
+                className={styles.reportConfirmButton}
                 onClick={confirmReport}
                 disabled={isReporting}
               >
@@ -194,34 +203,23 @@ export function ReviewItem({
         </div>
       )}
 
-      {/* 報告成功メッセージ（画面中央） */}
-      {reportSuccess && (
-        <div className="report-success-overlay">
-          <div className="report-success-message">
-            <div className="success-icon">✓</div>
-            <h3>報告を受け付けました</h3>
-            <p>ご報告ありがとうございます。内容を確認いたします。</p>
-          </div>
-        </div>
-      )}
-
       {/* 削除確認ダイアログ */}
       {showDeleteConfirm && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-dialog">
+        <div className={styles.deleteConfirmOverlay}>
+          <div className={styles.deleteConfirmDialog}>
             <h4>このレビューを削除しますか？</h4>
             <p>削除したレビューは元に戻すことができません。</p>
             
-            <div className="delete-buttons">
+            <div className={styles.deleteButtons}>
               <button 
-                className="delete-cancel-button"
+                className={styles.deleteCancelButton}
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
               >
                 キャンセル
               </button>
               <button 
-                className="delete-confirm-button"
+                className={styles.deleteConfirmButton}
                 onClick={confirmDelete}
                 disabled={isDeleting}
               >

@@ -388,6 +388,9 @@ const AdminNoticesPage = () => {
         <div className="admin-header">
           <h1 className="admin-title">お知らせ管理</h1>
           <div className="admin-actions">
+            <Button href="/admin" variant="secondary" className="mr-2">
+              🏠 ダッシュボード
+            </Button>
             <Button href="/admin/shops" variant="secondary" className="mr-2">
               店舗管理へ
             </Button>

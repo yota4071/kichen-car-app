@@ -159,11 +159,17 @@ const handleSearch = (e: React.FormEvent) => {
           管理メニュー ▼
         </button>
         <div className={styles['admin-dropdown-content']}>
-          <Link href="/admin/calendar" className={styles['admin-link']}>
-            カレンダー管理
+          <Link href="/admin" className={styles['admin-link']}>
+            🏠 ダッシュボード
+          </Link>
+          <Link href="/admin/reported-reviews" className={styles['admin-link']}>
+            🚨 報告レビュー管理
           </Link>
           <Link href="/admin/shops" className={styles['admin-link']}>
             店舗管理
+          </Link>
+          <Link href="/admin/calendar" className={styles['admin-link']}>
+            カレンダー管理
           </Link>
           <Link href="/admin/pr-cards" className={styles['admin-link']}>
             PRカード管理
@@ -221,10 +227,16 @@ const handleSearch = (e: React.FormEvent) => {
             <>
               <li className={`mobile-nav-item ${styles['mobile-admin-title']}`}>管理者メニュー</li>
               <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
-                <Link href="/admin/calendar">カレンダー管理</Link>
+                <Link href="/admin">🏠 ダッシュボード</Link>
+              </li>
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
+                <Link href="/admin/reported-reviews">🚨 報告レビュー管理</Link>
               </li>
               <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
                 <Link href="/admin/shops">店舗管理</Link>
+              </li>
+              <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
+                <Link href="/admin/calendar">カレンダー管理</Link>
               </li>
               <li className={`mobile-nav-item ${styles['mobile-admin-item']}`}>
                 <Link href="/admin/pr-cards">PRカード管理</Link>

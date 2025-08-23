@@ -459,6 +459,9 @@ const fetchCalendarData = async () => {
               <p className="admin-subtitle">出店予定を登録・管理できます</p>
             </div>
             <div className="admin-actions">
+              <Button href="/admin" variant="secondary" className="mr-2">
+                🏠 ダッシュボード
+              </Button>
               <Button href="/admin/pr-cards" variant="secondary" className="mr-2">
                 PRカード管理へ
               </Button>

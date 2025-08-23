@@ -1,0 +1,301 @@
+/* レビューアイテムのスタイル */
+.reviewItem {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+  position: relative;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s ease;
+}
+
+.reviewItem:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.reviewItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+}
+
+.reviewActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.likeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 0.375rem 0.75rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.likeButton:hover {
+  border-color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.likeButton.liked {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.likeButton.animating {
+  animation: likeAnimation 0.5s ease-in-out;
+}
+
+@keyframes likeAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.likeCount {
+  font-weight: 600;
+}
+
+.reportButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.reportButton:hover {
+  border-color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.deleteButton:hover {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.reviewComment {
+  color: #1f2937;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  word-wrap: break-word;
+}
+
+.reviewFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.reviewAuthor {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.reviewDate {
+  color: #9ca3af;
+}
+
+/* 報告成功メッセージ（インライン） */
+.reportSuccessMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.5rem;
+  color: #065f46;
+  font-size: 0.875rem;
+  animation: successSlideIn 0.3s ease-out;
+}
+
+@keyframes successSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.successIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: #10b981;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.successText {
+  font-weight: 500;
+}
+
+/* オーバーレイとダイアログの共通スタイル */
+.reportConfirmOverlay, .deleteConfirmOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.reportConfirmDialog, .deleteConfirmDialog {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: dialogSlideIn 0.2s ease-out;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reportConfirmDialog h4, .deleteConfirmDialog h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.reportConfirmDialog p, .deleteConfirmDialog p {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.reportButtons, .deleteButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.reportCancelButton, .reportConfirmButton, 
+.deleteCancelButton, .deleteConfirmButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+}
+
+.reportCancelButton, .deleteCancelButton {
+  background-color: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.reportCancelButton:hover, .deleteCancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+.reportConfirmButton {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.reportConfirmButton:hover {
+  background-color: #d97706;
+}
+
+.deleteConfirmButton {
+  background-color: #ef4444;
+  color: white;
+}
+
+.deleteConfirmButton:hover {
+  background-color: #dc2626;
+}
+
+.reportConfirmButton:disabled, .deleteConfirmButton:disabled,
+.reportCancelButton:disabled, .deleteCancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .reviewItem {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .reviewItemHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .reviewActions {
+    align-self: flex-end;
+  }
+  
+  .reportConfirmOverlay, .deleteConfirmOverlay {
+    padding: 0.5rem;
+  }
+  
+  .reportConfirmDialog, .deleteConfirmDialog {
+    padding: 1rem;
+  }
+  
+  .reportButtons, .deleteButtons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .reportCancelButton, .reportConfirmButton,
+  .deleteCancelButton, .deleteConfirmButton {
+    width: 100%;
+  }
+}
