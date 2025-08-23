@@ -1,6 +1,7 @@
 // components/shop/MenuList.tsx
 import { useState, useMemo } from 'react';
 import { MenuItem } from './MenuItem';
+import { MenuModal } from './MenuModal';
 
 type MenuItemType = {
   id: string;
@@ -33,6 +34,8 @@ export function MenuList({
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [showAll, setShowAll] = useState(false);
   const [currentLimit, setCurrentLimit] = useState(displayLimit);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItemType | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // カテゴリーを重複なく抽出
   const uniqueCategories = useMemo(() => {
@@ -81,6 +84,18 @@ export function MenuList({
   const handleShowLess = () => {
     setCurrentLimit(displayLimit);
     setShowAll(false);
+  };
+
+  // メニューアイテムをクリックした時の処理
+  const handleMenuItemClick = (menuItem: MenuItemType) => {
+    setSelectedMenuItem(menuItem);
+    setIsModalOpen(true);
+  };
+
+  // モーダルを閉じる処理
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedMenuItem(null);
   };
 
   // メニューがない場合
@@ -174,6 +189,7 @@ export function MenuList({
             likes={item.likes}
             onLike={onLikeMenuItem}
             userHasLiked={item.userLiked}
+            onClick={() => handleMenuItemClick(item)}
           />
         ))}
       </div>
@@ -201,6 +217,14 @@ export function MenuList({
           </button>
         </div>
       )}
+
+      {/* メニュー詳細モーダル */}
+      <MenuModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        menuItem={selectedMenuItem}
+        onLike={onLikeMenuItem}
+      />
     </div>
   );
 }

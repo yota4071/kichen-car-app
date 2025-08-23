@@ -12,6 +12,7 @@ type MenuItemProps = {
   likes: number;
   onLike?: (menuId: string) => Promise<boolean>;
   userHasLiked?: boolean;
+  onClick?: () => void;
 };
 
 export function MenuItem({
@@ -23,13 +24,15 @@ export function MenuItem({
   category,
   likes = 0,
   onLike,
-  userHasLiked = false
+  userHasLiked = false,
+  onClick
 }: MenuItemProps) {
   const [isLiked, setIsLiked] = useState(userHasLiked);
   const [likeCount, setLikeCount] = useState(likes);
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
 
-  const handleLikeClick = async () => {
+  const handleLikeClick = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // メニューアイテムのクリックイベントを停止
     if (onLike) {
       const success = await onLike(id);
       
@@ -53,7 +56,7 @@ export function MenuItem({
   }).format(price);
 
   return (
-    <div className="menu-item">
+    <div className="menu-item" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
       <div className="menu-item-content">
         {image && (
           <div className="menu-item-image">
@@ -66,7 +69,11 @@ export function MenuItem({
             {category && <span className="menu-item-category">{category}</span>}
           </div>
           <div className="menu-item-price">{formattedPrice}</div>
-          {description && <p className="menu-item-description">{description}</p>}
+          {description && (
+            <p className="menu-item-description">
+              {description.length > 60 ? `${description.substring(0, 60)}...` : description}
+            </p>
+          )}
           <div className="menu-item-footer">
             <button 
               className={`menu-like-button ${isLiked ? 'liked' : ''} ${isLikeAnimating ? 'animating' : ''}`}

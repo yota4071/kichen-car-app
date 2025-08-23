@@ -1,0 +1,207 @@
+/* メニューモーダル */
+.menuModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.menuModalContent {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuModalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.menuModalClose:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #333;
+  transform: scale(1.1);
+}
+
+.menuModalBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.menuModalImage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px 12px 0 0;
+  background-color: #f8f9fa;
+}
+
+.menuModalImage img {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px 12px 0 0;
+}
+
+.menuModalDetails {
+  padding: 1.5rem;
+}
+
+.menuModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.menuModalTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.menuModalCategory {
+  background: #f0f0f0;
+  color: #666;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.menuModalPrice {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 1.5rem;
+}
+
+.menuModalDescription {
+  margin-bottom: 1.5rem;
+}
+
+.menuModalDescription h3 {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.menuModalDescription p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.menuModalFooter {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.menuModalLikeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.menuModalLikeButton:hover {
+  border-color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.menuModalLikeButton.liked {
+  border-color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+}
+
+.likeCount {
+  font-weight: bold;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .menuModalOverlay {
+    padding: 0.5rem;
+  }
+  
+  .menuModalContent {
+    max-height: 95vh;
+  }
+  
+  .menuModalImage img {
+    max-height: 300px;
+  }
+  
+  .menuModalDetails {
+    padding: 1rem;
+  }
+  
+  .menuModalTitle {
+    font-size: 1.25rem;
+  }
+  
+  .menuModalHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .menuModalClose {
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+  }
+}
