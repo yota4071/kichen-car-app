@@ -433,7 +433,7 @@ const ReportedReviewsPage = () => {
                     </div>
                     <div className="detail-item">
                       <label>最終報告日:</label>
-                      <span>{formatDate(selectedReview.lastReportedAt)}</span>
+                      <span>{formatDate(selectedReview.lastReportedAt || null)}</span>
                     </div>
                   </div>
                 </div>

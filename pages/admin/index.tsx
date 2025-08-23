@@ -328,7 +328,7 @@ const AdminDashboard = () => {
                     <p className="alert-description">
                       {stats.highRiskReviews}件のレビューが3回以上報告されています。確認が必要です。
                     </p>
-                    <Button href="/admin/reported-reviews?filter=high" variant="primary" size="sm">
+                    <Button href="/admin/reported-reviews?filter=high" variant="primary">
                       今すぐ確認
                     </Button>
                   </div>
@@ -343,7 +343,7 @@ const AdminDashboard = () => {
                     <p className="alert-description">
                       {stats.totalReportedReviews - stats.highRiskReviews}件のレビューが報告されています。
                     </p>
-                    <Button href="/admin/reported-reviews" variant="secondary" size="sm">
+                    <Button href="/admin/reported-reviews" variant="secondary">
                       確認する
                     </Button>
                   </div>
