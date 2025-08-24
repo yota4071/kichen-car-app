@@ -20,6 +20,14 @@ type Shop = {
   subDish?: string;
   rating?: number;
   reviewCount?: number;
+  menuItems?: MenuItem[];
+};
+
+type MenuItem = {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
 };
 
 type SortOption = 'name' | 'rating' | 'reviews';
@@ -65,7 +73,7 @@ export default function SearchPage() {
       try {
         const querySnapshot = await getDocs(collection(db, "kitchens"));
         const shopPromises = querySnapshot.docs.map(async (docSnapshot) => {
-          const shopData = docSnapshot.data() as Omit<Shop, "id" | "rating" | "reviewCount">;
+          const shopData = docSnapshot.data() as Omit<Shop, "id" | "rating" | "reviewCount" | "menuItems">;
           const shopId = docSnapshot.id;
           
           // レビューコレクションを取得して平均評価とレビュー数を計算
@@ -81,12 +89,25 @@ export default function SearchPage() {
             }, 0);
             avgRating = totalRating / reviewCount;
           }
+
+          // メニューデータを取得
+          const menuSnapshot = await getDocs(collection(db, "kitchens", shopId, "menu"));
+          const menuItems: MenuItem[] = menuSnapshot.docs.map((menuDoc) => {
+            const menuData = menuDoc.data();
+            return {
+              id: menuDoc.id,
+              name: menuData.name || '',
+              description: menuData.description || '',
+              category: menuData.category || ''
+            };
+          });
           
           return {
             id: shopId,
             ...shopData,
             rating: avgRating,
-            reviewCount: reviewCount
+            reviewCount: reviewCount,
+            menuItems: menuItems
           };
         });
         
@@ -109,13 +130,24 @@ export default function SearchPage() {
     // 検索フィルタリング
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = shops.filter(shop => 
-        (shop.name && shop.name.toLowerCase().includes(query)) ||
-        (shop.location && shop.location.toLowerCase().includes(query)) ||
-        (shop.dish && shop.dish.toLowerCase().includes(query)) ||
-        (shop.type && shop.type.toLowerCase().includes(query)) ||
-        (shop.subDish && shop.subDish.toLowerCase().includes(query))
-      );
+      filtered = shops.filter(shop => {
+        // 既存のフィールドで検索
+        const basicMatch = 
+          (shop.name && shop.name.toLowerCase().includes(query)) ||
+          (shop.location && shop.location.toLowerCase().includes(query)) ||
+          (shop.dish && shop.dish.toLowerCase().includes(query)) ||
+          (shop.type && shop.type.toLowerCase().includes(query)) ||
+          (shop.subDish && shop.subDish.toLowerCase().includes(query));
+
+        // メニューアイテムで検索
+        const menuMatch = shop.menuItems && shop.menuItems.some(menuItem =>
+          (menuItem.name && menuItem.name.toLowerCase().includes(query)) ||
+          (menuItem.description && menuItem.description.toLowerCase().includes(query)) ||
+          (menuItem.category && menuItem.category.toLowerCase().includes(query))
+        );
+
+        return basicMatch || menuMatch;
+      });
     }
     
     // ソート
