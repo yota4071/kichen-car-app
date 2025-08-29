@@ -492,7 +492,7 @@ export default function ShopDetail() {
         <div className="flex items-center justify-end mt-2 mb-4">
           <ShareButton
             title={`${shop.name} | キッチンカー探し`}
-            url="https://nomnom-eats.com/"
+            url={`https://nomnom-eats.com/shop/${id}`}
           />
         </div>
         

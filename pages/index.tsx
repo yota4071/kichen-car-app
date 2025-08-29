@@ -592,11 +592,50 @@ export default function Home() {
           color: #059669;
           font-size: 0.875rem;
           font-weight: 500;
-          margin-top: 0.5rem;
+          margin-top: 0.25rem;
           background-color: #ecfdf5;
           padding: 0.5rem;
           border-radius: 0.375rem;
           border-left: 3px solid #10b981;
+          /* 複数行表示対応 */
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: normal;
+          line-height: 1.4;
+          max-height: calc(4 * 1.4 * 0.875rem);
+          position: relative;
+          transition: all 0.3s ease;
+        }
+        
+        /* 見切れ判定によるPRメッセージスクロール機能 */
+        .pr-message.scrolling {
+          -webkit-line-clamp: unset !important;
+          max-height: calc(4 * 1.4 * 0.875rem) !important;
+          overflow: hidden !important;
+          white-space: normal !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          animation: verticalScrollPR 30s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+          animation-delay: 4s; /* 4秒後に開始 */
+          background-color: rgba(0, 255, 0, 0.1); /* デバッグ用背景色 */
+        }
+        
+        @keyframes verticalScrollPR {
+          0%, 40% {
+            transform: translateY(0);
+          }
+          45%, 75% {
+            transform: translateY(calc(-1.4 * 0.875rem));
+          }
+          80%, 95% {
+            transform: translateY(calc(-2.8 * 0.875rem));
+          }
+          100% {
+            transform: translateY(0);
+          }
         }
 
         @media (max-width: 640px) {

@@ -1,6 +1,7 @@
 // components/shop/ShopCard.tsx
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useTextOverflow } from '../../hooks/useTextOverflow';
 
 type ShopCardProps = {
   id: string;
@@ -21,6 +22,16 @@ export default function ShopCard({
   rating = 4, 
   reviewCount = 18 
 }: ShopCardProps) {
+  const {
+    textRef: nameRef,
+    checkOverflow: checkNameOverflow
+  } = useTextOverflow<HTMLHeadingElement>();
+
+  // コンテンツ変更時に再チェック
+  useEffect(() => {
+    checkNameOverflow();
+  }, [name, checkNameOverflow]);
+
   return (
     <Link href={`/shop/${id}`} className="shop-card">
       <div className="shop-image-container">
@@ -28,8 +39,13 @@ export default function ShopCard({
         <div className="shop-type">{type}</div>
       </div>
       <div className="shop-details">
-        <h3 className="shop-name">{name}</h3>
-        <div className="shop-location">📍 {location}</div>
+        <h3 
+          ref={nameRef}
+          className="shop-name"
+          title={name}
+        >
+          {name}
+        </h3>
         <div className="rating">
           <div className="stars">
             {[1, 2, 3, 4, 5].map((star) => (
