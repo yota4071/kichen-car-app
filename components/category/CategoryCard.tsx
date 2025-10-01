@@ -46,16 +46,16 @@ export default function CategoryCard({
 
   const getCategorySVG = () => {
     const svgMap: Record<string, string> = {
-      '洋食': 'https://www.svgrepo.com/show/327760/fast-food.svg',
-      '和食': 'https://www.svgrepo.com/show/482367/sushi.svg',
-      '中華': 'https://www.svgrepo.com/show/490633/chinese-fried-rice.svg',
-      'アジア料理': 'https://www.svgrepo.com/show/500569/food.svg',
-      'スイーツ': 'https://www.svgrepo.com/show/510012/ice-cream-cone.svg',
-      'ドリンク': 'https://www.svgrepo.com/show/511896/drink-round-688.svg',
-      'その他': 'https://www.svgrepo.com/show/490737/food-dish.svg',
+      '洋食': '/fast-food.svg',
+      '和食': '/Japan.svg',
+      '中華': '/chinese-fried-rice.svg',
+      'アジア料理': '/asian.svg',
+      'スイーツ': '/ice-cream.svg',
+      'ドリンク': '/drink-round-688.svg',
+      'その他': '/other.svg',
     };
-    
-    return svgMap[name] || 'https://www.svgrepo.com/show/490737/food-dish.svg';
+
+    return svgMap[name] || '/other.svg';
   };
 
   return (
