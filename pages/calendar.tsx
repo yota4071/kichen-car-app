@@ -6,6 +6,7 @@ import Layout from '@/components/Layout';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { CalendarModal } from '@/components/CalendarModal';
 
 // 型定義
 type CalendarEvent = {
@@ -30,6 +31,9 @@ const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [activeMonth, setActiveMonth] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
 
   const monthNames = [
     '1月', '2月', '3月', '4月', '5月', '6月',
@@ -59,6 +63,22 @@ const Calendar = () => {
   // 今月へ
   const goToCurrentMonth = () => {
     setCurrentMonth(new Date());
+  };
+
+  // 日付クリック処理
+  const handleDateClick = (day: CalendarDay) => {
+    if (day.events.length > 0) {
+      setSelectedDate(day.date);
+      setSelectedEvents(day.events);
+      setIsModalOpen(true);
+    }
+  };
+
+  // モーダルを閉じる
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedDate(null);
+    setSelectedEvents([]);
   };
 
   // カレンダーデータを生成
@@ -211,19 +231,25 @@ const Calendar = () => {
           {calendarDays.map((day, index) => (
             <div 
               key={`day-${index}`} 
-              className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''}`}
+              className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+              onClick={() => handleDateClick(day)}
             >
               <div className="day-number">{day.date.getDate()}</div>
               
               {day.events.length > 0 && (
                 <div className="day-events">
-                  {day.events.map((event, eventIndex) => (
-                    <Link href={`/shop/${event.kitchenId}`} key={`event-${eventIndex}`} className="event-item">
+                  {day.events.slice(0, 3).map((event, eventIndex) => (
+                    <div key={`event-${eventIndex}`} className="event-item">
                       <div className="event-dot" style={{ backgroundColor: getEventColor(eventIndex) }}></div>
                       <div className="event-name">{event.kitchenName}</div>
                       <div className="event-location">{event.spotName}</div>
-                    </Link>
+                    </div>
                   ))}
+                  {day.events.length > 3 && (
+                    <div className="more-events">
+                      +{day.events.length - 3}件 クリックして表示
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -233,8 +259,16 @@ const Calendar = () => {
         <div className="calendar-info">
           <p>※ 出店時間は10:30-15:30です</p>
           <p>※ 出店情報は予告なく変更される場合があります</p>
+          <p>※ 日付をクリックすると詳細を表示できます</p>
         </div>
       </div>
+      
+      <CalendarModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedDate={selectedDate}
+        events={selectedEvents}
+      />
       
       <style jsx>{`
         .calendar-header {
@@ -296,6 +330,17 @@ const Calendar = () => {
           padding: 0.5rem;
           display: flex;
           flex-direction: column;
+          transition: all 0.2s;
+        }
+        
+        .calendar-day.has-events {
+          cursor: pointer;
+        }
+        
+        .calendar-day.has-events:hover {
+          background-color: #f3f4f6;
+          transform: scale(1.02);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .other-month {
@@ -341,11 +386,18 @@ const Calendar = () => {
           color: #4b5563;
           transition: all 0.2s;
           text-decoration: none;
+          margin-bottom: 0.125rem;
         }
         
-        .event-item:hover {
+        .more-events {
+          padding: 0.25rem 0.5rem;
           background-color: #e5e7eb;
-          transform: translateY(-2px);
+          border-radius: 0.25rem;
+          font-size: 0.7rem;
+          color: #6b7280;
+          text-align: center;
+          font-weight: 500;
+          margin-top: 0.25rem;
         }
         
         .event-dot {
