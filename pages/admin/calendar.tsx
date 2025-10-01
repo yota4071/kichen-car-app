@@ -1016,9 +1016,9 @@ const fetchCalendarData = async () => {
           padding: 2rem;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
           position: sticky;
-          top: 2rem;
+          top: calc(100px + 2rem);
           height: fit-content;
-          max-height: calc(100vh - 4rem);
+          max-height: calc(100vh - 100px - 4rem);
           overflow-y: auto;
         }
         
@@ -1170,9 +1170,9 @@ const fetchCalendarData = async () => {
           
           .control-panel {
             position: sticky;
-            top: 1rem;
+            top: calc(80px + 1rem);
             margin-top: 1rem;
-            max-height: calc(100vh - 2rem);
+            max-height: calc(100vh - 80px - 2rem);
           }
         }
 
@@ -1237,8 +1237,8 @@ const fetchCalendarData = async () => {
           .control-panel {
             padding: 1rem;
             position: sticky;
-            top: 0.5rem;
-            max-height: calc(100vh - 1rem);
+            top: calc(70px + 0.5rem);
+            max-height: calc(100vh - 70px - 1rem);
           }
           
           .nav-buttons {
