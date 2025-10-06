@@ -1,6 +1,6 @@
 // pages/calendar.tsx
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Layout from '@/components/Layout';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
@@ -94,37 +94,60 @@ const Calendar = () => {
         
         // スケジュールデータをCalendarEventに変換
         const events: CalendarEvent[] = [];
-        
-        for (const doc of schedulesSnapshot.docs) {
-          const data = doc.data();
-          
-          // 店舗情報を取得
-          const kitchenRef = collection(db, "kitchens");
-          const kitchenQuery = query(kitchenRef, where("__name__", "==", data.kitchenId));
-          const kitchenSnap = await getDocs(kitchenQuery);
-          
-          if (!kitchenSnap.empty) {
-            const kitchenData = kitchenSnap.docs[0].data();
-            
-            // スポット情報を取得（本来はcamp_spotsコレクションから取得するが、簡略化）
-            let spotName = "不明";
-            if (data.spotId === "plaza") spotName = "空のプラザ";
-            else if (data.spotId === "terrace") spotName = "TERRACE GATE前";
-            else if (data.spotId === "central-square") spotName = "セントラルアーク";
-            else if (data.spotId === "west-wing") spotName = "ウェストウィング";
-            else if (data.spotId === "promenade") spotName = "プロムナード";
-            else if (data.spotId === "front-gate") spotName = "正門前";
-            else if (data.spotId === "cafeteria") spotName = "食堂裏";
-            else if (data.spotId === "garden") spotName = "中庭";
-            
+
+        // 重複するkitchenIdを排除して、ユニークなIDリストを作成
+        const uniqueKitchenIds = [...new Set(schedulesSnapshot.docs.map(doc => doc.data().kitchenId))];
+
+        // 全ての店舗情報を並列取得
+        const kitchenPromises = uniqueKitchenIds.map(async (kitchenId) => {
+          try {
+            const kitchenDoc = await getDoc(doc(db, "kitchens", kitchenId));
+            return {
+              id: kitchenId,
+              data: kitchenDoc.exists() ? kitchenDoc.data() : null
+            };
+          } catch (error) {
+            console.error(`Error fetching kitchen ${kitchenId}:`, error);
+            return { id: kitchenId, data: null };
+          }
+        });
+
+        const kitchenResults = await Promise.all(kitchenPromises);
+
+        // kitchenデータをMapに変換（高速アクセス用）
+        const kitchensMap = new Map(
+          kitchenResults.map(result => [result.id, result.data])
+        );
+
+        // スポット名変換関数
+        const getSpotName = (spotId: string): string => {
+          const spotNames: { [key: string]: string } = {
+            "plaza": "空のプラザ",
+            "terrace": "TERRACE GATE前",
+            "central-square": "セントラルアーク",
+            "west-wing": "ウェストウィング",
+            "promenade": "プロムナード",
+            "front-gate": "正門前",
+            "cafeteria": "食堂裏",
+            "garden": "中庭"
+          };
+          return spotNames[spotId] || "不明";
+        };
+
+        // 各スケジュールをイベントに変換
+        for (const scheduleDoc of schedulesSnapshot.docs) {
+          const data = scheduleDoc.data();
+          const kitchenData = kitchensMap.get(data.kitchenId);
+
+          if (kitchenData) {
             events.push({
-              id: doc.id,
+              id: scheduleDoc.id,
               date: data.date.toDate(),
               kitchenId: data.kitchenId,
               kitchenName: kitchenData.name || "名称不明",
               kitchenImage: kitchenData.image || "",
               spotId: data.spotId,
-              spotName: spotName
+              spotName: getSpotName(data.spotId)
             });
           }
         }
