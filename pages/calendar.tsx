@@ -26,6 +26,10 @@ type CalendarDay = {
   isToday: boolean;
 };
 
+// シンプルなキャッシュ
+const calendarCache = new Map<string, { data: CalendarDay[], timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5分間キャッシュ
+
 const Calendar = () => {
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -85,6 +89,20 @@ const Calendar = () => {
   useEffect(() => {
     const fetchCalendarData = async () => {
       setIsLoading(true);
+
+      // キャッシュキーを生成（年月ベース）
+      const cacheKey = `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
+      const cachedData = calendarCache.get(cacheKey);
+      const now = Date.now();
+
+      // キャッシュが有効な場合は使用
+      if (cachedData && (now - cachedData.timestamp) < CACHE_DURATION) {
+        setCalendarDays(cachedData.data);
+        setActiveMonth(`${currentMonth.getFullYear()}年${monthNames[currentMonth.getMonth()]}`);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         // 月の初日と最終日を取得
         const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -199,6 +217,20 @@ const Calendar = () => {
         
         setCalendarDays(days);
         setActiveMonth(`${currentMonth.getFullYear()}年${monthNames[currentMonth.getMonth()]}`);
+
+        // データをキャッシュに保存
+        calendarCache.set(cacheKey, {
+          data: days,
+          timestamp: now
+        });
+
+        // 古いキャッシュエントリを削除（メモリリーク防止）
+        if (calendarCache.size > 10) {
+          const oldestKey = calendarCache.keys().next().value;
+          if (oldestKey) {
+            calendarCache.delete(oldestKey);
+          }
+        }
       } catch (error) {
         console.error("Error fetching calendar data:", error);
       } finally {

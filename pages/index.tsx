@@ -1,6 +1,6 @@
 // pages/index.tsx（改良版：NoticeSlider追加・折りたたみ機能・詳細検索リンク・ダイナミックメッセージ追加）
 import { useEffect, useState, useRef } from "react";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -55,29 +55,35 @@ export default function Home() {
   // ダイナミックヒーローメッセージのフック
   const { heroMessage, isLoading: isMessageLoading } = useHeroMessage();
 
-  // PRカードデータの取得
+  // PRカードデータの取得（クライアントサイド最適化版）
   useEffect(() => {
     const fetchPRCards = async () => {
       try {
+        // 基本クエリ（isActiveでフィルタリング）
         const prCardsRef = collection(db, "pr-cards");
-        const querySnapshot = await getDocs(prCardsRef);
-        
+        const q = query(
+          prCardsRef,
+          where("isActive", "==", true),
+          orderBy("priority", "asc")
+        );
+
+        const querySnapshot = await getDocs(q);
         const now = new Date();
         const activePRCards: PRCard[] = [];
-        
+
         querySnapshot.docs.forEach(doc => {
           const data = doc.data();
-          
-          // クライアントサイドでフィルタリング
-          if (!data.isActive || !data.displayLocation?.includes('main')) return;
-          
+
+          // クライアントサイドで効率的にフィルタリング
+          if (!data.displayLocation?.includes('main')) return;
+
           const startDate = data.startDate ? new Date(data.startDate) : null;
           const endDate = data.endDate ? new Date(data.endDate) : null;
-          
-          const isInDisplayPeriod = 
-            (!startDate || startDate <= now) && 
+
+          const isInDisplayPeriod =
+            (!startDate || startDate <= now) &&
             (!endDate || endDate >= now);
-          
+
           if (isInDisplayPeriod) {
             activePRCards.push({
               id: doc.id,
@@ -95,18 +101,9 @@ export default function Home() {
             });
           }
         });
-        
-        // クライアントサイドでソート
-        activePRCards.sort((a, b) => {
-          const priorityA = a.priority ?? 999;
-          const priorityB = b.priority ?? 999;
-          if (priorityA !== priorityB) {
-            return priorityA - priorityB; // 優先度昇順
-          }
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(); // 作成日降順
-        });
-        
-        setPrCards(activePRCards);
+
+        // 最大10件に制限
+        setPrCards(activePRCards.slice(0, 10));
       } catch (error) {
         console.error("Error fetching PR cards:", error);
       }

@@ -1,7 +1,7 @@
 // components/home/TodaysFoodTrucks.tsx
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { collection, getDocs, query, where, orderBy, Timestamp } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, Timestamp, doc, getDoc, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import ShopCard from "@/components/shop/ShopCard";
 import PRCard from "@/components/shop/PRCard";
@@ -38,32 +38,38 @@ export default function TodaysFoodTrucks() {
   const [prCards, setPrCards] = useState<PRCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // PRカードデータの取得
+  // PRカードデータの取得（クライアントサイド最適化版）
   useEffect(() => {
     const fetchPRCards = async () => {
       try {
+        // 基本クエリ（isActiveでフィルタリング）
         const prCardsRef = collection(db, "pr-cards");
-        const querySnapshot = await getDocs(prCardsRef);
-        
+        const q = query(
+          prCardsRef,
+          where("isActive", "==", true),
+          orderBy("priority", "asc")
+        );
+
+        const querySnapshot = await getDocs(q);
         const now = new Date();
         const activePRCards: PRCard[] = [];
-        
-        querySnapshot.docs.forEach(doc => {
-          const data = doc.data();
-          
-          // クライアントサイドでフィルタリング
-          if (!data.isActive || !data.displayLocation?.includes('today')) return;
-          
+
+        querySnapshot.docs.forEach(docSnapshot => {
+          const data = docSnapshot.data();
+
+          // クライアントサイドで効率的にフィルタリング
+          if (!data.displayLocation?.includes('today')) return;
+
           const startDate = data.startDate ? new Date(data.startDate) : null;
           const endDate = data.endDate ? new Date(data.endDate) : null;
-          
-          const isInDisplayPeriod = 
-            (!startDate || startDate <= now) && 
+
+          const isInDisplayPeriod =
+            (!startDate || startDate <= now) &&
             (!endDate || endDate >= now);
-          
+
           if (isInDisplayPeriod) {
             activePRCards.push({
-              id: doc.id,
+              id: docSnapshot.id,
               name: data.name || "",
               location: data.location || "",
               image: data.image || "",
@@ -78,18 +84,9 @@ export default function TodaysFoodTrucks() {
             });
           }
         });
-        
-        // クライアントサイドでソート
-        activePRCards.sort((a, b) => {
-          const priorityA = a.priority ?? 999;
-          const priorityB = b.priority ?? 999;
-          if (priorityA !== priorityB) {
-            return priorityA - priorityB; // 優先度昇順
-          }
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(); // 作成日降順
-        });
-        
-        setPrCards(activePRCards);
+
+        // 最大5件に制限
+        setPrCards(activePRCards.slice(0, 5));
       } catch (error) {
         console.error("Error fetching PR cards:", error);
       }
@@ -130,21 +127,25 @@ export default function TodaysFoodTrucks() {
           return;
         }
 
-        // 店舗情報を取得
-        const shops: Shop[] = [];
-        
-        for (const kitchenId of kitchenIds) {
-          // kitchensコレクションから店舗情報を取得
-          const kitchenRef = collection(db, "kitchens");
-          const kitchenSnap = await getDocs(query(kitchenRef, where("__name__", "==", kitchenId)));
-          
-          if (!kitchenSnap.empty) {
-            const kitchenData = kitchenSnap.docs[0].data();
-            
-            // レビュー情報を取得（平均評価とレビュー数）
+        // 重複を排除したユニークなkitchenIDリストを作成
+        const uniqueKitchenIds = [...new Set(kitchenIds)];
+
+        // 全ての店舗情報を並列取得
+        const kitchenPromises = uniqueKitchenIds.map(async (kitchenId): Promise<Shop | null> => {
+          try {
+            // ダイレクトアクセスで店舗情報を取得
+            const kitchenDoc = await getDoc(doc(db, "kitchens", kitchenId));
+
+            if (!kitchenDoc.exists()) {
+              return null;
+            }
+
+            const kitchenData = kitchenDoc.data();
+
+            // レビュー情報を並列取得
             const reviewsSnapshot = await getDocs(collection(db, "kitchens", kitchenId, "reviews"));
             const reviewCount = reviewsSnapshot.docs.length;
-            
+
             let avgRating = 0;
             if (reviewCount > 0) {
               const totalRating = reviewsSnapshot.docs.reduce((sum, reviewDoc) => {
@@ -153,18 +154,29 @@ export default function TodaysFoodTrucks() {
               }, 0);
               avgRating = totalRating / reviewCount;
             }
-            
-            shops.push({
+
+            const shop: Shop = {
               id: kitchenId,
               name: kitchenData.name || "名称不明",
               location: kitchenData.location || "",
               image: kitchenData.image || "/images/default-shop.jpg",
               type: kitchenData.type || "",
-              rating: avgRating,
-              reviewCount: reviewCount
-            });
+              rating: avgRating > 0 ? avgRating : undefined,
+              reviewCount: reviewCount > 0 ? reviewCount : undefined
+            };
+
+            return shop;
+          } catch (error) {
+            console.error(`Error fetching kitchen ${kitchenId}:`, error);
+            return null;
           }
-        }
+        });
+
+        // 並列処理で全ての店舗情報を取得
+        const kitchenResults = await Promise.all(kitchenPromises);
+
+        // nullを除外してShop[]として設定
+        const shops = kitchenResults.filter((shop): shop is Shop => shop !== null);
         
         setTodaysShops(shops);
       } catch (error) {
