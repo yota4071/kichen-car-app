@@ -6,6 +6,7 @@ import Layout from '@/components/Layout';
 import LoadingIndicator from '@/components/ui/LoadingIndicator';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { CalendarModal } from '@/components/CalendarModal';
 
 // 型定義
 type CalendarEvent = {
@@ -30,6 +31,9 @@ const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [activeMonth, setActiveMonth] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
 
   const monthNames = [
     '1月', '2月', '3月', '4月', '5月', '6月',
@@ -59,6 +63,22 @@ const Calendar = () => {
   // 今月へ
   const goToCurrentMonth = () => {
     setCurrentMonth(new Date());
+  };
+
+  // 日付クリック処理
+  const handleDateClick = (day: CalendarDay) => {
+    if (day.events.length > 0) {
+      setSelectedDate(day.date);
+      setSelectedEvents(day.events);
+      setIsModalOpen(true);
+    }
+  };
+
+  // モーダルを閉じる
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedDate(null);
+    setSelectedEvents([]);
   };
 
   // カレンダーデータを生成
@@ -234,19 +254,27 @@ const Calendar = () => {
           {calendarDays.map((day, index) => (
             <div 
               key={`day-${index}`} 
-              className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''}`}
+              className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${day.isToday ? 'today' : ''} ${day.events.length > 0 ? 'has-events' : ''}`}
+              onClick={() => handleDateClick(day)}
             >
               <div className="day-number">{day.date.getDate()}</div>
               
               {day.events.length > 0 && (
                 <div className="day-events">
-                  {day.events.map((event, eventIndex) => (
-                    <Link href={`/shop/${event.kitchenId}`} key={`event-${eventIndex}`} className="event-item">
+                  {day.events.slice(0, 3).map((event, eventIndex) => (
+                    <div key={`event-${eventIndex}`} className="event-item">
                       <div className="event-dot" style={{ backgroundColor: getEventColor(eventIndex) }}></div>
-                      <div className="event-name">{event.kitchenName}</div>
-                      <div className="event-location">{event.spotName}</div>
-                    </Link>
+                      <div className="event-content">
+                        <div className="event-name">{event.kitchenName}</div>
+                        <div className="event-location">{event.spotName}</div>
+                      </div>
+                    </div>
                   ))}
+                  {day.events.length > 3 && (
+                    <div className="more-events">
+                      +{day.events.length - 3}件
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -256,8 +284,16 @@ const Calendar = () => {
         <div className="calendar-info">
           <p>※ 出店時間は10:30-15:30です</p>
           <p>※ 出店情報は予告なく変更される場合があります</p>
+          <p>※ 日付をクリックすると詳細を表示できます</p>
         </div>
       </div>
+      
+      <CalendarModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedDate={selectedDate}
+        events={selectedEvents}
+      />
       
       <style jsx>{`
         .calendar-header {
@@ -314,11 +350,22 @@ const Calendar = () => {
         }
         
         .calendar-day {
-          min-height: 100px;
+          min-height: clamp(80px, 12vh, 120px);
           background-color: white;
-          padding: 0.5rem;
+          padding: clamp(0.25rem, 1vw, 0.5rem);
           display: flex;
           flex-direction: column;
+          transition: all 0.2s;
+        }
+        
+        .calendar-day.has-events {
+          cursor: pointer;
+        }
+        
+        .calendar-day.has-events:hover {
+          background-color: #f3f4f6;
+          transform: scale(1.02);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .other-month {
@@ -332,15 +379,16 @@ const Calendar = () => {
         
         .day-number {
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: clamp(0.125rem, 0.8vw, 0.25rem);
+          font-size: clamp(0.75rem, 2.5vw, 0.9rem);
         }
         
         .today .day-number {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: clamp(18px, 3.5vw, 24px);
+          height: clamp(18px, 3.5vw, 24px);
           background-color: #3b82f6;
           color: white;
           border-radius: 50%;
@@ -349,33 +397,54 @@ const Calendar = () => {
         .day-events {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: clamp(0.125rem, 0.5vw, 0.25rem);
           overflow-y: auto;
-          max-height: 120px;
+          max-height: clamp(80px, 8vh, 100px);
+          flex: 1;
         }
         
         .event-item {
           display: flex;
-          flex-direction: column;
-          padding: 0.25rem 0.5rem;
+          align-items: flex-start;
+          padding: clamp(0.125rem, 0.8vw, 0.25rem) clamp(0.25rem, 1vw, 0.375rem);
           background-color: #f3f4f6;
           border-radius: 0.25rem;
-          font-size: 0.75rem;
+          font-size: clamp(0.6rem, 1.8vw, 0.7rem);
           color: #4b5563;
           transition: all 0.2s;
           text-decoration: none;
+          margin-bottom: clamp(0.0625rem, 0.3vw, 0.125rem);
+          line-height: 1.2;
+          min-height: clamp(18px, 3vh, 24px);
         }
         
-        .event-item:hover {
+        .more-events {
+          padding: clamp(0.125rem, 0.5vw, 0.25rem) clamp(0.25rem, 1vw, 0.375rem);
           background-color: #e5e7eb;
-          transform: translateY(-2px);
+          border-radius: 0.25rem;
+          font-size: clamp(0.55rem, 1.5vw, 0.65rem);
+          color: #6b7280;
+          text-align: center;
+          font-weight: 500;
+          margin-top: clamp(0.125rem, 0.5vw, 0.25rem);
+          line-height: 1.1;
         }
         
         .event-dot {
-          width: 8px;
-          height: 8px;
+          width: clamp(4px, 1vw, 6px);
+          height: clamp(4px, 1vw, 6px);
           border-radius: 50%;
-          margin-right: 0.25rem;
+          margin-right: clamp(0.125rem, 0.5vw, 0.25rem);
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+        
+        .event-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-width: 0;
         }
         
         .event-name {
@@ -383,11 +452,17 @@ const Calendar = () => {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          line-height: 1.2;
         }
         
         .event-location {
-          font-size: 0.7rem;
+          font-size: clamp(0.55rem, 1.4vw, 0.6rem);
           color: #6b7280;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-top: 1px;
+          line-height: 1.1;
         }
         
         .calendar-info {
@@ -403,17 +478,32 @@ const Calendar = () => {
           }
           
           .calendar-day {
-            min-height: 80px;
-            padding: 0.25rem;
+            min-height: clamp(70px, 10vh, 90px);
+            padding: clamp(0.125rem, 0.8vw, 0.25rem);
           }
           
           .day-events {
-            max-height: 80px;
+            max-height: clamp(60px, 7vh, 80px);
           }
           
           .event-item {
-            padding: 0.125rem 0.25rem;
-            font-size: 0.7rem;
+            padding: clamp(0.0625rem, 0.5vw, 0.125rem) clamp(0.125rem, 0.8vw, 0.25rem);
+            font-size: clamp(0.55rem, 1.6vw, 0.65rem);
+            min-height: clamp(16px, 2.5vh, 20px);
+          }
+          
+          .event-dot {
+            width: clamp(3px, 0.8vw, 5px);
+            height: clamp(3px, 0.8vw, 5px);
+          }
+          
+          .event-location {
+            font-size: clamp(0.5rem, 1.2vw, 0.55rem);
+          }
+          
+          .more-events {
+            font-size: clamp(0.5rem, 1.3vw, 0.6rem);
+            padding: clamp(0.0625rem, 0.4vw, 0.125rem) clamp(0.125rem, 0.8vw, 0.25rem);
           }
         }
       `}</style>
