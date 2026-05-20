@@ -1,21 +1,21 @@
 // pages/admin/calendar.tsx
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { 
-    collection, 
-    getDocs, 
-    query, 
-    where, 
-    orderBy, 
-    addDoc, 
-    deleteDoc, 
-    doc, 
-    getDoc, 
-    Timestamp, 
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    addDoc,
+    deleteDoc,
+    doc,
+    getDoc,
+    Timestamp,
     serverTimestamp,
     DocumentReference,
     DocumentData,
-    QueryDocumentSnapshot 
+    QueryDocumentSnapshot
   } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { db, auth } from '@/lib/firebase';
@@ -58,6 +58,21 @@ type CalendarDay = {
   isToday: boolean;
 };
 
+// JSONインポート関連の型
+type ImportStatus = 'new' | 'duplicate_skip' | 'duplicate_overwrite' | 'error_shop' | 'error_spot' | 'error_date';
+
+type ImportPreviewRow = {
+  rawDate: string;
+  rawKitchenName: string;
+  rawSpotName: string;
+  resolvedKitchenId: string | null;
+  resolvedSpotId: string | null;
+  resolvedDate: Date | null;
+  existingScheduleId: string | null;
+  status: ImportStatus;
+  errorMessage?: string;
+};
+
 // 管理者ユーザーID
 const ADMIN_USER_IDS = [
   '1',  // ここに実際の管理者ユーザーIDを追加
@@ -83,7 +98,16 @@ const AdminCalendarPage = () => {
   const [showShopDropdown, setShowShopDropdown] = useState(false);
   const [showSpotDropdown, setShowSpotDropdown] = useState(false);
   const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
-  
+
+  // JSONインポート関連のstate
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonParseError, setJsonParseError] = useState('');
+  const [importPreview, setImportPreview] = useState<ImportPreviewRow[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [duplicateMode, setDuplicateMode] = useState<'skip' | 'overwrite'>('skip');
+
   const router = useRouter();
   
   const monthNames = [
@@ -420,6 +444,222 @@ const fetchCalendarData = async () => {
     }
   };
 
+  // ---- JSONインポート関連の関数 ----
+
+  const handleCloseJsonModal = () => {
+    setShowJsonModal(false);
+    setJsonInput('');
+    setJsonParseError('');
+    setImportPreview([]);
+    setDuplicateMode('skip');
+  };
+
+  const handleJsonFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setJsonInput(ev.target?.result as string);
+      setImportPreview([]);
+      setJsonParseError('');
+    };
+    reader.readAsText(file, 'utf-8');
+    // ファイル選択をリセット（同じファイルの再選択を可能にする）
+    e.target.value = '';
+  };
+
+  const handleDownloadTemplate = () => {
+    const template = [
+      { date: '2026-06-01', kitchenName: 'キッチンカー名（例：タコス太郎）', spotName: '空のプラザ' },
+      { date: '2026-06-02', kitchenName: 'キッチンカー名2', spotName: 'TERRACE GATE前' },
+    ];
+    const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'calendar-import-template.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // JSONを解析してプレビューを生成（重複チェック含む）
+  const handleJsonParse = async () => {
+    setJsonParseError('');
+    setImportPreview([]);
+    setIsParsing(true);
+
+    try {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(jsonInput);
+      } catch {
+        throw new Error('JSONの形式が正しくありません。文法エラーを確認してください。');
+      }
+
+      const items: Record<string, string>[] = Array.isArray(parsed) ? parsed : [parsed as Record<string, string>];
+      if (items.length === 0) throw new Error('JSONに1件以上のデータが必要です。');
+
+      // Firestoreから全スケジュールを取得（重複チェック用）
+      const allSchedulesSnap = await getDocs(collection(db, 'schedules'));
+      const allSchedules = allSchedulesSnap.docs.map(d => ({
+        id: d.id,
+        kitchenId: d.data().kitchenId as string,
+        date: (d.data().date as Timestamp).toDate(),
+      }));
+
+      const rows: ImportPreviewRow[] = await Promise.all(items.map(async (item, i) => {
+        const rawDate = String(item.date || '');
+        const rawKitchenName = String(item.kitchenName || item.kitchenId || '');
+        const rawSpotName = String(item.spotName || item.spotId || '');
+
+        // 日付のパース
+        let resolvedDate: Date | null = null;
+        if (!rawDate) {
+          return { rawDate, rawKitchenName, rawSpotName, resolvedKitchenId: null, resolvedSpotId: null, resolvedDate: null, existingScheduleId: null, status: 'error_date' as ImportStatus, errorMessage: '"date" が未入力です' };
+        }
+        const parsedDate = new Date(rawDate);
+        if (isNaN(parsedDate.getTime())) {
+          return { rawDate, rawKitchenName, rawSpotName, resolvedKitchenId: null, resolvedSpotId: null, resolvedDate: null, existingScheduleId: null, status: 'error_date' as ImportStatus, errorMessage: `日付の形式が不正です（例: 2026-06-01）` };
+        }
+        parsedDate.setHours(0, 0, 0, 0);
+        resolvedDate = parsedDate;
+
+        // キッチンカーのID解決（名前 or ID）
+        let resolvedKitchenId: string | null = null;
+        if (item.kitchenId) {
+          // IDで直接指定されている場合
+          const match = shops.find(s => s.id === item.kitchenId);
+          if (match) resolvedKitchenId = match.id;
+        }
+        if (!resolvedKitchenId && item.kitchenName) {
+          // 名前で検索（完全一致 → 部分一致の順）
+          const exact = shops.find(s => s.name === item.kitchenName);
+          if (exact) {
+            resolvedKitchenId = exact.id;
+          } else {
+            const partial = shops.find(s => s.name.includes(String(item.kitchenName)) || String(item.kitchenName).includes(s.name));
+            if (partial) resolvedKitchenId = partial.id;
+          }
+        }
+        if (!resolvedKitchenId) {
+          return { rawDate, rawKitchenName, rawSpotName, resolvedKitchenId: null, resolvedSpotId: null, resolvedDate, existingScheduleId: null, status: 'error_shop' as ImportStatus, errorMessage: `"${rawKitchenName}" が店舗一覧に見つかりません` };
+        }
+
+        // スポットのID解決（名前 or ID）
+        let resolvedSpotId: string | null = null;
+        if (item.spotId) {
+          const match = spots.find(s => s.id === item.spotId);
+          if (match) resolvedSpotId = match.id;
+        }
+        if (!resolvedSpotId && item.spotName) {
+          const exact = spots.find(s => s.name === item.spotName);
+          if (exact) {
+            resolvedSpotId = exact.id;
+          } else {
+            const partial = spots.find(s => s.name.includes(String(item.spotName)) || String(item.spotName).includes(s.name));
+            if (partial) resolvedSpotId = partial.id;
+          }
+        }
+        if (!resolvedSpotId) {
+          return { rawDate, rawKitchenName, rawSpotName, resolvedKitchenId, resolvedSpotId: null, resolvedDate, existingScheduleId: null, status: 'error_spot' as ImportStatus, errorMessage: `"${rawSpotName}" が場所一覧に見つかりません` };
+        }
+
+        // 重複チェック（同日 × 同店舗）
+        const existing = allSchedules.find(s =>
+          s.kitchenId === resolvedKitchenId &&
+          s.date.getFullYear() === resolvedDate!.getFullYear() &&
+          s.date.getMonth() === resolvedDate!.getMonth() &&
+          s.date.getDate() === resolvedDate!.getDate()
+        );
+
+        return {
+          rawDate,
+          rawKitchenName,
+          rawSpotName,
+          resolvedKitchenId,
+          resolvedSpotId,
+          resolvedDate,
+          existingScheduleId: existing ? existing.id : null,
+          status: existing ? 'duplicate_skip' as ImportStatus : 'new' as ImportStatus,
+        };
+      }));
+
+      setImportPreview(rows);
+    } catch (e: unknown) {
+      setJsonParseError(e instanceof Error ? e.message : 'エラーが発生しました');
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
+  // 重複モード変更時にプレビューのステータスを更新
+  const handleDuplicateModeChange = (mode: 'skip' | 'overwrite') => {
+    setDuplicateMode(mode);
+    setImportPreview(prev => prev.map(row => {
+      if (row.existingScheduleId !== null) {
+        return { ...row, status: mode === 'overwrite' ? 'duplicate_overwrite' : 'duplicate_skip' };
+      }
+      return row;
+    }));
+  };
+
+  // 一括インポート実行
+  const handleJsonImport = async () => {
+    if (!user || importPreview.length === 0) return;
+
+    const actionableRows = importPreview.filter(row =>
+      row.status === 'new' || row.status === 'duplicate_overwrite'
+    );
+
+    if (actionableRows.length === 0) {
+      alert('登録対象のデータがありません。');
+      return;
+    }
+
+    setIsImporting(true);
+    let successCount = 0;
+    let overwriteCount = 0;
+    const errors: string[] = [];
+
+    try {
+      for (const row of actionableRows) {
+        try {
+          if (row.status === 'duplicate_overwrite' && row.existingScheduleId) {
+            // 既存を削除してから新規追加
+            await deleteDoc(doc(db, 'schedules', row.existingScheduleId));
+            overwriteCount++;
+          }
+          await addDoc(collection(db, 'schedules'), {
+            date: Timestamp.fromDate(row.resolvedDate!),
+            kitchenId: row.resolvedKitchenId,
+            spotId: row.resolvedSpotId,
+            createdBy: user.uid,
+            createdAt: serverTimestamp(),
+          });
+          successCount++;
+        } catch (e) {
+          errors.push(`${row.rawDate} / ${row.rawKitchenName}: 登録失敗`);
+        }
+      }
+
+      let message = `${successCount}件を登録しました。`;
+      if (overwriteCount > 0) message += `（${overwriteCount}件は上書き）`;
+      if (errors.length > 0) message += `\n失敗: ${errors.join(', ')}`;
+      alert(message);
+      handleCloseJsonModal();
+
+      // カレンダーを再読み込み（currentMonthを再トリガー）
+      setCurrentMonth(prev => new Date(prev));
+    } catch (e) {
+      console.error('Import error:', e);
+      alert('インポート中にエラーが発生しました。');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  // ---- JSONインポート関連の関数 ここまで ----
+
   if (isLoading && user) {
     return (
       <Layout title="管理者用カレンダー | キッチンカー管理">
@@ -465,8 +705,11 @@ const fetchCalendarData = async () => {
               <Button href="/admin/pr-cards" variant="secondary" className="mr-2">
                 PRカード管理へ
               </Button>
-              <Button href="/admin/shops" variant="secondary">
+              <Button href="/admin/shops" variant="secondary" className="mr-2">
                 店舗管理へ
+              </Button>
+              <Button onClick={() => setShowJsonModal(true)} variant="primary">
+                JSONで一括登録
               </Button>
             </div>
           </div>
@@ -681,7 +924,194 @@ const fetchCalendarData = async () => {
           </div>
         </div>
       </div>
-      
+
+      {/* JSONインポートモーダル */}
+      {showJsonModal && (
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '1rem'
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) handleCloseJsonModal(); }}
+        >
+          <div style={{
+            backgroundColor: 'white', borderRadius: '1rem',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)', width: '100%',
+            maxWidth: '750px', maxHeight: '90vh', display: 'flex', flexDirection: 'column'
+          }}>
+            {/* ヘッダー */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem 1rem', borderBottom: '1px solid #e5e7eb' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>JSONでカレンダーを一括登録</h2>
+              <button onClick={handleCloseJsonModal} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#f3f4f6', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+            </div>
+
+            {/* ボディ */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem' }}>
+
+              {/* 使い方 */}
+              <div style={{ backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.85rem', color: '#1e40af' }}>
+                <strong>JSONフォーマット：</strong>
+                <code style={{ display: 'block', marginTop: '0.25rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+{`[ { "date": "2026-06-01", "kitchenName": "タコス太郎", "spotName": "空のプラザ" } ]`}
+                </code>
+                <div style={{ marginTop: '0.4rem' }}>キッチンカー名・場所名は登録済みのデータと部分一致でも解決します。</div>
+              </div>
+
+              {/* ファイルアップロード */}
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>JSONファイルをアップロード</label>
+                  <button onClick={handleDownloadTemplate} style={{ fontSize: '0.8rem', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    テンプレートをダウンロード
+                  </button>
+                </div>
+                <input type="file" accept=".json,application/json" onChange={handleJsonFileUpload}
+                  style={{ width: '100%', padding: '0.4rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontSize: '0.875rem' }} />
+              </div>
+
+              {/* テキスト入力 */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, color: '#374151', fontSize: '0.9rem', marginBottom: '0.4rem' }}>またはJSONを直接貼り付け</label>
+                <textarea
+                  value={jsonInput}
+                  onChange={(e) => { setJsonInput(e.target.value); setImportPreview([]); setJsonParseError(''); }}
+                  rows={5}
+                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', fontFamily: 'monospace', fontSize: '0.82rem', resize: 'vertical', boxSizing: 'border-box' }}
+                  placeholder={'[\n  { "date": "2026-06-01", "kitchenName": "タコス太郎", "spotName": "空のプラザ" }\n]'}
+                />
+              </div>
+
+              {/* 重複ハンドリング */}
+              <div style={{ marginBottom: '1rem', backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.5rem', padding: '0.75rem 1rem' }}>
+                <div style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem', marginBottom: '0.5rem' }}>同日・同店舗の重複があった場合</div>
+                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input type="radio" name="duplicateMode" value="skip" checked={duplicateMode === 'skip'}
+                      onChange={() => handleDuplicateModeChange('skip')} />
+                    スキップ（既存データを保持）
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                    <input type="radio" name="duplicateMode" value="overwrite" checked={duplicateMode === 'overwrite'}
+                      onChange={() => handleDuplicateModeChange('overwrite')} />
+                    上書き（既存を削除して新規登録）
+                  </label>
+                </div>
+              </div>
+
+              {/* パースボタン */}
+              <button
+                onClick={handleJsonParse}
+                disabled={!jsonInput.trim() || isParsing}
+                style={{
+                  backgroundColor: '#6366f1', color: 'white', padding: '0.6rem 1.25rem',
+                  borderRadius: '0.375rem', border: 'none', cursor: (!jsonInput.trim() || isParsing) ? 'not-allowed' : 'pointer',
+                  opacity: (!jsonInput.trim() || isParsing) ? 0.5 : 1, fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem'
+                }}
+              >
+                {isParsing ? '解析中...' : 'プレビューを確認'}
+              </button>
+
+              {/* エラー表示 */}
+              {jsonParseError && (
+                <div style={{ color: '#ef4444', backgroundColor: '#fee2e2', padding: '0.75rem', borderRadius: '0.375rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  {jsonParseError}
+                </div>
+              )}
+
+              {/* プレビューテーブル */}
+              {importPreview.length > 0 && (() => {
+                const newCount = importPreview.filter(r => r.status === 'new').length;
+                const skipCount = importPreview.filter(r => r.status === 'duplicate_skip').length;
+                const overwriteCount = importPreview.filter(r => r.status === 'duplicate_overwrite').length;
+                const errorCount = importPreview.filter(r => r.status.startsWith('error')).length;
+
+                return (
+                  <div>
+                    {/* サマリー */}
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                      <span style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600 }}>新規 {newCount}件</span>
+                      {skipCount > 0 && <span style={{ backgroundColor: '#fef9c3', color: '#854d0e', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600 }}>スキップ {skipCount}件</span>}
+                      {overwriteCount > 0 && <span style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600 }}>上書き {overwriteCount}件</span>}
+                      {errorCount > 0 && <span style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600 }}>エラー {errorCount}件</span>}
+                    </div>
+
+                    {/* テーブル */}
+                    <div style={{ border: '1px solid #e5e7eb', borderRadius: '0.5rem', overflow: 'auto', maxHeight: '220px' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', minWidth: '550px' }}>
+                        <thead>
+                          <tr style={{ backgroundColor: '#f9fafb', position: 'sticky', top: 0 }}>
+                            <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e5e7eb', fontWeight: 700, color: '#374151' }}>日付</th>
+                            <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e5e7eb', fontWeight: 700, color: '#374151' }}>キッチンカー</th>
+                            <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e5e7eb', fontWeight: 700, color: '#374151' }}>場所</th>
+                            <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', borderBottom: '1px solid #e5e7eb', fontWeight: 700, color: '#374151' }}>ステータス</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {importPreview.map((row, i) => {
+                            const statusConfig: Record<ImportStatus, { label: string; bg: string; color: string }> = {
+                              new: { label: '新規登録', bg: '#dcfce7', color: '#166534' },
+                              duplicate_skip: { label: '重複・スキップ', bg: '#fef9c3', color: '#854d0e' },
+                              duplicate_overwrite: { label: '重複・上書き', bg: '#fed7aa', color: '#9a3412' },
+                              error_shop: { label: '店舗不明', bg: '#fee2e2', color: '#991b1b' },
+                              error_spot: { label: '場所不明', bg: '#fee2e2', color: '#991b1b' },
+                              error_date: { label: '日付エラー', bg: '#fee2e2', color: '#991b1b' },
+                            };
+                            const cfg = statusConfig[row.status];
+                            const resolvedShopName = shops.find(s => s.id === row.resolvedKitchenId)?.name || row.rawKitchenName;
+                            const resolvedSpotName = spots.find(s => s.id === row.resolvedSpotId)?.name || row.rawSpotName;
+
+                            return (
+                              <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                                <td style={{ padding: '0.5rem 0.75rem' }}>{row.rawDate}</td>
+                                <td style={{ padding: '0.5rem 0.75rem' }} title={row.errorMessage}>
+                                  {resolvedShopName}
+                                  {row.status === 'error_shop' && <div style={{ color: '#ef4444', fontSize: '0.75rem' }}>{row.errorMessage}</div>}
+                                </td>
+                                <td style={{ padding: '0.5rem 0.75rem' }}>
+                                  {resolvedSpotName}
+                                  {row.status === 'error_spot' && <div style={{ color: '#ef4444', fontSize: '0.75rem' }}>{row.errorMessage}</div>}
+                                </td>
+                                <td style={{ padding: '0.5rem 0.75rem' }}>
+                                  <span style={{ backgroundColor: cfg.bg, color: cfg.color, padding: '0.15rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                    {cfg.label}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* フッター */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', padding: '1rem 2rem 1.5rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', borderRadius: '0 0 1rem 1rem' }}>
+              <button onClick={handleCloseJsonModal} style={{ padding: '0.5rem 1.25rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontWeight: 600 }}>
+                キャンセル
+              </button>
+              <button
+                onClick={handleJsonImport}
+                disabled={importPreview.length === 0 || isImporting || importPreview.every(r => r.status === 'duplicate_skip' || r.status.startsWith('error'))}
+                style={{
+                  padding: '0.5rem 1.25rem', borderRadius: '0.375rem', border: 'none',
+                  background: '#3b82f6', color: 'white', cursor: 'pointer', fontWeight: 600,
+                  opacity: (importPreview.length === 0 || isImporting || importPreview.every(r => r.status === 'duplicate_skip' || r.status.startsWith('error'))) ? 0.5 : 1
+                }}
+              >
+                {isImporting ? '登録中...' : (() => {
+                  const count = importPreview.filter(r => r.status === 'new' || r.status === 'duplicate_overwrite').length;
+                  return count > 0 ? `${count}件を登録する` : '登録対象なし';
+                })()}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .container-fluid {
           max-width: 95vw;
